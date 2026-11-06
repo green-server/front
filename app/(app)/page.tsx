@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { Power } from "@/components/Power";
 import { Failure, Loading, OnlineState } from "@/components/Status";
+import { Trace } from "@/components/Trace";
 import { useApi } from "@/lib/api";
-import { formatKrw, isServerEstimated } from "@/lib/format";
+import { appendMetric, formatKrw, isServerEstimated, KIND_LABEL } from "@/lib/format";
 import { useLive } from "@/lib/live";
-import type { ServerSummary } from "@/lib/types";
+import type { Metric, ServerSummary } from "@/lib/types";
+
+const HOUR_MS = 3_600_000;
 
 export default function ServersPage() {
   const { data: servers, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
@@ -50,23 +53,38 @@ export default function ServersPage() {
         <ul className="meter-board">
           {servers.map((server) => (
             <li key={server.id}>
-              <Link href={`/servers/${server.id}`} className="meter-row">
-                <span className="meter-name">
-                  <strong>{server.name}</strong>
-                  <OnlineState online={server.online} />
-                </span>
-                <span className="meter-reading">
-                  <Power value={server.latestWatts} estimated={isServerEstimated(server)} size="md" />
-                </span>
-                <span className="meter-cost">
-                  <span className="caption">이번 달 예상 요금</span>
-                  <span className="figure">{formatKrw(server.monthlyKrw)}</span>
-                </span>
-              </Link>
+              <ServerRow server={server} />
             </li>
           ))}
         </ul>
       )}
     </>
+  );
+}
+
+function ServerRow({ server }: { server: ServerSummary }) {
+  const { data: metrics, reload, mutate } = useApi<Metric[]>(`/api/servers/${server.id}/metrics?range=1h`);
+
+  useLive((event) => {
+    if (event.type === "reconnected") reload();
+    if (event.type === "metric" && event.serverId === server.id) mutate((list) => appendMetric(list, event.metric, HOUR_MS));
+  });
+
+  return (
+    <Link href={`/servers/${server.id}`} className={server.online ? "meter-row" : "meter-row meter-row-off"}>
+      <span className="meter-name">
+        <strong>{server.name}</strong>
+        <span className="caption">{KIND_LABEL[server.kind]}</span>
+        <OnlineState online={server.online} />
+      </span>
+      <Trace metrics={metrics ?? []} />
+      <span className="meter-reading">
+        <Power value={server.latestWatts} estimated={isServerEstimated(server)} size="md" />
+      </span>
+      <span className="meter-cost">
+        <span className="caption">이번 달 예상 요금</span>
+        <span className="figure">{formatKrw(server.monthlyKrw)}</span>
+      </span>
+    </Link>
   );
 }

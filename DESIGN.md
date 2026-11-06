@@ -1,0 +1,10 @@
+# Design
+
+A bench scope wired into a tmux session. Dark is the scope in a dim room; light is the same readings on a thermal printout.
+
+- **Colour:** tokens at the top of `app/globals.css`. Green means watts and "go". Amber and red are state only, never decoration. Only the live trace may glow.
+- **Type:** Doto for display readings, Galmuri11 Bold for headings at 12px multiples, IBM Plex Sans KR for prose, IBM Plex Mono for data and commands. Doto's `.` reads as `+` and its `₩` is oversized, so `Power` and `Krw` set those glyphs apart.
+- **Shape:** panes are 1px boxes with the title in the border. No radius, no shadows.
+- **Navigation:** the bottom bar is the only nav. Its window numbers are real keys.
+- **Data:** every decoration draws real data. No fake streams. Solid rule is 실측, dashed rule is 추정, on every reading and trace.
+- **Motion:** one sweep when a chart first draws, one ring per incoming sample.

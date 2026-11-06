@@ -18,10 +18,20 @@ export default function AccountPage() {
       {error && <Failure error={error} retry={reload} />}
       {!error && !user && <Loading />}
       {user && (
-        <div className="account">
-          <p className="caption">{user.email}</p>
-          <NameForm name={user.name} onSaved={(next) => mutate(() => next)} />
-          <PasswordForm />
+        <div className="console account">
+          <section aria-labelledby="profile-heading" className="pane account-pane">
+            <div className="pane-head">
+              <h2 id="profile-heading">프로필</h2>
+            </div>
+            <p className="caption">{user.email}</p>
+            <NameForm name={user.name} onSaved={(next) => mutate(() => next)} />
+          </section>
+          <section aria-labelledby="password-heading" className="pane">
+            <div className="pane-head">
+              <h2 id="password-heading">비밀번호</h2>
+            </div>
+            <PasswordForm />
+          </section>
           <DeleteAccount />
         </div>
       )}
@@ -106,8 +116,10 @@ function DeleteAccount() {
   };
 
   return (
-    <section aria-labelledby="delete-heading" className="danger-zone">
-      <h2 id="delete-heading">계정 삭제</h2>
+    <section aria-labelledby="delete-heading" className="pane danger-zone">
+      <div className="pane-head">
+        <h2 id="delete-heading">계정 삭제</h2>
+      </div>
       {!confirming ? (
         <button ref={opener} type="button" className="button button-danger" onClick={() => setConfirming(true)}>
           계정 삭제

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { api, clearApiCache } from "@/lib/api";
 import { LiveProvider, useLiveDropped } from "@/lib/live";
 
@@ -24,28 +24,42 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         router.replace("/login");
       });
 
+  // The window numbers in the bar are real keys, as they are in tmux.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
+      if ((event.target as HTMLElement).closest("input, select, textarea")) return;
+      const item = NAV[Number(event.key) - 1];
+      if (item) router.push(item.href);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
+
   return (
     <LiveProvider>
       <a className="skip-link" href="#main">
         본문으로 건너뛰기
       </a>
-      <header className="top">
+      <header className="bar">
         <Link href="/" className="wordmark">
           Green Server
         </Link>
         <nav aria-label="주 메뉴">
-          {NAV.map(({ href, label }) => {
+          {NAV.map(({ href, label }, index) => {
             const current = href === "/" ? pathname === "/" || pathname.startsWith("/servers") : pathname.startsWith(href);
             return (
               <Link key={href} href={href} aria-current={current ? "page" : undefined}>
+                <span className="bar-key">{index + 1}</span>
                 {label}
               </Link>
             );
           })}
-          <button type="button" className="link-button" onClick={logout}>
-            로그아웃
-          </button>
         </nav>
+        <Clock />
+        <button type="button" className="link-button" onClick={logout}>
+          로그아웃
+        </button>
       </header>
       <LiveNotice />
       <main id="main" tabIndex={-1} className="page">
@@ -53,6 +67,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </main>
     </LiveProvider>
   );
+}
+
+const clockFormat = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+const onSecond = (tick: () => void) => {
+  const timer = setInterval(tick, 1000);
+  return () => clearInterval(timer);
+};
+
+function Clock() {
+  const now = useSyncExternalStore(onSecond, () => clockFormat.format(Date.now()), () => "");
+  return <span className="bar-clock">{now}</span>;
 }
 
 function LiveNotice() {

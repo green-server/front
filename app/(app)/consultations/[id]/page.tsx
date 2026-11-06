@@ -31,57 +31,42 @@ export default function ConsultationPage() {
   const log = data.toolCalls.filter((call) => call.decision !== "pending");
 
   return (
-    <>
+    <div className="console">
       <title>AI 컨설팅 · Green Server</title>
-      <p className="crumb">
-        <Link href={`/servers/${data.serverId}`}>서버로 돌아가기</Link>
-      </p>
       <div className="page-head">
-        <h1>AI 컨설팅</h1>
+        <div>
+          <p className="crumb">
+            <Link href={`/servers/${data.serverId}`}>서버로 돌아가기</Link>
+          </p>
+          <h1>
+            AI 컨설팅
+            {(data.status === "requested" || data.status === "running") && <span className="cursor" aria-hidden="true" />}
+          </h1>
+        </div>
+        <dl className="consult-meta">
+          <div>
+            <dt>상태</dt>
+            <dd>
+              <span role="status">{CONSULTATION_STATUS[data.status]}</span>
+            </dd>
+          </div>
+          <div>
+            <dt>요청 시각</dt>
+            <dd>{formatDateTime(data.requestedAt)}</dd>
+          </div>
+          <div>
+            <dt>인증 방식</dt>
+            <dd>{AUTH_MODE_LABEL[data.authMode]}</dd>
+          </div>
+        </dl>
       </div>
-      <dl className="consult-meta">
-        <div>
-          <dt>상태</dt>
-          <dd>
-            <span role="status">{CONSULTATION_STATUS[data.status]}</span>
-          </dd>
-        </div>
-        <div>
-          <dt>요청 시각</dt>
-          <dd>{formatDateTime(data.requestedAt)}</dd>
-        </div>
-        <div>
-          <dt>인증 방식</dt>
-          <dd>{AUTH_MODE_LABEL[data.authMode]}</dd>
-        </div>
-      </dl>
-      {data.level && <LevelSteps level={data.level} />}
-      {data.summary && <p className="consult-summary">{data.summary}</p>}
-      {data.feedback.length > 0 && (
-        <section aria-labelledby="feedback-heading" className="consult-section">
-          <h2 id="feedback-heading">피드백</h2>
-          <ul className="consult-list">
-            {data.feedback.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {data.fixes.length > 0 && (
-        <section aria-labelledby="fixes-heading" className="consult-section">
-          <h2 id="fixes-heading">해결 방법</h2>
-          <ol className="consult-list">
-            {data.fixes.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </section>
-      )}
 
       <div aria-live="polite">
         {pending.length > 0 && (
-          <section aria-labelledby="pending-heading" className="consult-section">
-            <h2 id="pending-heading">권한 요청</h2>
+          <section aria-labelledby="pending-heading" className="pane pane-alert">
+            <div className="pane-head">
+              <h2 id="pending-heading">권한 요청</h2>
+            </div>
             <p>10분 안에 결정하지 않으면 거부로 처리됩니다.</p>
             {pending.map((call) => (
               <PendingCall key={call.id} call={call} onChange={putCall} />
@@ -90,19 +75,53 @@ export default function ConsultationPage() {
         )}
       </div>
 
-      <section aria-labelledby="log-heading" className="consult-section">
-        <h2 id="log-heading">실행 기록</h2>
-        {log.length === 0 ? (
-          <p className="status">아직 실행한 명령이 없습니다.</p>
-        ) : (
-          <ol className="tool-log">
-            {log.map((call) => (
-              <LogEntry key={call.id} call={call} calls={data.toolCalls} onChange={putCall} />
-            ))}
-          </ol>
+      <div className="console-grid">
+        {(data.level || data.summary || data.feedback.length > 0 || data.fixes.length > 0) && (
+          <section aria-labelledby="report-heading" className="pane">
+            <div className="pane-head">
+              <h2 id="report-heading">진단</h2>
+            </div>
+            {data.level && <LevelSteps level={data.level} />}
+            {data.summary && <p className="consult-summary">{data.summary}</p>}
+            {data.feedback.length > 0 && (
+              <div className="consult-section">
+                <h3>피드백</h3>
+                <ul className="consult-list">
+                  {data.feedback.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {data.fixes.length > 0 && (
+              <div className="consult-section">
+                <h3>해결 방법</h3>
+                <ol className="consult-list">
+                  {data.fixes.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </section>
         )}
-      </section>
-    </>
+
+        <section aria-labelledby="log-heading" className="pane">
+          <div className="pane-head">
+            <h2 id="log-heading">실행 기록</h2>
+          </div>
+          {log.length === 0 ? (
+            <p className="status">아직 실행한 명령이 없습니다.</p>
+          ) : (
+            <ol className="tool-log">
+              {log.map((call) => (
+                <LogEntry key={call.id} call={call} calls={data.toolCalls} onChange={putCall} />
+              ))}
+            </ol>
+          )}
+        </section>
+      </div>
+    </div>
   );
 }
 
@@ -203,15 +222,15 @@ function Command({ text }: { text: string }) {
 
 function LevelSteps({ level }: { level: ServerLevel }) {
   return (
-    <section aria-labelledby="level-heading" className="consult-section">
-      <h2 id="level-heading">서버 상태</h2>
-      <ol className="level-steps">
+    <div className="consult-section">
+      <h3 id="level-heading">서버 상태</h3>
+      <ol className="level-steps" aria-labelledby="level-heading">
         {SERVER_LEVELS.map((step, index) => (
           <li key={step.value} data-level={step.value} aria-current={step.value === level ? "step" : undefined}>
             <span>{index + 1}단계</span> {step.label}
           </li>
         ))}
       </ol>
-    </section>
+    </div>
   );
 }

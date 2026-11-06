@@ -5,8 +5,8 @@ import { axisTicks, formatDateTime, formatNumber, splitRuns } from "@/lib/format
 import type { Metric } from "@/lib/types";
 import { Power } from "./Power";
 
-const HEIGHT = 240;
-const MARGIN = { top: 10, right: 10, bottom: 26, left: 46 };
+const HEIGHT = 300;
+const MARGIN = { top: 12, right: 12, bottom: 26, left: 46 };
 
 const time = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 const day = new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" });
@@ -64,6 +64,8 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
         <span className="chart-reading">
           <time dateTime={active.ts}>{formatDateTime(active.ts)}</time>
           <Power value={active.watts} estimated={active.isEstimated} />
+          <span>CPU {formatNumber(active.cpuPct)}%</span>
+          <span>메모리 {formatNumber(active.memPct)}%</span>
         </span>
         <span className="chart-legend">
           {runs.some((run) => !run.estimated) && <LegendEntry label="실측" />}
@@ -104,6 +106,7 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
               {(showDays ? day : time).format(tick)}
             </text>
           ))}
+          <g className="chart-sweep">
           {runs.map((run) =>
             run.points.length === 1 ? (
               <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
@@ -115,7 +118,10 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
               />
             ),
           )}
+          </g>
           {picked !== null && <line className="chart-cursor" x1={x(times[index])} x2={x(times[index])} y1={MARGIN.top} y2={MARGIN.top + plotHeight} />}
+          {/* Keyed by sample, so the ring fires once per reading the agent sends. */}
+          {picked === null && <circle key={active.ts} className="chart-ping" r={4} cx={x(times[index])} cy={y(active.watts)} />}
           <circle className="chart-marker" r={4} cx={x(times[index])} cy={y(active.watts)} />
         </svg>
       </div>

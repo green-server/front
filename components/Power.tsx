@@ -1,4 +1,4 @@
-import { formatNumber } from "@/lib/format";
+import { formatKrw, formatNumber } from "@/lib/format";
 
 type Props = {
   value: number | null;
@@ -13,13 +13,27 @@ type Props = {
  */
 export function Power({ value, estimated, unit = "W", size = "sm" }: Props) {
   if (value === null) return <span className="no-reading">측정값 없음</span>;
+  const [whole, fraction] = formatNumber(value).split(".");
   return (
     <span className={`power power-${size} ${estimated ? "is-estimated" : "is-measured"}`}>
       <span className="power-value">
-        {formatNumber(value)}
+        {whole}
+        {/* Doto's period reads as a plus sign at display sizes: 160+8 is a wrong number. */}
+        {fraction && <span className="power-point">.</span>}
+        {fraction}
         <span className="power-unit">{unit}</span>
       </span>
       <span className="power-tag">{estimated ? "추정" : "실측"}</span>
+    </span>
+  );
+}
+
+/** A won amount at display size. Doto's own ₩ is oversized, so that one glyph is set apart. */
+export function Krw({ value }: { value: number }) {
+  return (
+    <span className="figure figure-dot">
+      <span className="dot-won">₩</span>
+      {formatKrw(value).replace("₩", "")}
     </span>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Power } from "@/components/Power";
+import { Krw, Power } from "@/components/Power";
 import { Failure, Loading } from "@/components/Status";
 import { useApi } from "@/lib/api";
 import { formatDateTime, formatKrw, recommendationTypeLabel, reportItemEstimated, SOURCE_LABEL } from "@/lib/format";
@@ -41,11 +41,18 @@ export default function ReportsPage() {
 
 function Report({ report, servers }: { report: SavingsReport; servers: ServerSummary[] }) {
   const max = Math.max(...report.bySource.map((row) => row.savedKrwMonth), 1);
+  const total = report.bySource.reduce((sum, row) => sum + row.savedKrwMonth, 0);
 
   return (
-    <>
-      <section aria-labelledby="compare-heading" className="report-section">
-        <h2 id="compare-heading">규칙 추천과 AI 추천 비교</h2>
+    <div className="console">
+      <p className="report-total">
+        <Krw value={total} />
+        <span className="caption">월 절약 합계</span>
+      </p>
+      <section aria-labelledby="compare-heading" className="pane">
+        <div className="pane-head">
+          <h2 id="compare-heading">규칙 추천과 AI 추천 비교</h2>
+        </div>
         <dl className="compare">
           {SOURCES.map((source) => {
             const row = report.bySource.find((entry) => entry.source === source);
@@ -53,9 +60,9 @@ function Report({ report, servers }: { report: SavingsReport; servers: ServerSum
               <div key={source}>
                 <dt>{SOURCE_LABEL[source]} 추천</dt>
                 <dd>
-                  <span className="figure figure-lg">{formatKrw(row?.savedKrwMonth ?? 0)}</span>
+                  <Krw value={row?.savedKrwMonth ?? 0} />
                   <span className="caption">월 절약</span>
-                  <span className="compare-track" aria-hidden="true">
+                  <span className="gauge gauge-wide" aria-hidden="true">
                     <span style={{ width: `${((row?.savedKrwMonth ?? 0) / max) * 100}%` }} />
                   </span>
                   <span className="caption">
@@ -68,8 +75,10 @@ function Report({ report, servers }: { report: SavingsReport; servers: ServerSum
         </dl>
       </section>
 
-      <section aria-labelledby="actions-heading" className="report-section">
-        <h2 id="actions-heading">조치별 절약</h2>
+      <section aria-labelledby="actions-heading" className="pane">
+        <div className="pane-head">
+          <h2 id="actions-heading">조치별 절약</h2>
+        </div>
         {report.items.length === 0 ? (
           <p className="status">아직 적용한 조치가 없습니다. 조치를 적용하고 재측정이 끝나면 절약 금액이 여기에 나타납니다.</p>
         ) : (
@@ -116,6 +125,6 @@ function Report({ report, servers }: { report: SavingsReport; servers: ServerSum
           </table>
         )}
       </section>
-    </>
+    </div>
   );
 }

@@ -35,7 +35,7 @@ export default function NewServerPage() {
       <div className="page-head">
         <h1>서버 추가</h1>
       </div>
-      <form className="form" onSubmit={submit}>
+      <form className="form form-pane" onSubmit={submit}>
         <label className="field">
           서버 이름
           <input name="name" required autoFocus />
