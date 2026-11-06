@@ -810,12 +810,14 @@ ol.entry-actions {
   gap: 8px;
 }
 
-.consult-list {
+ol.consult-list {
   list-style: decimal;
 }
 
 .consult-start .field {
+  display: grid;
   flex: 1 1 100%;
+  align-items: stretch;
 }
 
 .level-steps {
