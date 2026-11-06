@@ -116,10 +116,11 @@ function Chart({ serverId }: { serverId: number }) {
 }
 
 function Processes({ serverId, estimated }: { serverId: number; estimated: boolean }) {
-  const { data, error, reload } = useApi<ProcessSample[]>(`/api/servers/${serverId}/processes`);
+  const { data, error, reload, mutate } = useApi<ProcessSample[]>(`/api/servers/${serverId}/processes`);
 
   useLive((event) => {
-    if (event.type === "reconnected" || (event.type === "metric" && event.serverId === serverId)) reload();
+    if (event.type === "reconnected") reload();
+    if (event.type === "metric" && event.serverId === serverId) mutate(() => event.processes);
   });
 
   return (

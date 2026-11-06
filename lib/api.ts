@@ -46,6 +46,12 @@ export async function api<T>(path: string, init?: { method?: string; body?: unkn
   return body as T;
 }
 
+// Last answer per path, so returning to a page shows it at once while it refreshes.
+const cache = new Map<string, unknown>();
+
+/** Must run when the signed-in user changes: the cache holds that user's data. */
+export const clearApiCache = () => cache.clear();
+
 export function useApi<T>(path: string) {
   const [state, setState] = useState<{ path?: string; data?: T; error?: Error }>({});
   const [attempt, setAttempt] = useState(0);
@@ -53,7 +59,10 @@ export function useApi<T>(path: string) {
   useEffect(() => {
     let stale = false;
     api<T>(path).then(
-      (data) => !stale && setState({ path, data }),
+      (data) => {
+        cache.set(path, data);
+        if (!stale) setState({ path, data });
+      },
       (error: Error) => !stale && setState((prev) => ({ ...prev, path, error })),
     );
     return () => {
@@ -64,12 +73,18 @@ export function useApi<T>(path: string) {
   const reload = useCallback(() => setAttempt((n) => n + 1), []);
   const mutate = useCallback(
     (update: (data: T) => T) =>
-      setState((prev) => (prev.data === undefined ? prev : { ...prev, data: update(prev.data) })),
-    [],
+      setState((prev) => {
+        // Right after navigating, state still holds the previous path's data.
+        if (prev.path !== path || prev.data === undefined) return prev;
+        const data = update(prev.data);
+        cache.set(path, data);
+        return { ...prev, data };
+      }),
+    [path],
   );
 
   // Data from the previous path must never render under the new one.
-  const current = state.path === path ? state : {};
+  const current = state.path === path ? state : { data: cache.get(path) as T | undefined, error: undefined };
   return {
     data: current.data,
     error: current.data === undefined ? current.error : undefined,

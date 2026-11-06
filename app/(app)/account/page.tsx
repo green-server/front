@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { Failure, Loading } from "@/components/Status";
-import { api, useApi, useSubmit } from "@/lib/api";
+import { api, useApi, useSubmit, clearApiCache } from "@/lib/api";
 import type { User } from "@/lib/types";
 
 export default function AccountPage() {
@@ -96,6 +96,7 @@ function DeleteAccount() {
   const remove = () =>
     run(async () => {
       await api("/api/me", { method: "DELETE" });
+      clearApiCache();
       router.replace("/login");
     });
 

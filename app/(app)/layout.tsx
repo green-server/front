@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { api } from "@/lib/api";
+import { api, clearApiCache } from "@/lib/api";
 import { LiveProvider, useLiveDropped } from "@/lib/live";
 
 const NAV = [
@@ -19,7 +19,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const logout = () =>
     api("/api/auth/logout", { method: "POST" })
       .catch(() => {})
-      .then(() => router.replace("/login"));
+      .then(() => {
+        clearApiCache();
+        router.replace("/login");
+      });
 
   return (
     <LiveProvider>

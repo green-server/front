@@ -78,7 +78,7 @@ export type SavingsReport = {
 export type ApiErrorBody = { error: { code: string; message: string } };
 
 export type WebEvent =
-  | { type: "metric"; serverId: number; metric: Metric }
+  | { type: "metric"; serverId: number; metric: Metric; processes: ProcessSample[] }
   | { type: "agent_status"; serverId: number; online: boolean }
   | { type: "tool_call"; toolCall: ToolCall }
   | { type: "consultation"; consultation: Consultation };
