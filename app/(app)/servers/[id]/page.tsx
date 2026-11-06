@@ -194,6 +194,8 @@ function RecommendationEntry({ item, onChange }: { item: Recommendation; onChang
 
   const apply = () =>
     run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/apply`, { method: "POST" })));
+  const unapply = () =>
+    run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/unapply`, { method: "POST" })));
   const dismiss = () =>
     run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/dismiss`, { method: "POST" })));
 
@@ -222,6 +224,13 @@ function RecommendationEntry({ item, onChange }: { item: Recommendation; onChang
             </button>
             <button type="button" className="button" onClick={dismiss} disabled={busy}>
               무시
+            </button>
+          </div>
+        )}
+        {item.status === "applied" && (
+          <div className="entry-actions">
+            <button type="button" className="button" onClick={unapply} disabled={busy}>
+              적용 취소
             </button>
           </div>
         )}
