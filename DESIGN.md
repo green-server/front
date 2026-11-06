@@ -7,4 +7,5 @@ A bench scope wired into a tmux session. Dark is the scope in a dim room; light 
 - **Shape:** panes are 1px boxes with the title in the border. No radius, no shadows.
 - **Navigation:** the bottom bar is the only nav. Its window numbers are real keys.
 - **Data:** every decoration draws real data. No fake streams. Solid rule is 실측, dashed rule is 추정, on every reading and trace.
+- **Logo:** a leaf with three rack slots, `components/Logo.tsx`. The mark is `--logo-mark`, the wordmark `currentColor`; `app/icon.svg` is the favicon.
 - **Motion:** one sweep when a chart first draws, one ring per incoming sample.

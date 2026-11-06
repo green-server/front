@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
+import { Logo } from "@/components/Logo";
 import { api, clearApiCache, useSubmit } from "@/lib/api";
 import type { User } from "@/lib/types";
 
@@ -30,11 +31,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     <main className="gate">
       <title>{`${signup ? "회원가입" : "로그인"} · Green Server`}</title>
       <div className="gate-mark">
-        <p className="gate-wordmark">
-          Green
-          <br />
-          Server
-        </p>
+        <Logo className="gate-logo" />
         <p className="gate-lede">내 서버가 쓰는 전기를 W와 ₩로 확인합니다.</p>
         <svg className="gate-trace" viewBox="0 0 800 80" preserveAspectRatio="none" aria-hidden="true">
           <polyline className="chart-line" points={GATE_TRACE} pathLength={1} vectorEffect="non-scaling-stroke" />

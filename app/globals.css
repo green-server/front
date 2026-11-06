@@ -170,10 +170,11 @@ main:focus {
   padding-inline: 14px;
   background: var(--ink);
   color: var(--ground);
-  font: 700 12px/1 var(--pixel);
-  text-decoration: none;
-  white-space: nowrap;
-  -webkit-font-smoothing: none;
+}
+
+.wordmark svg {
+  display: block;
+  height: 19px;
 }
 
 .bar nav {
@@ -623,9 +624,11 @@ main:focus {
   overflow: hidden;
 }
 
-.gate-wordmark {
-  color: var(--watt);
-  font: 900 clamp(4rem, 11vw, 6rem)/0.95 var(--dot);
+.gate-logo {
+  --logo-mark: var(--watt);
+  display: block;
+  width: min(100%, 34rem);
+  color: var(--ink);
 }
 
 .gate-lede {

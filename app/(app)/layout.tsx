@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { Logo } from "@/components/Logo";
 import { api, clearApiCache } from "@/lib/api";
 import { LiveProvider, useLiveDropped } from "@/lib/live";
 
@@ -43,7 +44,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </a>
       <header className="bar">
         <Link href="/" className="wordmark">
-          Green Server
+          <Logo />
         </Link>
         <nav aria-label="주 메뉴">
           {NAV.map(({ href, label }, index) => {
