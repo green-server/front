@@ -1,4 +1,4 @@
-import type { Consultation, Metric, Recommendation, SavingsReport, Server, ServerLevel, ServerSummary, StreamEntry, ToolCall } from "./types";
+import type { ActivityReport, Consultation, Metric, Recommendation, SavingsReport, Server, ServerLevel, ServerSummary, StreamEntry, ToolCall } from "./types";
 
 const krw = new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" });
 const decimal = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 });
@@ -118,6 +118,24 @@ export function outcome(call: Pick<ToolCall, "decision" | "exitCode">) {
   if (call.exitCode === null) return `${decided}, 실행 중`;
   return `${decided}, 종료 코드 ${call.exitCode}`;
 }
+
+type ActivityCall = ActivityReport["calls"][number];
+
+/** Whether a command needs a second look. A failed read counts: it is why a plan stalls. */
+export const callHasProblem = (call: Pick<ActivityCall, "decision" | "exitCode">) =>
+  call.decision === "denied" || call.decision === "blocked" || (call.exitCode !== null && call.exitCode !== 0);
+
+/** Commands under the consultation that ran them, newest consultation first, in run order inside. */
+export function groupCalls(calls: ActivityCall[]) {
+  const groups = new Map<number, ActivityCall[]>();
+  for (const call of calls.toSorted((a, b) => a.id - b.id)) {
+    groups.set(call.consultationId, [...(groups.get(call.consultationId) ?? []), call]);
+  }
+  return [...groups.values()].sort((a, b) => b[0].consultationId - a[0].consultationId);
+}
+
+/** Share of the power an action removed, rounded; null when there was nothing to compare against. */
+export const powerChange = (before: number, after: number) => (before > 0 ? Math.round(((after - before) / before) * 100) : null);
 
 export type UndoState = "unavailable" | "ready" | "running" | "done" | "failed";
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { appendStream, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, splitRuns, undoState } from "./format.ts";
+import { appendStream, callHasProblem, groupCalls, powerChange, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, splitRuns, undoState } from "./format.ts";
 import type { Metric, SavingsReport, ToolCall } from "./types.ts";
 
 const metric = (seconds: number, isEstimated = false): Metric => ({
@@ -98,4 +98,22 @@ test("recommendationPlan always ends by measuring, whatever type the AI invented
     assert.ok(steps.length >= 3);
     assert.match(steps.at(-1)!, /다시 재서/);
   }
+});
+
+test("groupCalls puts the newest consultation first and keeps run order inside", () => {
+  const call = (id: number, consultationId: number) => ({ id, consultationId, command: "c", tier: "auto" as const, decision: "auto" as const, exitCode: 0, requestedAt: "", serverName: "s" });
+  const groups = groupCalls([call(4, 2), call(3, 2), call(2, 1)]);
+  assert.deepEqual(groups.map((group) => group.map((c) => c.id)), [[3, 4], [2]]);
+});
+
+test("callHasProblem flags refused and failed commands, not ones still running", () => {
+  assert.equal(callHasProblem({ decision: "auto", exitCode: 0 }), false);
+  assert.equal(callHasProblem({ decision: "auto", exitCode: null }), false);
+  assert.equal(callHasProblem({ decision: "auto", exitCode: 1 }), true);
+  assert.equal(callHasProblem({ decision: "blocked", exitCode: null }), true);
+});
+
+test("powerChange reports the drop and survives a zero baseline", () => {
+  assert.equal(powerChange(160, 142), -11);
+  assert.equal(powerChange(0, 5), null);
 });

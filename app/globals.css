@@ -1624,9 +1624,244 @@ ol.consult-list {
   margin-top: 6px;
 }
 
-.call-command {
-  font-size: 0.875rem;
+.report-table th {
+  padding-block: 0 8px;
+  vertical-align: bottom;
+}
+
+.report-table tbody td {
+  padding-block: 11px;
+  vertical-align: middle;
+}
+
+.report-table tbody tr {
+  transition: background-color 120ms;
+}
+
+.report-table tbody tr:hover {
+  background: var(--raised);
+}
+
+.report-table tfoot th,
+.report-table tfoot td {
+  padding: 11px 12px 0 0;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 0;
+  color: var(--ink);
+  font-weight: 700;
+  text-align: left;
+}
+
+.report-table tfoot td {
+  padding-right: 0;
+  text-align: right;
+}
+
+.cell-stack {
+  display: grid;
+  gap: 1px;
+}
+
+.cell-time {
+  color: var(--ink-2);
+  font-family: var(--code);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.cell-link {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cell-link:hover {
+  color: var(--watt);
+  text-decoration: underline;
+}
+
+.data-table .cell-money {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.power-change {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  align-items: baseline;
+  color: var(--ink-2);
+}
+
+.power-change .power {
+  color: var(--ink);
+}
+
+.power-delta {
+  color: var(--watt);
+  font-family: var(--code);
+  font-weight: 600;
+}
+
+.col-progress {
+  width: 30%;
+}
+
+.stack {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 6px);
+  mask: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 6px);
+}
+
+.stack span {
+  flex-basis: 0;
+}
+
+.stack-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  align-items: center;
+}
+
+.key {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.key::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+}
+
+.key-applied::before {
+  background: var(--watt);
+}
+
+.key-open::before {
+  background: var(--ink-2);
+}
+
+.key-dismissed::before {
+  background: var(--line-2);
+}
+
+.stack-applied {
+  background: var(--watt);
+}
+
+.stack-open {
+  background: var(--ink-2);
+}
+
+.stack-dismissed {
+  background: var(--line-2);
+}
+
+.call-group {
+  border-bottom: 1px solid var(--line);
+}
+
+.call-group:last-child {
+  border-bottom: 0;
+}
+
+.call-group summary {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 8px 0 8px 16px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.call-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.call-group summary::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  margin-top: -4px;
+  border-block: 4px solid transparent;
+  border-left: 6px solid var(--ink-2);
+  transition: transform 120ms;
+}
+
+.call-group[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.call-group summary:hover strong {
+  color: var(--watt);
+}
+
+.call-count {
+  display: inline-flex;
+  flex: none;
+  gap: 10px;
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+}
+
+.call-count em {
+  color: var(--bad);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.call-list {
+  padding-left: 16px;
+}
+
+.call {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 20px;
+  align-items: baseline;
+  padding-block: 7px;
+  border-top: 1px solid var(--line);
+}
+
+.call code {
+  font: 400 0.875rem/1.5 var(--code);
   overflow-wrap: anywhere;
+}
+
+.call code::before {
+  content: "$ ";
+  color: var(--watt);
+  user-select: none;
+}
+
+.call-result {
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.call-problem .call-result {
+  color: var(--bad);
+  font-weight: 700;
+}
+
+.call-problem code::before {
+  color: var(--bad);
+}
+
+.call-more {
+  padding: 8px 0 14px 16px;
+  font-size: 0.8125rem;
 }
 
 /* 계정 */
@@ -1724,10 +1959,81 @@ ol.consult-list {
     border-bottom: 1px solid var(--line);
   }
 
-  .report-table td,
-  .report-table td:last-child {
+  .report-table tfoot {
+    display: block;
+  }
+
+  .report-table tfoot tr {
     display: flex;
     justify-content: space-between;
+    border-bottom: 0;
+  }
+
+  .report-table tfoot th,
+  .report-table tfoot td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .report-table tfoot td::before {
+    content: none;
+  }
+
+  /* The first cell names the row, so it reads as the row's title, not as a label and a value. */
+  .report-table tbody td:first-child {
+    display: block;
+    text-align: left;
+  }
+
+  .report-table tbody td:first-child::before {
+    content: none;
+  }
+
+  .activity-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px 12px;
+  }
+
+  .activity-table tbody td:first-child,
+  .activity-table tbody td.col-progress,
+  .activity-table tbody td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .activity-table tbody td.col-progress {
+    display: block;
+    width: auto;
+    text-align: left;
+  }
+
+  .activity-table tbody td:not(:first-child, .col-progress, :last-child) {
+    display: grid;
+    gap: 0;
+    justify-items: start;
+    padding: 0;
+    text-align: left;
+  }
+
+  .activity-table .stack {
+    width: 100%;
+  }
+
+  .report-table td::before {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .call {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-table tbody td,
+  .report-table tbody td:last-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 16px;
     padding: 3px 0;
     border: 0;
@@ -1822,11 +2128,17 @@ ol.consult-list {
 
 @media (forced-colors: active) {
   .is-online .dot,
-  .gauge span {
+  .gauge span,
+  .stack-applied {
     background: CanvasText;
   }
 
-  .gauge {
+  .stack-open {
+    background: GrayText;
+  }
+
+  .gauge,
+  .stack {
     -webkit-mask: none;
     mask: none;
   }

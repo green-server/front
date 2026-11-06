@@ -80,6 +80,7 @@ export type ActivityReport = {
   calls: {
     id: number;
     command: string;
+    tier: ToolCall["tier"];
     decision: ToolCall["decision"];
     exitCode: number | null;
     consultationId: number;

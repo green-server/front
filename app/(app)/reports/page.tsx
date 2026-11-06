@@ -1,10 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Krw, Power } from "@/components/Power";
 import { Failure, Loading } from "@/components/Status";
 import { useApi } from "@/lib/api";
-import { formatDateTime, formatKrw, outcome, recommendationTypeLabel, reportItemEstimated, SOURCE_LABEL } from "@/lib/format";
+import {
+  callHasProblem,
+  formatDateTime,
+  formatKrw,
+  groupCalls,
+  outcome,
+  powerChange,
+  recommendationTypeLabel,
+  reportItemEstimated,
+  SOURCE_LABEL,
+} from "@/lib/format";
 import { useLive } from "@/lib/live";
 import type { ActivityReport, SavingsReport, ServerSummary } from "@/lib/types";
 
@@ -111,39 +122,40 @@ function Report({ report, servers }: { report: SavingsReport; servers: ServerSum
           <table className="data-table report-table">
             <thead>
               <tr>
-                <th scope="col">서버</th>
                 <th scope="col">조치</th>
                 <th scope="col">적용 시각</th>
-                <th scope="col" className="numeric">조치 전</th>
-                <th scope="col" className="numeric">조치 후</th>
+                <th scope="col">전력 변화</th>
                 <th scope="col" className="numeric">절약 전력량</th>
-                <th scope="col" className="numeric">절약 금액</th>
+                <th scope="col" className="numeric">월 절약</th>
               </tr>
             </thead>
             <tbody>
-              {report.items.map((item) => {
+              {report.items.toSorted((a, b) => b.savedKrwMonth - a.savedKrwMonth).map((item) => {
                 const estimated = reportItemEstimated(item, servers);
+                const change = powerChange(item.beforeWatts, item.afterWatts);
                 return (
                   <tr key={item.recommendationId}>
-                    <td data-label="서버">{item.serverName}</td>
                     <td data-label="조치">
-                      <span>
-                        {recommendationTypeLabel(item.type)} <span className="caption">{SOURCE_LABEL[item.source]}</span>
+                      <span className="cell-stack">
+                        <strong>{recommendationTypeLabel(item.type)}</strong>
+                        <span className="caption">
+                          {item.serverName} · {SOURCE_LABEL[item.source]} 추천
+                        </span>
                       </span>
                     </td>
-                    <td data-label="적용 시각">{formatDateTime(item.appliedAt)}</td>
-                    <td data-label="조치 전" className="numeric">
-                      <Power value={item.beforeWatts} estimated={estimated} />
-                    </td>
-                    <td data-label="조치 후" className="numeric">
-                      <Power value={item.afterWatts} estimated={estimated} />
+                    <td data-label="적용 시각" className="cell-time">{formatDateTime(item.appliedAt)}</td>
+                    <td data-label="전력 변화">
+                      <span className="power-change">
+                        <Power value={item.beforeWatts} estimated={estimated} />
+                        <span aria-hidden="true">→</span>
+                        <Power value={item.afterWatts} estimated={estimated} />
+                        {change !== null && <span className="power-delta">{change}%</span>}
+                      </span>
                     </td>
                     <td data-label="절약 전력량" className="numeric">
                       <Power value={item.savedKwhMonth} estimated={estimated} unit="kWh/월" />
                     </td>
-                    <td data-label="절약 금액" className="numeric figure">
-                      {formatKrw(item.savedKrwMonth)}/월
-                    </td>
+                    <td data-label="월 절약" className="numeric cell-money">{formatKrw(item.savedKrwMonth)}</td>
                   </tr>
                 );
               })}
@@ -156,75 +168,135 @@ function Report({ report, servers }: { report: SavingsReport; servers: ServerSum
 }
 
 function ServerActivity({ activity }: { activity: ActivityReport }) {
+  const rows = activity.servers.toSorted((a, b) => b.openSavingKrw - a.openSavingKrw || b.total - a.total);
+  const waiting = rows.reduce((sum, row) => sum + row.openSavingKrw, 0);
+
   return (
     <section aria-labelledby="activity-heading" className="pane">
       <div className="pane-head">
         <h2 id="activity-heading">서버별 추천 현황</h2>
       </div>
-      {activity.servers.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="status">아직 추가한 서버가 없습니다.</p>
       ) : (
-        <table className="data-table report-table">
+        <table className="data-table report-table activity-table">
           <thead>
             <tr>
               <th scope="col">서버</th>
-              <th scope="col" className="numeric">전체</th>
-              <th scope="col" className="numeric">대기</th>
+              <th scope="col" className="col-progress">
+                <span className="stack-legend">
+                  <span>처리 현황</span>
+                  <span className="key key-applied">적용</span>
+                  <span className="key key-open">대기</span>
+                  <span className="key key-dismissed">무시</span>
+                </span>
+              </th>
               <th scope="col" className="numeric">적용</th>
+              <th scope="col" className="numeric">대기</th>
+              <th scope="col" className="numeric">무시</th>
               <th scope="col" className="numeric">대기 중 예상 절약</th>
             </tr>
           </thead>
           <tbody>
-            {activity.servers.map((row) => (
-              <tr key={row.serverId}>
-                <td data-label="서버">
-                  <Link href={`/servers/${row.serverId}`}>{row.serverName}</Link>
-                </td>
-                <td data-label="전체" className="numeric">{row.total}건</td>
-                <td data-label="대기" className="numeric">{row.open}건</td>
-                <td data-label="적용" className="numeric">{row.applied}건</td>
-                <td data-label="대기 중 예상 절약" className="numeric figure">{formatKrw(row.openSavingKrw)}</td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const dismissed = row.total - row.open - row.applied;
+              return (
+                <tr key={row.serverId}>
+                  <td data-label="서버">
+                    <Link href={`/servers/${row.serverId}`} className="cell-link">
+                      {row.serverName}
+                    </Link>
+                  </td>
+                  <td className="col-progress">
+                    {row.total === 0 ? (
+                      <span className="caption">추천 없음</span>
+                    ) : (
+                      <span className="stack" aria-hidden="true">
+                        <span className="stack-applied" style={{ flexGrow: row.applied }} />
+                        <span className="stack-open" style={{ flexGrow: row.open }} />
+                        <span className="stack-dismissed" style={{ flexGrow: dismissed }} />
+                      </span>
+                    )}
+                  </td>
+                  <td data-label="적용" className="numeric">{row.applied}건</td>
+                  <td data-label="대기" className="numeric">{row.open}건</td>
+                  <td data-label="무시" className="numeric">{dismissed}건</td>
+                  <td data-label="대기 중 예상 절약" className="numeric cell-money">{formatKrw(row.openSavingKrw)}</td>
+                </tr>
+              );
+            })}
           </tbody>
+          {rows.length > 1 && (
+            <tfoot>
+              <tr>
+                <th scope="row" colSpan={5}>
+                  합계
+                </th>
+                <td data-label="합계" className="numeric cell-money">{formatKrw(waiting)}</td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       )}
     </section>
   );
 }
 
+const CALL_FILTERS = [
+  { value: "all", label: "전체" },
+  { value: "actions", label: "조치만" },
+  { value: "problems", label: "문제만" },
+] as const;
+
 function RecentCalls({ activity }: { activity: ActivityReport }) {
+  const [filter, setFilter] = useState<(typeof CALL_FILTERS)[number]["value"]>("all");
+  const shown = activity.calls.filter(
+    (call) => filter === "all" || (filter === "actions" ? call.tier === "approve" : callHasProblem(call)),
+  );
+  const groups = groupCalls(shown);
+
   return (
     <section aria-labelledby="calls-heading" className="pane">
       <div className="pane-head">
         <h2 id="calls-heading">최근 실행 명령</h2>
+        <div className="segmented" role="group" aria-label="명령 필터">
+          {CALL_FILTERS.map((option) => (
+            <button key={option.value} type="button" aria-pressed={option.value === filter} onClick={() => setFilter(option.value)}>
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
-      {activity.calls.length === 0 ? (
-        <p className="status">아직 실행한 명령이 없습니다.</p>
-      ) : (
-        <table className="data-table report-table">
-          <thead>
-            <tr>
-              <th scope="col">서버</th>
-              <th scope="col">명령</th>
-              <th scope="col">결과</th>
-              <th scope="col">컨설팅</th>
-            </tr>
-          </thead>
-          <tbody>
-            {activity.calls.map((call) => (
-              <tr key={call.id}>
-                <td data-label="서버">{call.serverName}</td>
-                <td data-label="명령" className="mono call-command">{call.command}</td>
-                <td data-label="결과">{outcome(call)}</td>
-                <td data-label="컨설팅">
-                  <Link href={`/consultations/${call.consultationId}`}>{formatDateTime(call.requestedAt)}</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {activity.calls.length === 0 && <p className="status">아직 실행한 명령이 없습니다.</p>}
+      {activity.calls.length > 0 && groups.length === 0 && <p className="status">해당하는 명령이 없습니다.</p>}
+      {groups.map((calls, index) => {
+        const problems = calls.filter(callHasProblem).length;
+        return (
+          // Keyed by filter too: switching filters resets which group starts open.
+          <details key={`${filter}-${calls[0].consultationId}`} className="call-group" open={index === 0}>
+            <summary>
+              <span className="cell-stack">
+                <strong>{calls[0].serverName}</strong>
+                <span className="caption">{formatDateTime(calls[0].requestedAt)}</span>
+              </span>
+              <span className="call-count">
+                명령 {calls.length}개{problems > 0 && <em>문제 {problems}개</em>}
+              </span>
+            </summary>
+            <ol className="call-list">
+              {calls.map((call) => (
+                <li key={call.id} className={callHasProblem(call) ? "call call-problem" : "call"}>
+                  <code>{call.command}</code>
+                  <span className="call-result">{outcome(call)}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="call-more">
+              <Link href={`/consultations/${calls[0].consultationId}`}>컨설팅 보기</Link>
+            </p>
+          </details>
+        );
+      })}
     </section>
   );
 }
