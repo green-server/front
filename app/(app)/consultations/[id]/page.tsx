@@ -81,7 +81,7 @@ export default function ConsultationPage() {
       <div aria-live="polite">
         {pending.length > 0 && (
           <section aria-labelledby="pending-heading" className="consult-section">
-            <h2 id="pending-heading">승인 대기</h2>
+            <h2 id="pending-heading">권한 요청</h2>
             <p>10분 안에 결정하지 않으면 거부로 처리됩니다.</p>
             {pending.map((call) => (
               <PendingCall key={call.id} call={call} onChange={putCall} />
@@ -137,7 +137,7 @@ function PendingCall({ call, onChange }: { call: ToolCall; onChange: (call: Tool
       )}
       <div className="approval-actions">
         <button type="button" className="button button-primary" disabled={busy} onClick={() => decide("approved")}>
-          승인
+          허용
         </button>
         <button type="button" className="button" disabled={busy} onClick={() => decide("denied")}>
           거부
@@ -188,7 +188,7 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
 function outcome(call: ToolCall) {
   if (call.decision === "denied") return "거부됨";
   if (call.decision === "blocked") return "차단됨";
-  const decided = call.decision === "approved" ? "승인됨" : "자동 실행";
+  const decided = call.decision === "approved" ? "허용됨" : "자동 실행";
   if (call.exitCode === null) return `${decided}, 실행 중`;
   return `${decided}, 종료 코드 ${call.exitCode}`;
 }

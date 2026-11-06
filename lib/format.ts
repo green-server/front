@@ -51,7 +51,7 @@ export const AUTH_MODE_LABEL: Record<Consultation["authMode"], string> = {
 };
 export const TIER_LABEL: Record<ToolCall["tier"], string> = {
   auto: "자동 허용",
-  approve: "웹 승인",
+  approve: "조치",
   deny: "항상 금지",
 };
 
