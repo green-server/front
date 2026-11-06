@@ -789,6 +789,12 @@ input[type="radio"] {
   margin-top: 20px;
 }
 
+.entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .consult-list {
   display: grid;
   gap: 6px;
@@ -798,7 +804,13 @@ input[type="radio"] {
   list-style: disc;
 }
 
-ol.consult-list {
+ol.entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.consult-list {
   list-style: decimal;
 }
 

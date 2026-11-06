@@ -192,6 +192,8 @@ function Recommendations({ serverId }: { serverId: number }) {
 function RecommendationEntry({ item, onChange }: { item: Recommendation; onChange: (next: Recommendation) => void }) {
   const { busy, error, run } = useSubmit();
 
+  const apply = () =>
+    run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/apply`, { method: "POST" })));
   const dismiss = () =>
     run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/dismiss`, { method: "POST" })));
 
@@ -214,9 +216,14 @@ function RecommendationEntry({ item, onChange }: { item: Recommendation; onChang
         <span className="caption">예상 절약</span>
         <span className="figure">{formatKrw(item.estSavingKrw)}</span>
         {item.status === "open" && (
-          <button type="button" className="button" onClick={dismiss} disabled={busy}>
-            무시
-          </button>
+          <div className="entry-actions">
+            <button type="button" className="button" onClick={apply} disabled={busy}>
+              적용했어요
+            </button>
+            <button type="button" className="button" onClick={dismiss} disabled={busy}>
+              무시
+            </button>
+          </div>
         )}
       </div>
     </li>
