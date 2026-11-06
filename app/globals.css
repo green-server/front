@@ -1365,6 +1365,59 @@ ol.consult-list {
   user-select: none;
 }
 
+/* 실시간 진행: Claude's session, as a terminal would show it. */
+
+.session-pane {
+  padding-block: 20px 8px;
+}
+
+.session {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  max-height: min(60dvh, 34rem);
+  min-height: 8rem;
+  padding-bottom: 12px;
+  overflow-y: auto;
+  font: 400 0.875rem/1.6 var(--code);
+}
+
+.session pre {
+  margin: 0;
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.session-text {
+  max-width: 75ch;
+  font-family: var(--sans) !important;
+  font-size: 0.9375rem !important;
+}
+
+.session-command {
+  color: var(--ink);
+  font-weight: 600 !important;
+}
+
+.session-command::before {
+  content: "$ ";
+  color: var(--watt);
+  user-select: none;
+}
+
+.session-output {
+  max-height: 16rem;
+  padding-left: 14px;
+  overflow-y: auto;
+  border-left: 1px solid var(--line-2);
+  color: var(--ink-2);
+}
+
+.session-wait {
+  color: var(--ink-2);
+}
+
 /* The stop-and-look moment: a person must read this before it runs. */
 
 .pane-alert {
@@ -1433,6 +1486,47 @@ ol.consult-list {
   display: grid;
   gap: 2px;
   justify-self: stretch;
+}
+
+/* 추천 적용 방법 */
+
+.plan-saving {
+  display: grid;
+  justify-items: end;
+}
+
+.plan-detail {
+  max-width: 70ch;
+  font-size: 1.0625rem;
+}
+
+.plan-steps {
+  display: grid;
+  gap: 8px;
+  padding-left: 1.25rem;
+  list-style: decimal;
+}
+
+.plan-steps li::marker {
+  color: var(--watt);
+  font-family: var(--code);
+}
+
+.plan-note {
+  margin-top: 16px;
+}
+
+.plan-rules {
+  display: grid;
+  gap: 10px;
+}
+
+.plan-rules dt {
+  font-weight: 700;
+}
+
+.plan-rules dd {
+  color: var(--ink-2);
 }
 
 /* 서버 추가 */

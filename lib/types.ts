@@ -75,10 +75,13 @@ export type SavingsReport = {
   bySource: { source: "rule" | "ai"; total: number; applied: number; savedKrwMonth: number }[];
 };
 
+export type StreamEntry = { seq: number; kind: "text" | "command" | "output"; text: string };
+
 export type ApiErrorBody = { error: { code: string; message: string } };
 
 export type WebEvent =
   | { type: "metric"; serverId: number; metric: Metric; processes: ProcessSample[] }
   | { type: "agent_status"; serverId: number; online: boolean }
   | { type: "tool_call"; toolCall: ToolCall }
-  | { type: "consultation"; consultation: Consultation };
+  | { type: "consultation"; consultation: Consultation }
+  | { type: "consultation_stream"; consultationId: number; entry: StreamEntry };

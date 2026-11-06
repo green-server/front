@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { Failure, Loading } from "@/components/Status";
 import { api, useApi, useSubmit } from "@/lib/api";
-import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, SERVER_LEVELS, TIER_LABEL, undoState, upsertById } from "@/lib/format";
+import { appendStream, AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, SERVER_LEVELS, TIER_LABEL, undoState, upsertById } from "@/lib/format";
 import { useLive } from "@/lib/live";
-import type { Consultation, ServerLevel, ToolCall } from "@/lib/types";
+import type { Consultation, ServerLevel, StreamEntry, ToolCall } from "@/lib/types";
 
-type Detail = Consultation & { toolCalls: ToolCall[] };
+type Detail = Consultation & { toolCalls: ToolCall[]; stream: StreamEntry[] };
 
 export default function ConsultationPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,9 @@ export default function ConsultationPage() {
       mutate((c) => ({ ...c, ...event.consultation }));
     }
     if (event.type === "tool_call" && event.toolCall.consultationId === Number(id)) putCall(event.toolCall);
+    if (event.type === "consultation_stream" && event.consultationId === Number(id)) {
+      mutate((c) => ({ ...c, stream: appendStream(c.stream, event.entry) }));
+    }
   });
 
   if (error) return <Failure error={error} retry={reload} />;
@@ -29,6 +33,7 @@ export default function ConsultationPage() {
 
   const pending = data.toolCalls.filter((call) => call.decision === "pending");
   const log = data.toolCalls.filter((call) => call.decision !== "pending");
+  const active = data.status === "requested" || data.status === "running";
 
   return (
     <div className="console">
@@ -40,7 +45,7 @@ export default function ConsultationPage() {
           </p>
           <h1>
             AI 컨설팅
-            {(data.status === "requested" || data.status === "running") && <span className="cursor" aria-hidden="true" />}
+            {active && <span className="cursor" aria-hidden="true" />}
           </h1>
         </div>
         <dl className="consult-meta">
@@ -74,6 +79,8 @@ export default function ConsultationPage() {
           </section>
         )}
       </div>
+
+      {(active || data.stream.length > 0) && <Session entries={data.stream} active={active} />}
 
       <div className="console-grid">
         {(data.level || data.summary || data.feedback.length > 0 || data.fixes.length > 0) && (
@@ -122,6 +129,43 @@ export default function ConsultationPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+/** Reads like the terminal Claude is working in, and stays on the newest line unless scrolled up. */
+function Session({ entries, active }: { entries: StreamEntry[]; active: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
+  const following = useRef(true);
+
+  useEffect(() => {
+    if (following.current) box.current?.scrollTo({ top: box.current.scrollHeight });
+  }, [entries.length]);
+
+  const onScroll = () => {
+    const el = box.current!;
+    following.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32;
+  };
+
+  return (
+    <section aria-labelledby="session-heading" className="pane session-pane">
+      <div className="pane-head">
+        <h2 id="session-heading">실시간 진행</h2>
+      </div>
+      {/* Not a live region: a screen reader would read every line of output aloud. */}
+      <div ref={box} className="session" tabIndex={0} role="group" aria-labelledby="session-heading" onScroll={onScroll}>
+        {entries.map((entry) => (
+          <pre key={entry.seq} className={`session-${entry.kind}`}>
+            {entry.text}
+          </pre>
+        ))}
+        {active && (
+          <p className="session-wait">
+            {entries.length === 0 && "서버에서 시작하는 중"}
+            <span className="cursor" aria-hidden="true" />
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
 

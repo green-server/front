@@ -229,14 +229,8 @@ function RecommendationEntry({
   defaultOpen: boolean;
   onChange: (next: Recommendation) => void;
 }) {
-  const router = useRouter();
   const { busy, error, run } = useSubmit();
 
-  const execute = () =>
-    run(async () => {
-      const created = await api<Consultation>(`/api/recommendations/${item.id}/execute`, { method: "POST" });
-      router.push(`/consultations/${created.id}`);
-    });
   const apply = () =>
     run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/apply`, { method: "POST" })));
   const unapply = () =>
@@ -265,9 +259,9 @@ function RecommendationEntry({
         )}
         {item.status === "open" && (
           <div className="entry-actions">
-            <button type="button" className="button button-primary" onClick={execute} disabled={busy}>
-              적용해주세요
-            </button>
+            <Link href={`/servers/${item.serverId}/recommendations/${item.id}`} className="button button-primary">
+              적용 방법 보기
+            </Link>
             <button type="button" className="text-button" onClick={apply} disabled={busy}>
               적용했어요
             </button>

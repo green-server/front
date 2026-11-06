@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, splitRuns, undoState } from "./format.ts";
+import { appendStream, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, splitRuns, undoState } from "./format.ts";
 import type { Metric, SavingsReport, ToolCall } from "./types.ts";
 
 const metric = (seconds: number, isEstimated = false): Metric => ({
@@ -83,4 +83,19 @@ test("appendMetric drops duplicates and points outside the window", () => {
 test("axisTicks reaches the maximum on round steps", () => {
   assert.deepEqual(axisTicks(137), [0, 50, 100, 150]);
   assert.deepEqual(axisTicks(0), [0, 1]);
+});
+
+test("appendStream ignores an entry the first fetch already returned", () => {
+  const first = { seq: 1, kind: "command" as const, text: "uptime" };
+  const next = { seq: 2, kind: "output" as const, text: "up" };
+  assert.deepEqual(appendStream([first], first), [first]);
+  assert.deepEqual(appendStream([first], next), [first, next]);
+});
+
+test("recommendationPlan always ends by measuring, whatever type the AI invented", () => {
+  for (const type of ["night_stop", "made_up_by_ai"]) {
+    const steps = recommendationPlan(type);
+    assert.ok(steps.length >= 3);
+    assert.match(steps.at(-1)!, /다시 재서/);
+  }
 });

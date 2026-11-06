@@ -1,4 +1,4 @@
-import type { Consultation, Metric, Recommendation, SavingsReport, Server, ServerLevel, ServerSummary, ToolCall } from "./types";
+import type { Consultation, Metric, Recommendation, SavingsReport, Server, ServerLevel, ServerSummary, StreamEntry, ToolCall } from "./types";
 
 const krw = new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" });
 const decimal = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 });
@@ -65,6 +65,20 @@ const RECOMMENDATION_TYPE_LABEL: Record<string, string> = {
 /** The AI may invent a type; its snake_case code means nothing to the reader. */
 export const recommendationTypeLabel = (type: string) => RECOMMENDATION_TYPE_LABEL[type] ?? "기타 제안";
 
+const RECOMMENDATION_PLAN: Record<string, string[]> = {
+  idle: ["돌고 있는 서비스와 프로세스를 확인합니다.", "쓰지 않는 서비스를 찾아 멈춥니다."],
+  empty_game_server: ["게임 서버 상태와 접속자 수를 확인합니다.", "접속자가 없을 때 멈추도록 설정을 바꿉니다."],
+  oversized: ["실제 사용량과 서버 사양을 비교합니다.", "줄여도 되는 자원을 찾아 설정을 낮춥니다."],
+  night_stop: ["새벽 시간대 사용 기록을 확인합니다.", "그 시간에 서비스를 멈추도록 예약합니다."],
+  runaway_process: ["전력을 많이 쓰는 프로세스의 정체를 확인합니다.", "필요 없다면 종료하고, 필요하다면 사용량을 제한합니다."],
+};
+
+/** The AI writes the commands at run time, so this says what it will do, not how exactly. */
+export const recommendationPlan = (type: string) => [
+  ...(RECOMMENDATION_PLAN[type] ?? ["추천 내용을 지금 서버 상태와 대조합니다.", "필요한 조치를 실행합니다."]),
+  "전력을 다시 재서 절약 효과를 확인합니다.",
+];
+
 /** A live reading decides first; powerSource covers servers with no reading yet. */
 export const isServerEstimated = (server: Pick<ServerSummary, "isEstimated" | "powerSource">) =>
   server.isEstimated ?? server.powerSource === "estimated";
@@ -89,6 +103,11 @@ export function upsertById<T extends { id: number }>(items: T[], item: T) {
   return items.some((existing) => existing.id === item.id)
     ? items.map((existing) => (existing.id === item.id ? item : existing))
     : [...items, item];
+}
+
+/** A live entry can race the page's first fetch, which may already hold it. */
+export function appendStream(entries: StreamEntry[], entry: StreamEntry) {
+  return entries.some((existing) => existing.seq === entry.seq) ? entries : [...entries, entry];
 }
 
 export type UndoState = "unavailable" | "ready" | "running" | "done" | "failed";
