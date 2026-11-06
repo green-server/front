@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { Failure, Loading } from "@/components/Status";
+import { ThemePicker } from "@/components/ThemePicker";
 import { api, useApi, useSubmit, clearApiCache } from "@/lib/api";
 import type { User } from "@/lib/types";
 
@@ -25,6 +26,12 @@ export default function AccountPage() {
             </div>
             <p className="caption">{user.email}</p>
             <NameForm name={user.name} onSaved={(next) => mutate(() => next)} />
+          </section>
+          <section aria-labelledby="theme-heading" className="pane">
+            <div className="pane-head">
+              <h2 id="theme-heading">화면</h2>
+            </div>
+            <ThemePicker className="field" />
           </section>
           <section aria-labelledby="password-heading" className="pane">
             <div className="pane-head">

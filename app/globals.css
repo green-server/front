@@ -221,6 +221,23 @@ main:focus {
   outline-offset: -3px;
 }
 
+.bar-theme {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-inline: 14px;
+}
+
+.bar-theme select {
+  min-height: 26px;
+  padding: 0 4px;
+  border: 1px solid var(--line-2);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 500 0.8125rem/1 var(--sans);
+}
+
 .bar-clock {
   display: flex;
   align-items: center;
@@ -2057,7 +2074,8 @@ ol.consult-list {
 
 @media (max-width: 620px) {
   .wordmark,
-  .bar-clock {
+  .bar-clock,
+  .bar-theme {
     display: none;
   }
 

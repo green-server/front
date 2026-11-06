@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { Logo } from "@/components/Logo";
+import { ThemePicker } from "@/components/ThemePicker";
 import { api, clearApiCache } from "@/lib/api";
 import { LiveProvider, useLiveDropped } from "@/lib/live";
 
@@ -57,6 +58,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+        <ThemePicker className="bar-theme" />
         <Clock />
         <button type="button" className="link-button" onClick={logout}>
           로그아웃

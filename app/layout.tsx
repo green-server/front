@@ -2,7 +2,9 @@ import { Doto, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
 import localFont from "next/font/local";
 import type { Viewport } from "next";
 import type { ReactNode } from "react";
+import { THEME_BOOT } from "@/lib/theme";
 import "./globals.css";
+import "./themes.css";
 
 const sans = IBM_Plex_Sans_KR({
   weight: ["400", "500", "700"],
@@ -27,7 +29,10 @@ export const viewport: Viewport = {
 // Each page renders its own <title>, so a route change is announced by name.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko" className={`${sans.variable} ${dot.variable} ${code.variable} ${pixel.variable}`}>
+    <html lang="ko" className={`${sans.variable} ${dot.variable} ${code.variable} ${pixel.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>{children}</body>
     </html>
   );
