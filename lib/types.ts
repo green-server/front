@@ -40,9 +40,14 @@ export type Consultation = {
   serverId: number;
   requestedAt: string;
   authMode: "subscription" | "api_key";
+  model: string;
   status: "requested" | "running" | "done" | "failed";
   summary: string | null;
+  level: ServerLevel | null;
+  feedback: string[];
+  fixes: string[];
 };
+export type ServerLevel = "good" | "fair" | "warning" | "critical";
 export type ToolCall = {
   id: number;
   consultationId: number;

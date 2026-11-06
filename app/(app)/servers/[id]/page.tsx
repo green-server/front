@@ -10,6 +10,8 @@ import { api, useApi, useSubmit } from "@/lib/api";
 import {
   appendMetric,
   CONSULTATION_STATUS,
+  MODELS,
+  SERVER_LEVELS,
   formatDateTime,
   formatKrw,
   isServerEstimated,
@@ -235,11 +237,11 @@ function Consultations({ serverId }: { serverId: number }) {
 
   const start = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const authMode = new FormData(event.currentTarget).get("authMode");
+    const form = new FormData(event.currentTarget);
     return run(async () => {
       const created = await api<Consultation>(`/api/servers/${serverId}/consultations`, {
         method: "POST",
-        body: { authMode },
+        body: { authMode: form.get("authMode"), model: form.get("model") },
       });
       router.push(`/consultations/${created.id}`);
     });
@@ -251,6 +253,16 @@ function Consultations({ serverId }: { serverId: number }) {
     <section aria-labelledby="consultations-heading">
       <h2 id="consultations-heading">AI 컨설팅</h2>
       <form className="consult-start" onSubmit={start}>
+        <label className="field">
+          <span>AI 모델</span>
+          <select name="model" defaultValue={MODELS[0].value}>
+            {MODELS.map((model) => (
+              <option key={model.value} value={model.value}>
+                {model.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <fieldset>
           <legend>Claude 인증 방식</legend>
           <label>
@@ -279,7 +291,10 @@ function Consultations({ serverId }: { serverId: number }) {
             <li key={item.id}>
               <Link href={`/consultations/${item.id}`}>
                 <span>{formatDateTime(item.requestedAt)}</span>
-                <span className="caption">{CONSULTATION_STATUS[item.status]}</span>
+                <span className="caption">
+                  {CONSULTATION_STATUS[item.status]}
+                  {item.level && ` · ${SERVER_LEVELS.find((level) => level.value === item.level)?.label}`}
+                </span>
                 {item.summary && <span className="history-summary">{item.summary}</span>}
               </Link>
             </li>

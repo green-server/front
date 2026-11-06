@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Failure, Loading } from "@/components/Status";
 import { api, useApi, useSubmit } from "@/lib/api";
-import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, TIER_LABEL, undoState, upsertById } from "@/lib/format";
+import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, SERVER_LEVELS, TIER_LABEL, undoState, upsertById } from "@/lib/format";
 import { useLive } from "@/lib/live";
-import type { Consultation, ToolCall } from "@/lib/types";
+import type { Consultation, ServerLevel, ToolCall } from "@/lib/types";
 
 type Detail = Consultation & { toolCalls: ToolCall[] };
 
@@ -55,7 +55,28 @@ export default function ConsultationPage() {
           <dd>{AUTH_MODE_LABEL[data.authMode]}</dd>
         </div>
       </dl>
+      {data.level && <LevelSteps level={data.level} />}
       {data.summary && <p className="consult-summary">{data.summary}</p>}
+      {data.feedback.length > 0 && (
+        <section aria-labelledby="feedback-heading" className="consult-section">
+          <h2 id="feedback-heading">피드백</h2>
+          <ul className="consult-list">
+            {data.feedback.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {data.fixes.length > 0 && (
+        <section aria-labelledby="fixes-heading" className="consult-section">
+          <h2 id="fixes-heading">해결 방법</h2>
+          <ol className="consult-list">
+            {data.fixes.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       <div aria-live="polite">
         {pending.length > 0 && (
@@ -177,5 +198,20 @@ function Command({ text }: { text: string }) {
     <pre className="command">
       <code>{text}</code>
     </pre>
+  );
+}
+
+function LevelSteps({ level }: { level: ServerLevel }) {
+  return (
+    <section aria-labelledby="level-heading" className="consult-section">
+      <h2 id="level-heading">서버 상태</h2>
+      <ol className="level-steps">
+        {SERVER_LEVELS.map((step, index) => (
+          <li key={step.value} data-level={step.value} aria-current={step.value === level ? "step" : undefined}>
+            <span>{index + 1}단계</span> {step.label}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }

@@ -1,4 +1,4 @@
-import type { Consultation, Metric, Recommendation, SavingsReport, Server, ServerSummary, ToolCall } from "./types";
+import type { Consultation, Metric, Recommendation, SavingsReport, Server, ServerLevel, ServerSummary, ToolCall } from "./types";
 
 const krw = new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" });
 const decimal = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 });
@@ -24,6 +24,20 @@ export const RATE_PLAN_LABEL: Record<Server["ratePlan"], string> = {
   cloud_hourly: "클라우드 시간당 요금",
 };
 export const SOURCE_LABEL: Record<Recommendation["source"], string> = { rule: "규칙", ai: "AI" };
+
+export const SERVER_LEVELS: { value: ServerLevel; label: string }[] = [
+  { value: "good", label: "양호" },
+  { value: "fair", label: "보통" },
+  { value: "warning", label: "주의" },
+  { value: "critical", label: "심각" },
+];
+
+export const MODELS = [
+  { value: "claude-sonnet-5-5", label: "Sonnet 5.5" },
+  { value: "claude-opus-5-5", label: "Opus 5.5" },
+  { value: "claude-fable-5-1", label: "Fable 5.1" },
+  { value: "claude-haiku-5-5", label: "Haiku 5.5" },
+];
 
 export const CONSULTATION_STATUS: Record<Consultation["status"], string> = {
   requested: "요청됨",
