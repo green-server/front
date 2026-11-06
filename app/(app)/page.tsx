@@ -7,15 +7,19 @@ import { Trace } from "@/components/Trace";
 import { useApi } from "@/lib/api";
 import { appendMetric, formatKrw, isServerEstimated, KIND_LABEL } from "@/lib/format";
 import { useLive } from "@/lib/live";
-import type { Metric, ServerSummary } from "@/lib/types";
+import type { ActivityReport, Metric, ServerSummary } from "@/lib/types";
 
 const HOUR_MS = 3_600_000;
 
 export default function ServersPage() {
   const { data: servers, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
+  // The rows work without it: a failed count must not take the board down.
+  const activity = useApi<ActivityReport>("/api/reports/activity");
 
   useLive((event) => {
     if (event.type === "reconnected") reload();
+    // A consultation is what files or applies recommendations.
+    if (event.type === "reconnected" || event.type === "consultation") activity.reload();
     if (event.type === "metric") {
       const { watts, isEstimated } = event.metric;
       mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, latestWatts: watts, isEstimated } : s)));
@@ -53,7 +57,7 @@ export default function ServersPage() {
         <ul className="meter-board">
           {servers.map((server) => (
             <li key={server.id}>
-              <ServerRow server={server} />
+              <ServerRow server={server} activity={activity.data?.servers.find((row) => row.serverId === server.id)} />
             </li>
           ))}
         </ul>
@@ -62,7 +66,7 @@ export default function ServersPage() {
   );
 }
 
-function ServerRow({ server }: { server: ServerSummary }) {
+function ServerRow({ server, activity }: { server: ServerSummary; activity?: ActivityReport["servers"][number] }) {
   const { data: metrics, reload, mutate } = useApi<Metric[]>(`/api/servers/${server.id}/metrics?range=1h`);
 
   useLive((event) => {
@@ -83,6 +87,11 @@ function ServerRow({ server }: { server: ServerSummary }) {
       <span className="meter-cost">
         <span className="caption">이번 달 예상 요금</span>
         <span className="figure">{formatKrw(server.monthlyKrw)}</span>
+        {activity !== undefined && activity.open > 0 && (
+          <span className="meter-recs">
+            추천 {activity.open}건{activity.openSavingKrw > 0 && ` · 예상 ${formatKrw(activity.openSavingKrw)}`}
+          </span>
+        )}
       </span>
       <span className="caption meter-range">최근 1시간</span>
       <Trace metrics={metrics ?? []} />

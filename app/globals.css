@@ -783,6 +783,13 @@ main:focus {
   font-weight: 600;
 }
 
+.meter-recs {
+  color: var(--watt);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .meter-range {
   display: none;
   grid-area: range;
