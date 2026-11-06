@@ -1,0 +1,135 @@
+"use client";
+
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { axisTicks, formatDateTime, formatNumber, splitRuns } from "@/lib/format";
+import type { Metric } from "@/lib/types";
+import { Power } from "./Power";
+
+const HEIGHT = 240;
+const MARGIN = { top: 10, right: 10, bottom: 26, left: 46 };
+
+const time = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const day = new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" });
+
+export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(720);
+  const [picked, setPicked] = useState<number | null>(null);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    observer.observe(box.current!);
+    return () => observer.disconnect();
+  }, []);
+
+  const last = metrics.length - 1;
+  const index = picked === null ? last : Math.min(picked, last);
+  const active = metrics[index];
+
+  const times = metrics.map((m) => Date.parse(m.ts));
+  const start = times[0];
+  const span = times[last] - start || 1;
+  const ticks = axisTicks(Math.max(...metrics.map((m) => m.watts)));
+  const top = ticks.at(-1)!;
+
+  const plotWidth = Math.max(width - MARGIN.left - MARGIN.right, 1);
+  const plotHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+  const x = (ms: number) => MARGIN.left + ((ms - start) / span) * plotWidth;
+  const y = (watts: number) => MARGIN.top + plotHeight - (watts / top) * plotHeight;
+
+  const runs = splitRuns(metrics);
+  const timeTicks = (width < 480 ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1]).map((share) => start + span * share);
+
+  const onPointerMove = (event: PointerEvent<SVGSVGElement>) => {
+    const left = event.currentTarget.getBoundingClientRect().left;
+    const target = start + ((event.clientX - left - MARGIN.left) / plotWidth) * span;
+    let nearest = 0;
+    times.forEach((t, i) => {
+      if (Math.abs(t - target) < Math.abs(times[nearest] - target)) nearest = i;
+    });
+    setPicked(nearest);
+  };
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    const step = Math.max(1, Math.round(metrics.length / 60));
+    const next = { ArrowLeft: index - step, ArrowRight: index + step, Home: 0, End: last }[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    setPicked(Math.max(0, Math.min(last, next)));
+  };
+
+  return (
+    <figure className="chart">
+      <figcaption className="chart-head">
+        <span className="chart-reading">
+          <time dateTime={active.ts}>{formatDateTime(active.ts)}</time>
+          <Power value={active.watts} estimated={active.isEstimated} />
+        </span>
+        <span className="chart-legend">
+          {runs.some((run) => !run.estimated) && <LegendEntry label="실측" />}
+          {runs.some((run) => run.estimated) && <LegendEntry label="추정" dashed />}
+        </span>
+      </figcaption>
+      <div ref={box}>
+        <svg
+          width={width}
+          height={HEIGHT}
+          role="slider"
+          tabIndex={0}
+          aria-label="전력 그래프. 좌우 방향키로 시점을 고릅니다."
+          aria-valuemin={0}
+          aria-valuemax={last}
+          aria-valuenow={index}
+          aria-valuetext={`${formatDateTime(active.ts)}, ${formatNumber(active.watts)}W, ${active.isEstimated ? "추정" : "실측"}`}
+          onPointerMove={onPointerMove}
+          onPointerLeave={() => setPicked(null)}
+          onKeyDown={onKeyDown}
+        >
+          {ticks.map((tick) => (
+            <g key={tick}>
+              <line className="chart-grid" x1={MARGIN.left} x2={width - MARGIN.right} y1={y(tick)} y2={y(tick)} />
+              <text className="chart-label" x={MARGIN.left - 8} y={y(tick) + 4} textAnchor="end">
+                {formatNumber(tick)}
+              </text>
+            </g>
+          ))}
+          {timeTicks.map((tick, i) => (
+            <text
+              key={tick}
+              className="chart-label"
+              x={x(tick)}
+              y={HEIGHT - 6}
+              textAnchor={i === 0 ? "start" : i === timeTicks.length - 1 ? "end" : "middle"}
+            >
+              {(showDays ? day : time).format(tick)}
+            </text>
+          ))}
+          {runs.map((run) =>
+            run.points.length === 1 ? (
+              <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
+            ) : (
+              <polyline
+                key={run.points[0].ts}
+                className={run.estimated ? "chart-line chart-line-estimated" : "chart-line"}
+                points={run.points.map((m) => `${x(Date.parse(m.ts))},${y(m.watts)}`).join(" ")}
+              />
+            ),
+          )}
+          {picked !== null && <line className="chart-cursor" x1={x(times[index])} x2={x(times[index])} y1={MARGIN.top} y2={MARGIN.top + plotHeight} />}
+          <circle className="chart-marker" r={4} cx={x(times[index])} cy={y(active.watts)} />
+        </svg>
+      </div>
+    </figure>
+  );
+}
+
+function LegendEntry({ label, dashed }: { label: string; dashed?: boolean }) {
+  return (
+    <span>
+      <svg width="24" height="8" aria-hidden="true">
+        <line className={dashed ? "chart-line chart-line-estimated" : "chart-line"} x1="0" x2="24" y1="4" y2="4" />
+      </svg>
+      {label}
+    </span>
+  );
+}
