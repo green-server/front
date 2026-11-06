@@ -17,15 +17,25 @@ export function Power({ value, estimated, unit = "W", size = "sm" }: Props) {
   return (
     <span className={`power power-${size} ${estimated ? "is-estimated" : "is-measured"}`}>
       <span className="power-value">
-        {whole}
+        <Digits text={whole} rolling={size !== "sm"} />
         {/* Doto's period reads as a plus sign at display sizes: 160+8 is a wrong number. */}
         {fraction && <span className="power-point">.</span>}
-        {fraction}
+        {fraction && <Digits text={fraction} rolling={size !== "sm"} />}
         <span className="power-unit">{unit}</span>
       </span>
       <span className="power-tag">{estimated ? "추정" : "실측"}</span>
     </span>
   );
+}
+
+/** A digit remounts when it changes, so only the wheels that moved turn, like a meter's register. */
+function Digits({ text, rolling }: { text: string; rolling: boolean }) {
+  if (!rolling) return text;
+  return [...text].map((digit, index) => (
+    <span key={`${text.length - index}-${digit}`} className="digit">
+      {digit}
+    </span>
+  ));
 }
 
 /** A won amount at display size. Doto's own ₩ is oversized, so that one glyph is set apart. */

@@ -159,17 +159,18 @@ main:focus {
   align-items: stretch;
   min-height: var(--bar);
   padding-bottom: env(safe-area-inset-bottom);
-  background: var(--watt);
-  color: var(--on-watt);
+  border-top: 1px solid var(--line-2);
+  background: var(--ground);
+  color: var(--ink-2);
   font-size: 0.8125rem;
 }
 
 .wordmark {
+  --logo-mark: var(--watt);
   display: flex;
   align-items: center;
   padding-inline: 14px;
-  background: var(--ink);
-  color: var(--ground);
+  color: var(--ink);
 }
 
 .wordmark svg {
@@ -205,18 +206,18 @@ main:focus {
 
 .bar nav a:hover,
 .link-button:hover {
-  background: color-mix(in srgb, var(--on-watt) 16%, transparent);
+  background: var(--raised);
+  color: var(--ink);
 }
 
 .bar nav a[aria-current="page"] {
-  background: var(--ground);
-  color: var(--ink);
+  background: var(--watt);
+  color: var(--on-watt);
   font-weight: 700;
 }
 
 .bar a:focus-visible,
 .bar button:focus-visible {
-  outline-color: var(--on-watt);
   outline-offset: -3px;
 }
 
@@ -398,6 +399,18 @@ main:focus {
   border-bottom-style: dashed;
 }
 
+.digit {
+  display: inline-block;
+  animation: roll 260ms var(--ease);
+}
+
+@keyframes roll {
+  from {
+    opacity: 0.2;
+    transform: translateY(0.28em);
+  }
+}
+
 .power-md .power-point,
 .power-xl .power-point {
   font-family: var(--pixel);
@@ -545,6 +558,19 @@ main:focus {
   font: 400 1rem/1.4 var(--code);
 }
 
+.field select {
+  padding-right: 34px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink-2) 50%),
+    linear-gradient(-45deg, transparent 50%, var(--ink-2) 50%);
+  background-position:
+    calc(100% - 17px) 50%,
+    calc(100% - 12px) 50%;
+  background-repeat: no-repeat;
+  background-size: 5px 5px;
+}
+
 .field input:hover,
 .field select:hover {
   border-color: var(--ink-2);
@@ -684,19 +710,26 @@ main:focus {
   padding: clamp(48px, 14vh, 128px) 16px 64px;
 }
 
-/* 서버 목록: one scope channel per server */
+/* 서버 목록: one scope channel per server. Channels share the screen, so a lone server fills it. */
 
 .meter-board {
   display: grid;
+  grid-auto-rows: minmax(132px, 1fr);
   gap: 14px;
+  min-height: calc(100dvh - var(--bar) - 190px);
+}
+
+.meter-board li {
+  container-type: size;
 }
 
 .meter-row {
   display: grid;
   grid-template-columns: minmax(10rem, 1fr) minmax(0, 2.4fr) minmax(11rem, auto) minmax(9rem, auto);
+  grid-template-areas: "name trace reading cost";
   gap: 12px 32px;
   align-items: center;
-  min-height: 112px;
+  height: 100%;
   padding: 14px 20px;
   border: 1px solid var(--line-2);
   color: inherit;
@@ -706,7 +739,6 @@ main:focus {
 
 .meter-row:hover {
   border-color: var(--watt);
-  background: var(--raised);
 }
 
 .meter-row-off .power-value,
@@ -716,6 +748,10 @@ main:focus {
   filter: none;
 }
 
+.meter-row-off .chart-area {
+  fill: var(--ink-2);
+}
+
 .meter-name,
 .meter-cost {
   display: grid;
@@ -723,20 +759,22 @@ main:focus {
 }
 
 .meter-name {
+  grid-area: name;
   justify-items: start;
 }
 
 .meter-name strong {
-  font: 700 12px/1.5 var(--pixel);
-  font-size: 24px;
+  font: 700 24px/1.5 var(--pixel);
   -webkit-font-smoothing: none;
 }
 
 .meter-reading {
+  grid-area: reading;
   text-align: right;
 }
 
 .meter-cost {
+  grid-area: cost;
   justify-items: end;
 }
 
@@ -745,11 +783,59 @@ main:focus {
   font-weight: 600;
 }
 
+.meter-range {
+  display: none;
+  grid-area: range;
+}
+
 .trace {
+  grid-area: trace;
   display: block;
   width: 100%;
   height: 72px;
   overflow: visible;
+}
+
+@container (min-height: 280px) {
+  .meter-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "name cost"
+      "reading range"
+      "trace trace";
+    align-items: start;
+    padding: 20px 24px;
+  }
+
+  .meter-reading {
+    text-align: left;
+  }
+
+  .meter-range {
+    display: block;
+    align-self: end;
+    text-align: right;
+  }
+
+  .meter-row .power-value {
+    font-size: clamp(4.5rem, 9cqw, 8rem);
+    line-height: 1;
+    border-bottom-width: 3px;
+  }
+
+  .meter-row .power-tag {
+    font-size: 1rem;
+  }
+
+  .trace {
+    align-self: stretch;
+    height: 100%;
+    /* Scope graticule: ten divisions across, four up. */
+    background-image: radial-gradient(circle, var(--line-2) 1px, transparent 1.5px);
+    background-size: 10% 25%;
+    background-position: 0 100%;
+  }
 }
 
 .empty {
@@ -855,6 +941,49 @@ main:focus {
   filter: var(--bloom);
 }
 
+.chart-area {
+  fill: var(--watt);
+  opacity: 0.09;
+}
+
+.chart-box {
+  position: relative;
+}
+
+.chart-tip {
+  position: absolute;
+  top: 16px;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-2);
+  background: var(--ground);
+  color: var(--ink-2);
+  font: 400 0.75rem/1.5 var(--code);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.chart-tip strong {
+  color: var(--watt);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.chart-tip strong span {
+  color: var(--ink-2);
+  font: 500 0.75rem var(--sans);
+}
+
+.chart-peak {
+  fill: var(--ink);
+  font: 500 11px var(--sans);
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 4px;
+}
+
 .chart-line-estimated {
   stroke-dasharray: 6 5;
   stroke-linecap: butt;
@@ -947,19 +1076,10 @@ main:focus {
 }
 
 .entry {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 24px;
-  padding-block: 14px;
   border-bottom: 1px solid var(--line);
 }
 
-.entry:first-child {
-  padding-top: 0;
-}
-
 .entry:last-child {
-  padding-bottom: 0;
   border-bottom: 0;
 }
 
@@ -967,12 +1087,48 @@ main:focus {
   color: var(--ink-2);
 }
 
+.entry summary {
+  display: flex;
+  gap: 8px 16px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-height: 44px;
+  padding-block: 10px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.entry summary::-webkit-details-marker {
+  display: none;
+}
+
+.entry summary:hover .entry-title {
+  color: var(--watt);
+}
+
 .entry-title {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 2px 10px;
   align-items: baseline;
+  padding-left: 16px;
   font-weight: 700;
+}
+
+/* A drawn caret, turned when the row opens. */
+.entry-title::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 2px;
+  border-block: 4px solid transparent;
+  border-left: 6px solid var(--ink-2);
+  transition: transform 120ms;
+}
+
+details[open] .entry-title::before {
+  transform: rotate(90deg);
 }
 
 .entry-title .caption {
@@ -980,26 +1136,43 @@ main:focus {
 }
 
 .entry-saving {
-  display: inline-flex;
-  gap: 8px;
-  align-items: baseline;
-  justify-content: flex-end;
-}
-
-.entry-saving .figure {
+  flex: none;
   font-weight: 600;
 }
 
-.entry-detail,
-.entry-actions {
-  grid-column: 1 / -1;
+.entry-detail {
+  max-width: 65ch;
+  padding-left: 16px;
 }
 
 .entry-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 4px 14px;
+  align-items: center;
+  margin-block: 12px 16px;
+  padding-left: 16px;
+}
+
+.text-button {
+  min-height: 38px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 500 0.875rem/1 var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.text-button:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.text-button:disabled {
+  opacity: 0.55;
+  cursor: progress;
 }
 
 .consult-pane {
@@ -1015,11 +1188,9 @@ main:focus {
   justify-items: start;
 }
 
-.consult-start fieldset {
+.choice {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  align-items: center;
+  gap: 2px;
 }
 
 .consult-start legend {
@@ -1028,18 +1199,40 @@ main:focus {
   font-size: 0.8125rem;
 }
 
-.consult-start fieldset label {
+.choice label {
+  position: relative;
   display: inline-flex;
-  gap: 6px;
   align-items: center;
-  min-height: 32px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  font-size: 0.875rem;
+  cursor: pointer;
 }
 
-input[type="radio"] {
-  width: 18px;
-  height: 18px;
+.choice label:hover {
+  color: var(--ink);
+}
+
+.choice label:has(input:checked) {
+  border-color: var(--watt);
+  background: var(--watt);
+  color: var(--on-watt);
+  font-weight: 700;
+}
+
+.choice label:has(input:focus-visible) {
+  outline: 2px solid var(--watt);
+  outline-offset: 2px;
+}
+
+.choice input {
+  position: absolute;
+  inset: 0;
   margin: 0;
-  accent-color: var(--watt);
+  opacity: 0;
+  cursor: pointer;
 }
 
 .history li {
@@ -1350,9 +1543,20 @@ ol.consult-list {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .trace {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .meter-board {
+    grid-auto-rows: auto;
+    min-height: 0;
+  }
+
+  .meter-board li {
+    container-type: normal;
+  }
+
+  .meter-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name reading cost"
+      "trace trace trace";
   }
 
   span.trace {
@@ -1437,11 +1641,12 @@ ol.consult-list {
 
   .meter-row {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "name" "reading" "trace" "cost";
     padding: 14px;
   }
 
   .trace {
-    grid-row: auto;
+    height: 132px;
   }
 
   .meter-reading {
@@ -1456,14 +1661,6 @@ ol.consult-list {
 
   .compare {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .entry {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .entry-saving {
-    justify-content: flex-start;
   }
 
   .col-pid,
@@ -1490,6 +1687,7 @@ ol.consult-list {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .digit,
   .chart-sweep,
   .chart-ping,
   .cursor {

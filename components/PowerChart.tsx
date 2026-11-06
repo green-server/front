@@ -5,7 +5,6 @@ import { axisTicks, formatDateTime, formatNumber, splitRuns } from "@/lib/format
 import type { Metric } from "@/lib/types";
 import { Power } from "./Power";
 
-const HEIGHT = 300;
 const MARGIN = { top: 12, right: 12, bottom: 26, left: 46 };
 
 const time = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
@@ -22,6 +21,7 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
     return () => observer.disconnect();
   }, []);
 
+  const HEIGHT = Math.round(Math.min(460, Math.max(260, width * 0.44)));
   const last = metrics.length - 1;
   const index = picked === null ? last : Math.min(picked, last);
   const active = metrics[index];
@@ -37,6 +37,8 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
   const x = (ms: number) => MARGIN.left + ((ms - start) / span) * plotWidth;
   const y = (watts: number) => MARGIN.top + plotHeight - (watts / top) * plotHeight;
 
+  const peak = metrics.reduce((best, m) => (m.watts > best.watts ? m : best));
+  const peakX = x(Date.parse(peak.ts));
   const runs = splitRuns(metrics);
   const timeTicks = (width < 480 ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1]).map((share) => start + span * share);
 
@@ -72,7 +74,22 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
           {runs.some((run) => run.estimated) && <LegendEntry label="추정" dashed />}
         </span>
       </figcaption>
-      <div ref={box}>
+      <div ref={box} className="chart-box">
+        {picked !== null && (
+          <div
+            className="chart-tip"
+            aria-hidden="true"
+            style={x(times[index]) > width / 2 ? { right: width - x(times[index]) + 12 } : { left: x(times[index]) + 12 }}
+          >
+            <strong>
+              {formatNumber(active.watts)}W <span>{active.isEstimated ? "추정" : "실측"}</span>
+            </strong>
+            <span>{formatDateTime(active.ts)}</span>
+            <span>
+              CPU {formatNumber(active.cpuPct)}% · 메모리 {formatNumber(active.memPct)}%
+            </span>
+          </div>
+        )}
         <svg
           width={width}
           height={HEIGHT}
@@ -111,14 +128,27 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
             run.points.length === 1 ? (
               <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
             ) : (
-              <polyline
-                key={run.points[0].ts}
-                className={run.estimated ? "chart-line chart-line-estimated" : "chart-line"}
-                points={run.points.map((m) => `${x(Date.parse(m.ts))},${y(m.watts)}`).join(" ")}
-              />
+              <g key={run.points[0].ts}>
+                <polygon
+                  className="chart-area"
+                  points={`${x(Date.parse(run.points[0].ts))},${y(0)} ${run.points.map((m) => `${x(Date.parse(m.ts))},${y(m.watts)}`).join(" ")} ${x(Date.parse(run.points.at(-1)!.ts))},${y(0)}`}
+                />
+                <polyline
+                  className={run.estimated ? "chart-line chart-line-estimated" : "chart-line"}
+                  points={run.points.map((m) => `${x(Date.parse(m.ts))},${y(m.watts)}`).join(" ")}
+                />
+              </g>
             ),
           )}
           </g>
+          <text
+            className="chart-peak"
+            x={Math.max(MARGIN.left + 4, Math.min(peakX, width - MARGIN.right - 4))}
+            y={Math.max(y(peak.watts) - 8, 12)}
+            textAnchor={peakX > width * 0.8 ? "end" : peakX < width * 0.2 ? "start" : "middle"}
+          >
+            최고 {formatNumber(peak.watts)}W
+          </text>
           {picked !== null && <line className="chart-cursor" x1={x(times[index])} x2={x(times[index])} y1={MARGIN.top} y2={MARGIN.top + plotHeight} />}
           {/* Keyed by sample, so the ring fires once per reading the agent sends. */}
           {picked === null && <circle key={active.ts} className="chart-ping" r={4} cx={x(times[index])} cy={y(active.watts)} />}

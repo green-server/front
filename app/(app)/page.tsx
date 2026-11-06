@@ -74,10 +74,9 @@ function ServerRow({ server }: { server: ServerSummary }) {
     <Link href={`/servers/${server.id}`} className={server.online ? "meter-row" : "meter-row meter-row-off"}>
       <span className="meter-name">
         <strong>{server.name}</strong>
-        <span className="caption">{KIND_LABEL[server.kind]}</span>
+        {server.name !== KIND_LABEL[server.kind] && <span className="caption">{KIND_LABEL[server.kind]}</span>}
         <OnlineState online={server.online} />
       </span>
-      <Trace metrics={metrics ?? []} />
       <span className="meter-reading">
         <Power value={server.latestWatts} estimated={isServerEstimated(server)} size="md" />
       </span>
@@ -85,6 +84,8 @@ function ServerRow({ server }: { server: ServerSummary }) {
         <span className="caption">이번 달 예상 요금</span>
         <span className="figure">{formatKrw(server.monthlyKrw)}</span>
       </span>
+      <span className="caption meter-range">최근 1시간</span>
+      <Trace metrics={metrics ?? []} />
     </Link>
   );
 }

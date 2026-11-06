@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Krw, Power } from "@/components/Power";
 import { Failure, Loading } from "@/components/Status";
 import { useApi } from "@/lib/api";
@@ -42,6 +43,22 @@ export default function ReportsPage() {
 function Report({ report, servers }: { report: SavingsReport; servers: ServerSummary[] }) {
   const max = Math.max(...report.bySource.map((row) => row.savedKrwMonth), 1);
   const total = report.bySource.reduce((sum, row) => sum + row.savedKrwMonth, 0);
+
+  if (report.items.length === 0 && total === 0) {
+    const proposed = report.bySource.reduce((sum, row) => sum + row.total, 0);
+    return (
+      <div className="empty">
+        <p>
+          {proposed > 0
+            ? `추천 ${proposed}건이 기다리고 있습니다. 조치를 적용하고 재측정이 끝나면 줄어든 전력과 금액이 여기에 나타납니다.`
+            : "아직 적용한 조치가 없습니다. 조치를 적용하고 재측정이 끝나면 절약 금액이 여기에 나타납니다."}
+        </p>
+        <Link href="/" className="button button-primary">
+          서버에서 추천 보기
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="console">

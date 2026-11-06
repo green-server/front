@@ -189,20 +189,30 @@ function Recommendations({ serverId }: { serverId: number }) {
     if (event.type === "reconnected" || (event.type === "consultation" && event.consultation.serverId === serverId)) reload();
   });
 
-  const ordered = data?.toSorted((a, b) => Number(b.status === "open") - Number(a.status === "open"));
+  // What is still open comes first, biggest saving on top.
+  const ordered = data?.toSorted(
+    (a, b) => Number(b.status === "open") - Number(a.status === "open") || b.estSavingKrw - a.estSavingKrw,
+  );
+  const open = data?.filter((item) => item.status === "open") ?? [];
+  const saving = open.reduce((sum, item) => sum + item.estSavingKrw, 0);
 
   return (
     <section aria-labelledby="recommendations-heading" className="pane">
       <div className="pane-head">
         <h2 id="recommendations-heading">추천</h2>
+        {open.length > 0 && (
+          <span className="caption">
+            대기 {open.length}건{saving > 0 && ` · 예상 ${formatKrw(saving)}`}
+          </span>
+        )}
       </div>
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
       {data?.length === 0 && <p className="status">지금은 추천할 조치가 없습니다.</p>}
       {ordered && ordered.length > 0 && (
         <ul className="entries">
-          {ordered.map((item) => (
-            <RecommendationEntry key={item.id} item={item} onChange={(next) => mutate((list) => upsertById(list, next))} />
+          {ordered.map((item, index) => (
+            <RecommendationEntry key={item.id} item={item} defaultOpen={index === 0} onChange={(next) => mutate((list) => upsertById(list, next))} />
           ))}
         </ul>
       )}
@@ -210,7 +220,15 @@ function Recommendations({ serverId }: { serverId: number }) {
   );
 }
 
-function RecommendationEntry({ item, onChange }: { item: Recommendation; onChange: (next: Recommendation) => void }) {
+function RecommendationEntry({
+  item,
+  defaultOpen,
+  onChange,
+}: {
+  item: Recommendation;
+  defaultOpen: boolean;
+  onChange: (next: Recommendation) => void;
+}) {
   const router = useRouter();
   const { busy, error, run } = useSubmit();
 
@@ -228,41 +246,44 @@ function RecommendationEntry({ item, onChange }: { item: Recommendation; onChang
 
   return (
     <li className={item.status === "open" ? "entry" : "entry entry-closed"}>
-      <p className="entry-title">
-        {recommendationTypeLabel(item.type)}
-        <span className="caption">{SOURCE_LABEL[item.source]} 추천</span>
-        {item.status !== "open" && <span className="caption">{RECOMMENDATION_STATUS[item.status]}</span>}
-      </p>
-      <p className="entry-saving">
-        <span className="caption">예상 절약</span>
-        <span className="figure">{formatKrw(item.estSavingKrw)}</span>
-      </p>
-      <p className="entry-detail">{item.detail}</p>
-      {error && (
-        <p className="error entry-detail" role="alert">
-          {error}
-        </p>
-      )}
-      {item.status === "open" && (
+      <details open={defaultOpen}>
+        <summary>
+          <span className="entry-title">
+            {recommendationTypeLabel(item.type)}
+            <span className="caption">
+              {SOURCE_LABEL[item.source]} 추천
+              {item.status !== "open" && ` · ${RECOMMENDATION_STATUS[item.status]}`}
+            </span>
+          </span>
+          {item.estSavingKrw > 0 && <span className="figure entry-saving">{formatKrw(item.estSavingKrw)}</span>}
+        </summary>
+        <p className="entry-detail">{item.detail}</p>
+        {error && (
+          <p className="error entry-detail" role="alert">
+            {error}
+          </p>
+        )}
+        {item.status === "open" && (
           <div className="entry-actions">
             <button type="button" className="button button-primary" onClick={execute} disabled={busy}>
               적용해주세요
             </button>
-            <button type="button" className="button" onClick={apply} disabled={busy}>
+            <button type="button" className="text-button" onClick={apply} disabled={busy}>
               적용했어요
             </button>
-            <button type="button" className="button" onClick={dismiss} disabled={busy}>
+            <button type="button" className="text-button" onClick={dismiss} disabled={busy}>
               무시
             </button>
           </div>
-      )}
-      {item.status === "applied" && (
+        )}
+        {item.status === "applied" && (
           <div className="entry-actions">
-            <button type="button" className="button" onClick={unapply} disabled={busy}>
+            <button type="button" className="text-button" onClick={unapply} disabled={busy}>
               적용 취소
             </button>
           </div>
-      )}
+        )}
+      </details>
     </li>
   );
 }
@@ -309,7 +330,7 @@ function Consultations({ serverId }: { serverId: number }) {
             ))}
           </select>
         </label>
-        <fieldset>
+        <fieldset className="choice">
           <legend>Claude 인증 방식</legend>
           <label>
             <input type="radio" name="authMode" value="api_key" defaultChecked /> API 키
