@@ -1516,6 +1516,27 @@ ol.consult-list {
   margin-top: 16px;
 }
 
+.plan-make {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  margin-top: 16px;
+}
+
+.plan-ai {
+  display: grid;
+  gap: 32px;
+  min-width: 0;
+}
+
+.plan-summary {
+  margin-top: 0;
+}
+
+.plan-go {
+  margin-top: 20px;
+}
+
 .plan-rules {
   display: grid;
   gap: 10px;
