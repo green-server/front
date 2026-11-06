@@ -1004,7 +1004,7 @@ ol.entry-actions {
   display: block;
   height: 8px;
   margin-block: 6px;
-  background: var(--raised);
+  background: var(--line);
 }
 
 .compare-track span {

@@ -62,7 +62,8 @@ const RECOMMENDATION_TYPE_LABEL: Record<string, string> = {
   night_stop: "야간 중지",
   runaway_process: "폭주 프로세스",
 };
-export const recommendationTypeLabel = (type: string) => RECOMMENDATION_TYPE_LABEL[type] ?? type;
+/** The AI may invent a type; its snake_case code means nothing to the reader. */
+export const recommendationTypeLabel = (type: string) => RECOMMENDATION_TYPE_LABEL[type] ?? "기타 제안";
 
 /** A live reading decides first; powerSource covers servers with no reading yet. */
 export const isServerEstimated = (server: Pick<ServerSummary, "isEstimated" | "powerSource">) =>
