@@ -1,7 +1,7 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY . .
-ARG NEXT_PUBLIC_API_URL=https://gsw226.xyz
+ARG NEXT_PUBLIC_API_URL=https://green.gsw226.xyz
 ENV NODE_OPTIONS=--max-old-space-size=1024
 RUN npm ci && npm run build
 
