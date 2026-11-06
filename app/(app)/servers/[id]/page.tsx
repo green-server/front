@@ -286,6 +286,8 @@ function Consultations({ serverId }: { serverId: number }) {
   const router = useRouter();
   const { data, error, reload, mutate } = useApi<Consultation[]>(`/api/servers/${serverId}/consultations`);
   const { busy, error: startError, run } = useSubmit();
+  // Unset until the owner picks: the last run's settings are the ones known to work on this server.
+  const [picked, setPicked] = useState<{ authMode?: string; model?: string }>({});
 
   useLive((event) => {
     if (event.type === "reconnected") reload();
@@ -294,19 +296,20 @@ function Consultations({ serverId }: { serverId: number }) {
     }
   });
 
+  const history = data?.toSorted((a, b) => Date.parse(b.requestedAt) - Date.parse(a.requestedAt));
+  const authMode = picked.authMode ?? history?.[0]?.authMode ?? "subscription";
+  const model = picked.model ?? history?.[0]?.model ?? MODELS[0].value;
+
   const start = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
     return run(async () => {
       const created = await api<Consultation>(`/api/servers/${serverId}/consultations`, {
         method: "POST",
-        body: { authMode: form.get("authMode"), model: form.get("model") },
+        body: { authMode, model },
       });
       router.push(`/consultations/${created.id}`);
     });
   };
-
-  const history = data?.toSorted((a, b) => Date.parse(b.requestedAt) - Date.parse(a.requestedAt));
 
   return (
     <section aria-labelledby="consultations-heading" className="pane consult-pane">
@@ -316,7 +319,7 @@ function Consultations({ serverId }: { serverId: number }) {
       <form className="consult-start" onSubmit={start}>
         <label className="field">
           <span>AI 모델</span>
-          <select name="model" defaultValue={MODELS[0].value}>
+          <select name="model" value={model} onChange={(e) => setPicked({ ...picked, model: e.target.value })}>
             {MODELS.map((model) => (
               <option key={model.value} value={model.value}>
                 {model.label}
@@ -327,10 +330,24 @@ function Consultations({ serverId }: { serverId: number }) {
         <fieldset className="choice">
           <legend>Claude 인증 방식</legend>
           <label>
-            <input type="radio" name="authMode" value="api_key" defaultChecked /> API 키
+            <input
+              type="radio"
+              name="authMode"
+              value="api_key"
+              checked={authMode === "api_key"}
+              onChange={() => setPicked({ ...picked, authMode: "api_key" })}
+            />{" "}
+            API 키
           </label>
           <label>
-            <input type="radio" name="authMode" value="subscription" /> 구독
+            <input
+              type="radio"
+              name="authMode"
+              value="subscription"
+              checked={authMode === "subscription"}
+              onChange={() => setPicked({ ...picked, authMode: "subscription" })}
+            />{" "}
+            구독
           </label>
         </fieldset>
         <button className="button button-primary" disabled={busy}>
