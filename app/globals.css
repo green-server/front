@@ -1624,6 +1624,11 @@ ol.consult-list {
   margin-top: 6px;
 }
 
+.call-command {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
 /* 계정 */
 
 .account {

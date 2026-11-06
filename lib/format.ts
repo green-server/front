@@ -110,6 +110,15 @@ export function appendStream(entries: StreamEntry[], entry: StreamEntry) {
   return entries.some((existing) => existing.seq === entry.seq) ? entries : [...entries, entry];
 }
 
+export function outcome(call: Pick<ToolCall, "decision" | "exitCode">) {
+  if (call.decision === "denied") return "거부됨";
+  if (call.decision === "blocked") return "차단됨";
+  if (call.decision === "pending") return "허용 대기";
+  const decided = call.decision === "approved" ? "허용됨" : "자동 실행";
+  if (call.exitCode === null) return `${decided}, 실행 중`;
+  return `${decided}, 종료 코드 ${call.exitCode}`;
+}
+
 export type UndoState = "unavailable" | "ready" | "running" | "done" | "failed";
 
 /** An action can be undone when it ran successfully, recorded an undo command, and has no live undo. */

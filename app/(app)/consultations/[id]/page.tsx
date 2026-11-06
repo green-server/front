@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Session, useConsultation } from "@/components/Session";
 import { Failure, Loading } from "@/components/Status";
 import { api, useSubmit } from "@/lib/api";
-import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, SERVER_LEVELS, TIER_LABEL, undoState } from "@/lib/format";
+import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, outcome, SERVER_LEVELS, TIER_LABEL, undoState } from "@/lib/format";
 import type { ServerLevel, ToolCall } from "@/lib/types";
 
 export default function ConsultationPage() {
@@ -193,14 +193,6 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
       )}
     </li>
   );
-}
-
-function outcome(call: ToolCall) {
-  if (call.decision === "denied") return "거부됨";
-  if (call.decision === "blocked") return "차단됨";
-  const decided = call.decision === "approved" ? "허용됨" : "자동 실행";
-  if (call.exitCode === null) return `${decided}, 실행 중`;
-  return `${decided}, 종료 코드 ${call.exitCode}`;
 }
 
 function Command({ text }: { text: string }) {

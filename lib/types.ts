@@ -75,6 +75,19 @@ export type SavingsReport = {
   bySource: { source: "rule" | "ai"; total: number; applied: number; savedKrwMonth: number }[];
 };
 
+export type ActivityReport = {
+  servers: { serverId: number; serverName: string; total: number; open: number; applied: number; openSavingKrw: number }[];
+  calls: {
+    id: number;
+    command: string;
+    decision: ToolCall["decision"];
+    exitCode: number | null;
+    consultationId: number;
+    requestedAt: string;
+    serverName: string;
+  }[];
+};
+
 export type StreamEntry = { seq: number; kind: "text" | "command" | "output"; text: string };
 
 export type ApiErrorBody = { error: { code: string; message: string } };
