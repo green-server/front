@@ -13,6 +13,7 @@ const dateTime = new Intl.DateTimeFormat("ko-KR", {
 export const formatKrw = (value: number) => krw.format(value);
 export const formatNumber = (value: number) => decimal.format(value);
 export const formatDateTime = (iso: string) => dateTime.format(new Date(iso));
+export const formatDate = (iso: string) => new Intl.DateTimeFormat("ko-KR", { dateStyle: "long" }).format(new Date(iso));
 
 export const KIND_LABEL: Record<Server["kind"], string> = {
   baremetal: "베어메탈",

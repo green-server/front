@@ -26,12 +26,15 @@ function switchTheme(next: Theme, from: HTMLElement) {
   });
 }
 
-export function ThemePicker({ className }: { className?: string }) {
-  const theme = useSyncExternalStore(
+const useTheme = () =>
+  useSyncExternalStore(
     onChange,
     () => document.documentElement.dataset.theme ?? "console",
     () => "console",
   );
+
+export function ThemePicker({ className }: { className?: string }) {
+  const theme = useTheme();
 
   return (
     <label className={className}>
@@ -44,5 +47,30 @@ export function ThemePicker({ className }: { className?: string }) {
         ))}
       </select>
     </label>
+  );
+}
+
+/** The same choice as the bar's picker, shown as small previews of each world. */
+export function ThemeTiles() {
+  const theme = useTheme();
+
+  return (
+    <div className="theme-tiles" role="radiogroup" aria-label="화면 테마">
+      {THEMES.map((option) => (
+        <label key={option.value} className="theme-tile" data-preview={option.value}>
+          <input
+            type="radio"
+            name="theme"
+            value={option.value}
+            checked={theme === option.value}
+            onChange={(event) => switchTheme(option.value, event.target)}
+          />
+          <svg viewBox="0 0 120 56" preserveAspectRatio="none" aria-hidden="true">
+            <polyline points="0,46 22,44 34,45 42,14 54,12 62,44 84,43 92,30 100,44 120,42" />
+          </svg>
+          <span>{option.label}</span>
+        </label>
+      ))}
+    </div>
   );
 }

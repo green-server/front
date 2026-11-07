@@ -208,42 +208,6 @@
   border-radius: 14px;
 }
 
-[data-theme="space"] .bar {
-  right: 50%;
-  bottom: 14px;
-  left: auto;
-  min-height: 46px;
-  max-width: calc(100vw - 24px);
-  padding: 4px;
-  overflow: hidden;
-  border: 1px solid var(--line-2);
-  border-radius: 12px;
-  background: var(--glass);
-  transform: translateX(50%);
-}
-
-[data-theme="space"] .bar nav {
-  flex: none;
-}
-
-[data-theme="space"] .bar nav a,
-[data-theme="space"] .bar .link-button {
-  border-radius: 8px;
-}
-
-[data-theme="space"] .bar-theme select {
-  border-radius: 6px;
-  background: transparent;
-}
-
-[data-theme="space"] .bar-theme select option {
-  background: #0b0f22;
-}
-
-[data-theme="space"] .page {
-  padding-bottom: calc(var(--bar) + 96px);
-}
-
 [data-theme="space"] .gate-form {
   border-left: 0;
   background: var(--glass);
@@ -422,14 +386,6 @@
   color: #fff;
 }
 
-[data-theme="arcade"] .field input,
-[data-theme="arcade"] .field select,
-[data-theme="arcade"] .bar-theme select {
-  border: 0;
-  box-shadow: inset 4px 4px 0 #000;
-  background-color: var(--raised);
-}
-
 /* Lines step between samples rather than glide, and no joint is rounded. */
 [data-theme="arcade"] .chart-line {
   stroke-width: 3;
@@ -470,17 +426,6 @@
 
 [data-theme="arcade"] .cursor {
   animation-timing-function: steps(1);
-}
-
-[data-theme="arcade"] .bar {
-  border-top: 0;
-  background: #000;
-  box-shadow: 0 -4px 0 var(--ink);
-}
-
-[data-theme="arcade"] .bar nav a[aria-current="page"] {
-  background: #ffcd75;
-  color: #1a1c2c;
 }
 
 [data-theme="arcade"] .approval {
@@ -672,25 +617,6 @@
 
 [data-theme="blueprint"] .level-steps [aria-current] {
   border-color: transparent;
-}
-
-/* The bar is the drawing's title block. */
-[data-theme="blueprint"] .bar {
-  border-top: 3px double var(--ink);
-  background: var(--ground);
-  color: var(--ink);
-}
-
-[data-theme="blueprint"] .bar nav a,
-[data-theme="blueprint"] .bar .link-button {
-  border-right: 1px solid var(--line-2);
-  font-family: var(--pixel);
-  font-size: 1.0625rem;
-  font-weight: 700;
-}
-
-[data-theme="blueprint"] .bar nav a[aria-current="page"] {
-  background: var(--watt);
 }
 
 [data-theme="blueprint"] .gate-form {
@@ -946,17 +872,6 @@
   color: var(--ink);
 }
 
-[data-theme="pop"] .bar {
-  border-top: 3px solid var(--ink);
-  background: #fff;
-  color: var(--ink);
-}
-
-[data-theme="pop"] .bar nav a[aria-current="page"] {
-  background: var(--ink);
-  color: #fff;
-}
-
 [data-theme="pop"] .gate-mark {
   color: var(--ink);
 }
@@ -975,16 +890,6 @@
 }
 
 @media (max-width: 620px) {
-  [data-theme="space"] .bar {
-    right: 12px;
-    left: 12px;
-    max-width: none;
-    transform: none;
-  }
-
-  [data-theme="space"] .bar nav {
-    flex: 1;
-  }
 
   [data-theme="blueprint"] h1,
   [data-theme="pop"] h1 {

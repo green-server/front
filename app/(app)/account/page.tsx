@@ -1,14 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
-import { Failure, Loading } from "@/components/Status";
-import { ThemePicker } from "@/components/ThemePicker";
+import { Power } from "@/components/Power";
+import { Failure, Loading, OnlineState } from "@/components/Status";
+import { ThemeTiles } from "@/components/ThemePicker";
 import { api, useApi, useSubmit, clearApiCache } from "@/lib/api";
-import type { User } from "@/lib/types";
+import { formatDate, formatKrw, isServerEstimated } from "@/lib/format";
+import type { ActivityReport, ServerSummary, User } from "@/lib/types";
 
 export default function AccountPage() {
   const { data: user, error, reload, mutate } = useApi<User>("/api/me");
+  const servers = useApi<ServerSummary[]>("/api/servers");
+  const activity = useApi<ActivityReport>("/api/reports/activity");
 
   return (
     <>
@@ -20,18 +25,12 @@ export default function AccountPage() {
       {!error && !user && <Loading />}
       {user && (
         <div className="account">
+          <Profile user={user} servers={servers.data} activity={activity.data} />
           <section aria-labelledby="profile-heading" className="pane account-pane">
             <div className="pane-head">
               <h2 id="profile-heading">프로필</h2>
             </div>
-            <p className="caption">{user.email}</p>
             <NameForm name={user.name} onSaved={(next) => mutate(() => next)} />
-          </section>
-          <section aria-labelledby="theme-heading" className="pane">
-            <div className="pane-head">
-              <h2 id="theme-heading">화면</h2>
-            </div>
-            <ThemePicker className="field" />
           </section>
           <section aria-labelledby="password-heading" className="pane">
             <div className="pane-head">
@@ -39,10 +38,78 @@ export default function AccountPage() {
             </div>
             <PasswordForm />
           </section>
+          <section aria-labelledby="theme-heading" className="pane account-wide">
+            <div className="pane-head">
+              <h2 id="theme-heading">화면 테마</h2>
+            </div>
+            <ThemeTiles />
+          </section>
+          {servers.data && servers.data.length > 0 && <MyServers servers={servers.data} />}
           <DeleteAccount />
         </div>
       )}
     </>
+  );
+}
+
+function Profile({ user, servers, activity }: { user: User; servers?: ServerSummary[]; activity?: ActivityReport }) {
+  const online = servers?.filter((server) => server.online).length ?? 0;
+  const monthly = servers?.reduce((sum, server) => sum + server.monthlyKrw, 0) ?? 0;
+  const open = activity?.servers.reduce((sum, row) => sum + row.open, 0) ?? 0;
+  const applied = activity?.servers.reduce((sum, row) => sum + row.applied, 0) ?? 0;
+
+  return (
+    <header className="profile account-wide">
+      <span className="profile-mark" aria-hidden="true">
+        {[...user.name][0]}
+      </span>
+      <div className="profile-who">
+        <p className="profile-name">{user.name}</p>
+        <p className="caption">{user.email}</p>
+        <p className="caption">{formatDate(user.createdAt)} 가입</p>
+      </div>
+      <dl className="profile-stats">
+        <div>
+          <dt>등록한 서버</dt>
+          <dd className="figure">
+            {servers?.length ?? "–"}대<span className="caption"> 연결 {online}대</span>
+          </dd>
+        </div>
+        <div>
+          <dt>이번 달 예상 요금</dt>
+          <dd className="figure">{formatKrw(monthly)}</dd>
+        </div>
+        <div>
+          <dt>대기 중인 추천</dt>
+          <dd className="figure">{open}건</dd>
+        </div>
+        <div>
+          <dt>적용한 조치</dt>
+          <dd className="figure">{applied}건</dd>
+        </div>
+      </dl>
+    </header>
+  );
+}
+
+function MyServers({ servers }: { servers: ServerSummary[] }) {
+  return (
+    <section aria-labelledby="servers-heading" className="pane">
+      <div className="pane-head">
+        <h2 id="servers-heading">내 서버</h2>
+      </div>
+      <ul className="account-servers">
+        {servers.map((server) => (
+          <li key={server.id}>
+            <Link href={`/servers/${server.id}`}>
+              <strong>{server.name}</strong>
+              <OnlineState online={server.online} />
+              <Power value={server.latestWatts} estimated={isServerEstimated(server)} />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
