@@ -7,7 +7,8 @@
 [data-theme="space"] body,
 [data-theme="aurora"] body,
 [data-theme="abyss"] body,
-[data-theme="lava"] body {
+[data-theme="lava"] body,
+[data-theme="modern"] body {
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
@@ -629,6 +630,9 @@
   --glass: var(--raised);
   --round: 10px;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  --glow: rgb(76 195 138 / 0.16);
+  --rim: rgb(76 195 138 / 0.95);
+  --aura: rgb(76 195 138 / 0.22);
 }
 
 @media (prefers-color-scheme: light) {
@@ -646,6 +650,9 @@
     --bad: #c2261c;
     --on-state: #ffffff;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 1px 1px rgb(0 0 0 / 0.03);
+    --glow: rgb(10 125 74 / 0.09);
+    --rim: rgb(10 125 74 / 0.55);
+    --aura: rgb(10 125 74 / 0.1);
   }
 }
 
@@ -653,6 +660,38 @@
   background: var(--ground);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
+}
+
+/* A slow green light over the top of the page, and a fine grain so the dark is not flat. */
+[data-theme="modern"] body::before {
+  content: "";
+  position: fixed;
+  inset: -20vh -10vw auto;
+  z-index: -1;
+  height: 70vh;
+  background:
+    radial-gradient(40% 60% at 30% 30%, var(--aura), transparent 70%),
+    radial-gradient(35% 50% at 72% 20%, rgb(80 160 255 / 0.07), transparent 70%);
+  filter: blur(20px);
+  animation: aura 26s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+[data-theme="modern"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+@keyframes aura {
+  to {
+    transform: translate3d(8vw, 6vh, 0) scale(1.15);
+  }
 }
 
 [data-theme="modern"] :is(h1, h2, h3) {
@@ -675,10 +714,31 @@
 }
 
 [data-theme="modern"] :is(.pane, .form-pane, .meter-row) {
+  position: relative;
   border: 1px solid var(--line-2);
   border-radius: var(--round);
-  background: var(--raised);
+  background: radial-gradient(480px circle at var(--mx, -999px) var(--my, -999px), var(--glow), transparent 60%), var(--raised);
   box-shadow: var(--shadow);
+}
+
+/* The rim lights only near the pointer: a ring masked down to the border. */
+[data-theme="modern"] :is(.pane, .form-pane, .meter-row)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(300px circle at var(--mx, -999px) var(--my, -999px), var(--rim), transparent 70%);
+  padding: 1.5px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 250ms;
+  pointer-events: none;
+}
+
+[data-theme="modern"] :is(.pane, .form-pane, .meter-row):hover::before {
+  opacity: 1;
 }
 
 [data-theme="modern"] :is(.console, .console-grid, .meter-board) {
@@ -686,11 +746,12 @@
 }
 
 [data-theme="modern"] .meter-row {
-  transition: border-color 150ms;
+  transition: transform 300ms var(--ease), box-shadow 300ms;
 }
 
 [data-theme="modern"] .meter-row:hover {
-  border-color: color-mix(in srgb, var(--ink) 28%, transparent);
+  box-shadow: var(--shadow), 0 16px 40px -20px var(--rim);
+  transform: translateY(-2px);
 }
 
 [data-theme="modern"] .meter-name strong {
@@ -700,18 +761,21 @@
 
 [data-theme="modern"] :is(.power-md .power-value, .power-xl .power-value, .figure-dot) {
   color: var(--ink);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  border-bottom-width: 1px;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  border-bottom-width: 2px;
   border-bottom-color: var(--watt);
 }
 
 [data-theme="modern"] .power-md .power-value {
-  font-size: 2.25rem;
+  font-size: 2.75rem;
+  line-height: 1;
 }
 
 [data-theme="modern"] .power-xl .power-value {
-  font-size: clamp(3.25rem, 6vw, 4.25rem);
+  font-size: clamp(4rem, 7.5vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
 }
 
 [data-theme="modern"] .instrument-figures .figure-dot {
@@ -808,6 +872,16 @@
 [data-theme="modern"] .gate-form {
   border-left: 1px solid var(--line-2);
   background: var(--raised);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="modern"] body::before {
+    animation: none;
+  }
+
+  [data-theme="modern"] .meter-row:hover {
+    transform: none;
+  }
 }
 
 @media (forced-colors: active) {

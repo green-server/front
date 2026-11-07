@@ -7,7 +7,7 @@ export const THEMES = [
   { value: "aurora", label: "오로라", fonts: `${FONT_CSS}Cormorant+Garamond:wght@300;400;500&family=Gowun+Batang:wght@400;700` },
   { value: "abyss", label: "심해", fonts: `${FONT_CSS}Saira+Condensed:wght@400;500;600&family=Gothic+A1:wght@400;500;700` },
   { value: "lava", label: "용암", fonts: `${FONT_CSS}Big+Shoulders+Display:wght@700;800&family=Hahmlet:wght@400;500;700` },
-  { value: "modern", label: "모던", fonts: `${FONT_CSS}Geist:wght@400;500;600&family=Geist+Mono:wght@400;500` },
+  { value: "modern", label: "모던", fonts: `${FONT_CSS}Geist:wght@400..700&family=Geist+Mono:wght@400;500` },
 ] as const;
 
 export type Theme = (typeof THEMES)[number]["value"];

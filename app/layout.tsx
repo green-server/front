@@ -2,6 +2,7 @@ import { Doto, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
 import localFont from "next/font/local";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Spotlight } from "@/components/Spotlight";
 import { ThemeScene } from "@/components/ThemeScene";
 import { THEME_BOOT } from "@/lib/theme";
 import "./globals.css";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <ThemeScene />
+        <Spotlight />
         {children}
       </body>
     </html>
