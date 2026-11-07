@@ -197,7 +197,7 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
 
 function Command({ text }: { text: string }) {
   return (
-    <pre className="command">
+    <pre className="command" translate="no">
       <code>{text}</code>
     </pre>
   );

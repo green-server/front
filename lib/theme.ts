@@ -26,6 +26,11 @@ function loadFonts(url: string) {
 
 export function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
+  // Browser chrome follows the theme; the console default keeps its light and dark pair.
+  for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
+    meta.dataset.base ??= meta.content;
+    meta.content = theme === "console" ? meta.dataset.base : getComputedStyle(document.documentElement).getPropertyValue("--ground");
+  }
   loadFonts(THEMES.find((option) => option.value === theme)?.fonts ?? "");
   try {
     localStorage.setItem(KEY, theme);

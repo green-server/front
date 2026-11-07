@@ -123,7 +123,7 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
               {(showDays ? day : time).format(tick)}
             </text>
           ))}
-          <g className="chart-sweep">
+          <g key={showDays ? "days" : `${metrics.length > 400 ? "day" : "hour"}`} className="chart-sweep">
           {runs.map((run) =>
             run.points.length === 1 ? (
               <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />

@@ -42,7 +42,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <form className="form" onSubmit={submit}>
         <label className="field">
           이메일
-          <input name="email" type="email" autoComplete="email" required autoFocus />
+          <input name="email" type="email" autoComplete="email" spellCheck={false} required autoFocus />
         </label>
         {signup && (
           <label className="field">

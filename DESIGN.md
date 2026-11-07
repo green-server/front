@@ -11,4 +11,4 @@ A bench scope wired into a tmux session. Dark is the scope in a dim room; light 
 - **Data:** every decoration draws real data. No fake streams. Solid rule is 실측, dashed rule is 추정, on every reading and trace.
 - **Logo:** a leaf with three rack slots, `components/Logo.tsx`. The mark is `--logo-mark`, the wordmark `currentColor`; `app/icon.svg` is the favicon.
 - **Layout:** server channels share the screen height, so one server is a full-screen scope.
-- **Motion:** one sweep when a chart first draws, one ring per incoming sample, and only changed digits roll.
+- **Motion:** the authored moment is a reading arriving: current runs down the trace, the tip lights, changed digits roll. Everything else is short continuity: routes rise in, gauges fill, disclosures open by height, themes spread from the picker. All of it honours reduced motion, and no value depends on an animation.

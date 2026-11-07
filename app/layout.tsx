@@ -1,6 +1,6 @@
 import { Doto, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
 import localFont from "next/font/local";
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { SpaceScene } from "@/components/SpaceScene";
 import { THEME_BOOT } from "@/lib/theme";
@@ -20,7 +20,13 @@ const code = IBM_Plex_Mono({ weight: ["400", "600"], subsets: ["latin"], variabl
 // Headings: a Korean bitmap face, the one voice nothing else on the web is using.
 const pixel = localFont({ src: "./fonts/Galmuri11-Bold.woff2", variable: "--font-pixel", display: "swap" });
 
+// No title here: each page renders its own, and a second one would replace it.
+export const metadata: Metadata = {
+  description: "내 서버가 쓰는 전기를 W와 ₩로 확인하고 AI로 낭비를 줄입니다.",
+};
+
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#06090a" },
     { media: "(prefers-color-scheme: light)", color: "#e9ebe3" },

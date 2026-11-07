@@ -1,8 +1,11 @@
 export function Loading() {
   return (
-    <p className="status" role="status">
-      불러오는 중<span className="cursor" aria-hidden="true" />
-    </p>
+    <div className="skeleton" role="status">
+      <p className="status">불러오는 중…</p>
+      <span className="skeleton-line" aria-hidden="true" />
+      <span className="skeleton-line" aria-hidden="true" />
+      <span className="skeleton-line" aria-hidden="true" />
+    </div>
   );
 }
 

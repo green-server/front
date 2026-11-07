@@ -35,6 +35,7 @@ export default function NewServerPage() {
       <div className="page-head">
         <h1>서버 추가</h1>
       </div>
+      <div className="split">
       <form className="form form-pane" onSubmit={submit}>
         <label className="field">
           서버 이름
@@ -81,6 +82,15 @@ export default function NewServerPage() {
           서버 추가
         </button>
       </form>
+      <aside className="setup-note">
+        <h2>등록한 다음에는</h2>
+        <ol className="setup-steps">
+          <li>설치 명령어가 나타납니다. 토큰은 이때 한 번만 보입니다.</li>
+          <li>서버 터미널에서 명령어를 실행합니다.</li>
+          <li>첫 측정값이 들어오면 서버 목록에 파형이 그려집니다.</li>
+        </ol>
+      </aside>
+      </div>
     </>
   );
 }
@@ -122,7 +132,7 @@ function Copyable({ text }: { text: string }) {
 
   return (
     <div className="copyable">
-      <pre>
+      <pre translate="no">
         <code>{text}</code>
       </pre>
       <button type="button" className="button" onClick={copy}>

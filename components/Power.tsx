@@ -43,7 +43,7 @@ export function Krw({ value }: { value: number }) {
   return (
     <span className="figure figure-dot">
       <span className="dot-won">₩</span>
-      {formatKrw(value).replace("₩", "")}
+      <Digits text={formatKrw(value).replace("₩", "")} rolling />
     </span>
   );
 }

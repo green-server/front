@@ -19,7 +19,7 @@ export default function AccountPage() {
       {error && <Failure error={error} retry={reload} />}
       {!error && !user && <Loading />}
       {user && (
-        <div className="console account">
+        <div className="account">
           <section aria-labelledby="profile-heading" className="pane account-pane">
             <div className="pane-head">
               <h2 id="profile-heading">프로필</h2>

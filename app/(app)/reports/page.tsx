@@ -286,7 +286,7 @@ function RecentCalls({ activity }: { activity: ActivityReport }) {
             <ol className="call-list">
               {calls.map((call) => (
                 <li key={call.id} className={callHasProblem(call) ? "call call-problem" : "call"}>
-                  <code>{call.command}</code>
+                  <code translate="no">{call.command}</code>
                   <span className="call-result">{outcome(call)}</span>
                 </li>
               ))}

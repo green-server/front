@@ -50,13 +50,13 @@ export function Session({ entries, active }: { entries: StreamEntry[]; active: b
       {/* Not a live region: a screen reader would read every line of output aloud. */}
       <div ref={box} className="session" tabIndex={0} role="group" aria-labelledby="session-heading" onScroll={onScroll}>
         {entries.map((entry) => (
-          <pre key={entry.seq} className={`session-${entry.kind}`}>
+          <pre key={entry.seq} className={`session-${entry.kind}`} translate="no">
             {entry.text}
           </pre>
         ))}
         {active && (
           <p className="session-wait">
-            {entries.length === 0 && "서버에서 시작하는 중"}
+            {entries.length === 0 && "서버에서 시작하는 중…"}
             <span className="cursor" aria-hidden="true" />
           </p>
         )}
