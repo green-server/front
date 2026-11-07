@@ -13,17 +13,23 @@ type Props = {
  */
 export function Power({ value, estimated, unit = "W", size = "sm" }: Props) {
   if (value === null) return <span className="no-reading">측정값 없음</span>;
-  const [whole, fraction] = formatNumber(value).split(".");
+  const text = formatNumber(value);
+  const [whole, fraction] = text.split(".");
+  const tag = estimated ? "추정" : "실측";
   return (
     <span className={`power power-${size} ${estimated ? "is-estimated" : "is-measured"}`}>
-      <span className="power-value">
+      {/* Per-digit spans make screen readers spell the number out, so they get it whole. */}
+      <span className="sr-only">{`${text}${unit} ${tag}`}</span>
+      <span className="power-value" aria-hidden="true">
         <Digits text={whole} rolling={size !== "sm"} />
         {/* Doto's period reads as a plus sign at display sizes: 160+8 is a wrong number. */}
         {fraction && <span className="power-point">.</span>}
         {fraction && <Digits text={fraction} rolling={size !== "sm"} />}
         <span className="power-unit">{unit}</span>
       </span>
-      <span className="power-tag">{estimated ? "추정" : "실측"}</span>
+      <span className="power-tag" aria-hidden="true">
+        {tag}
+      </span>
     </span>
   );
 }
@@ -42,8 +48,11 @@ function Digits({ text, rolling }: { text: string; rolling: boolean }) {
 export function Krw({ value }: { value: number }) {
   return (
     <span className="figure figure-dot">
-      <span className="dot-won">₩</span>
-      <Digits text={formatKrw(value).replace("₩", "")} rolling />
+      <span className="sr-only">{formatKrw(value)}</span>
+      <span aria-hidden="true">
+        <span className="dot-won">₩</span>
+        <Digits text={formatKrw(value).replace("₩", "")} rolling />
+      </span>
     </span>
   );
 }

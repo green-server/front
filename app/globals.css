@@ -350,6 +350,21 @@ main:focus {
   line-height: 1.5;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.instrument-note {
+  max-width: 21rem;
+  margin-top: 6px;
+  text-wrap: pretty;
+}
+
 .figure {
   font-family: var(--code);
   font-variant-numeric: tabular-nums;
@@ -1135,24 +1150,9 @@ details[open]::details-content {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 4px 16px;
   margin-bottom: 8px;
-}
-
-.chart-reading {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 2px 14px;
-  align-items: baseline;
-  color: var(--ink-2);
-  font-family: var(--code);
-  font-size: 0.8125rem;
-}
-
-.chart-reading .power {
-  color: var(--ink);
-  font-size: 1rem;
 }
 
 .chart-legend {
@@ -1478,12 +1478,19 @@ details[open] .entry-title::before {
   outline-offset: 2px;
 }
 
+/* appearance: none, not opacity: 0: some screen readers skip fully transparent controls. */
 .choice input {
   position: absolute;
   inset: 0;
   margin: 0;
-  opacity: 0;
+  border: 0;
+  background: none;
+  appearance: none;
   cursor: pointer;
+}
+
+.choice input:focus-visible {
+  outline: none;
 }
 
 .history li {

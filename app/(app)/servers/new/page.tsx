@@ -97,7 +97,8 @@ export default function NewServerPage() {
 
 function AgentToken({ server, agentToken }: Created) {
   const agentUrl = `${API_URL.replace(/^http/, "ws")}/ws/agent`;
-  const installCommand = `curl -fsSL https://raw.githubusercontent.com/green-server/server_app/main/install.sh | sudo GREENSERVER_TOKEN=${agentToken} bash -s -- --server ${agentUrl}`;
+  // No token in the command: sudo would write it to the system log. The installer asks for it.
+  const installCommand = `curl -fsSL https://raw.githubusercontent.com/green-server/server_app/main/install.sh | sudo bash -s -- --server ${agentUrl}`;
 
   return (
     <>
@@ -112,7 +113,7 @@ function AgentToken({ server, agentToken }: Created) {
         <h2>에이전트 토큰</h2>
         <Copyable text={agentToken} />
         <h2>설치 명령어</h2>
-        <p>서버 터미널에서 실행하세요.</p>
+        <p>서버 터미널에서 실행하고, 토큰을 물으면 위 토큰을 붙여 넣으세요. 설치가 중간에 실패해도 토큰은 그대로 쓸 수 있습니다.</p>
         <Copyable text={installCommand} />
         <Link href={`/servers/${server.id}`} className="button button-primary">
           서버 화면으로 이동

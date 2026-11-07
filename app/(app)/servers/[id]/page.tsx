@@ -66,6 +66,7 @@ export default function ServerPage() {
       <Chart serverId={serverId}>
         <aside className="instrument-panel">
           <Power value={server.latestWatts} estimated={estimated} size="xl" />
+          {!estimated && <p className="caption instrument-note">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</p>}
           <dl className="instrument-figures">
             <div>
               <dt>이번 달 예상 요금</dt>
@@ -76,14 +77,15 @@ export default function ServerPage() {
             <div>
               <dt>이번 달 예상 사용량</dt>
               <dd>
-                <Power value={server.monthlyKwh} estimated={estimated} unit="kWh" />
+                {/* A projection, so never 실측, whatever the samples behind it were. */}
+                <Power value={server.monthlyKwh} estimated unit="kWh" />
               </dd>
             </div>
           </dl>
         </aside>
       </Chart>
       <div className="console-grid">
-        <Processes serverId={serverId} estimated={estimated} />
+        <Processes serverId={serverId} />
         <Recommendations serverId={serverId} />
       </div>
       <Consultations serverId={serverId} />
@@ -120,13 +122,13 @@ function Chart({ serverId, children }: { serverId: number; children: ReactNode }
         {error && <Failure error={error} retry={reload} />}
         {!error && !data && <Loading />}
         {data?.length === 0 && <p className="status">이 기간에는 측정값이 없습니다.</p>}
-        {data && data.length > 0 && <PowerChart metrics={data} showDays={range.value === "7d"} />}
+        {data && data.length > 0 && <PowerChart metrics={data} showDays={range.value === "7d"} windowMs={range.ms} />}
       </div>
     </section>
   );
 }
 
-function Processes({ serverId, estimated }: { serverId: number; estimated: boolean }) {
+function Processes({ serverId }: { serverId: number }) {
   const { data, error, reload, mutate } = useApi<ProcessSample[]>(`/api/servers/${serverId}/processes`);
 
   useLive((event) => {
@@ -164,7 +166,8 @@ function Processes({ serverId, estimated }: { serverId: number; estimated: boole
                   {process.cpuPct.toFixed(1)}%
                 </td>
                 <td className="numeric">
-                  <Power value={process.watts} estimated={estimated} />
+                  {/* A share of the total by CPU time: derived, so always 추정. */}
+                  <Power value={process.watts} estimated />
                 </td>
               </tr>
             ))}

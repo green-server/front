@@ -3,14 +3,13 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { axisTicks, formatDateTime, formatNumber, splitRuns } from "@/lib/format";
 import type { Metric } from "@/lib/types";
-import { Power } from "./Power";
 
 const MARGIN = { top: 12, right: 12, bottom: 26, left: 46 };
 
 const time = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 const day = new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" });
 
-export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays: boolean }) {
+export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[]; showDays: boolean; windowMs: number }) {
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(720);
   const [picked, setPicked] = useState<number | null>(null);
@@ -27,7 +26,9 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
   const active = metrics[index];
 
   const times = metrics.map((m) => Date.parse(m.ts));
-  const start = times[0];
+  // The axis always spans the whole range, so a new server's first points sit at the right edge
+  // instead of five ticks that all read the same minute.
+  const start = Math.min(times[0], times[last] - windowMs);
   const span = times[last] - start || 1;
   const ticks = axisTicks(Math.max(...metrics.map((m) => m.watts)));
   const top = ticks.at(-1)!;
@@ -63,12 +64,6 @@ export function PowerChart({ metrics, showDays }: { metrics: Metric[]; showDays:
   return (
     <figure className="chart">
       <figcaption className="chart-head">
-        <span className="chart-reading">
-          <time dateTime={active.ts}>{formatDateTime(active.ts)}</time>
-          <Power value={active.watts} estimated={active.isEstimated} />
-          <span>CPU {formatNumber(active.cpuPct)}%</span>
-          <span>메모리 {formatNumber(active.memPct)}%</span>
-        </span>
         <span className="chart-legend">
           {runs.some((run) => !run.estimated) && <LegendEntry label="실측" />}
           {runs.some((run) => run.estimated) && <LegendEntry label="추정" dashed />}
