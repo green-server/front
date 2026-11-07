@@ -246,23 +246,6 @@ main:focus {
   outline-offset: -3px;
 }
 
-.bar-theme {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding-inline: 14px;
-}
-
-.bar-theme select {
-  min-height: 26px;
-  padding: 0 4px;
-  border: 1px solid var(--line-2);
-  border-radius: 0;
-  background: var(--ground);
-  color: var(--ink);
-  font: 500 0.8125rem/1 var(--sans);
-}
-
 .bar-clock {
   display: flex;
   align-items: center;
@@ -1134,16 +1117,6 @@ details[open]::details-content {
     opacity: 0;
     transform: translateY(10px);
   }
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-::view-transition-new(root) {
-  z-index: 2;
 }
 
 .chart-head {
@@ -2225,92 +2198,6 @@ ol.consult-list {
   font-weight: 600;
 }
 
-.theme-tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-  gap: 12px;
-}
-
-.theme-tile {
-  --tile: #06090a;
-  --tile-line: #4dffa6;
-  --tile-ink: #e1ece6;
-  position: relative;
-  display: grid;
-  gap: 6px;
-  padding: 10px;
-  border: 1px solid var(--line-2);
-  background: var(--tile);
-  color: var(--tile-ink);
-  font-weight: 700;
-  cursor: pointer;
-  transition: border-color 120ms, transform 120ms;
-}
-
-.theme-tile:hover {
-  transform: translateY(-2px);
-}
-
-.theme-tile:has(input:checked) {
-  outline: 2px solid var(--watt);
-  outline-offset: 2px;
-}
-
-.theme-tile:has(input:focus-visible) {
-  outline: 2px solid var(--ink);
-  outline-offset: 4px;
-}
-
-.theme-tile input {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.theme-tile svg {
-  width: 100%;
-  height: 56px;
-}
-
-.theme-tile polyline {
-  fill: none;
-  stroke: var(--tile-line);
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
-}
-
-.theme-tile[data-preview="space"] {
-  --tile: radial-gradient(120% 90% at 50% 130%, #1c3f86 0 40%, #05060f 62%);
-  --tile-line: #a8dcff;
-  --tile-ink: #f1f3f6;
-}
-
-.theme-tile[data-preview="aurora"] {
-  --tile: linear-gradient(#070d18 10%, #0f5a44 62%, #05090f 66%, #0a2f28);
-  --tile-line: #eafff5;
-  --tile-ink: #eef3f2;
-}
-
-.theme-tile[data-preview="abyss"] {
-  --tile: radial-gradient(90% 70% at 55% 115%, #3b6f6c, #071417 62%, #010508);
-  --tile-line: #5ff2d6;
-  --tile-ink: #dcf7f4;
-}
-
-.theme-tile[data-preview="lava"] {
-  --tile: radial-gradient(70% 60% at 30% 110%, #c8431a, #2a0d07 62%, #0b0706);
-  --tile-line: #ffb35c;
-  --tile-ink: #fbeee4;
-}
-
-.theme-tile[data-preview="modern"] {
-  --tile: linear-gradient(#18191b, #0e0f10);
-  --tile-line: #4cc38a;
-  --tile-ink: #ededee;
-}
-
 .account-servers li + li {
   border-top: 1px solid var(--line);
 }
@@ -2525,8 +2412,7 @@ ol.consult-list {
 
 @media (max-width: 620px) {
   .wordmark,
-  .bar-clock,
-  .bar-theme {
+  .bar-clock {
     display: none;
   }
 
@@ -2615,7 +2501,6 @@ ol.consult-list {
   .gauge span,
   .stack span,
   details::details-content,
-  .theme-tile,
   .button {
     transition: none;
   }

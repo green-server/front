@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { Power } from "@/components/Power";
 import { Failure, Loading, OnlineState } from "@/components/Status";
-import { ThemeTiles } from "@/components/ThemePicker";
 import { api, useApi, useSubmit, clearApiCache } from "@/lib/api";
 import { formatDate, formatKrw, isServerEstimated } from "@/lib/format";
 import type { ActivityReport, ServerSummary, User } from "@/lib/types";
@@ -37,12 +36,6 @@ export default function AccountPage() {
               <h2 id="password-heading">비밀번호</h2>
             </div>
             <PasswordForm />
-          </section>
-          <section aria-labelledby="theme-heading" className="pane account-wide">
-            <div className="pane-head">
-              <h2 id="theme-heading">화면 테마</h2>
-            </div>
-            <ThemeTiles />
           </section>
           {servers.data && servers.data.length > 0 && <MyServers servers={servers.data} />}
           <DeleteAccount />
