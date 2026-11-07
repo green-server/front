@@ -5,12 +5,67 @@
 
 /* Shared wiring: scenery sits behind everything, whichever theme draws it. */
 [data-theme="space"] body,
-[data-theme="arcade"] body,
-[data-theme="blueprint"] body,
-[data-theme="pop"] body {
+[data-theme="aurora"] body,
+[data-theme="abyss"] body,
+[data-theme="lava"] body {
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
+}
+
+/* Worlds behind glass: panels float over the scene, so titles move inside them. */
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) body {
+  overflow-x: clip;
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) .pane-head {
+  position: static;
+  height: auto;
+  margin-bottom: 14px;
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) .pane {
+  padding-top: 18px;
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) .pane-head > * {
+  padding-inline: 0;
+  background: none;
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) :is(.scope, .consult-pane) {
+  grid-template-rows: auto 1fr;
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) :is(.scope, .consult-pane) .pane-head {
+  grid-column: 1 / -1;
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) :is(.fleet, .report-total) {
+  width: fit-content;
+  padding: 10px 18px;
+  border-radius: var(--round, 12px);
+  background: var(--glass);
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) :is(.profile, .empty) {
+  padding: 16px 18px;
+  border-radius: var(--round, 12px);
+  background: var(--glass);
+}
+
+:is([data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) .gate-mark {
+  background: linear-gradient(90deg, var(--glass) 30%, transparent);
+  text-shadow: 0 0 3px rgb(0 0 0 / 0.8);
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) .gate-form {
+  border-left: 0;
+  background: var(--glass);
+}
+
+:is([data-theme="space"], [data-theme="aurora"], [data-theme="abyss"], [data-theme="lava"]) .page-head {
+  text-shadow: 0 0 3px rgb(0 0 0 / 0.8), 0 1px 14px rgb(0 0 0 / 0.75);
 }
 
 /* ─────────────────────────── 우주: orbital mission control ─────────────────────────── */
@@ -36,7 +91,6 @@
 }
 
 [data-theme="space"] body {
-  overflow-x: clip;
   background: var(--ground);
 }
 
@@ -51,8 +105,8 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1487' height='1487'%3E%3Ccircle cx='1386' cy='88' r='1.7' fill='%23ffffff' opacity='0.68'/%3E%3Ccircle cx='805' cy='711' r='1.9' fill='%23bfe9ff' opacity='0.73'/%3E%3Ccircle cx='1218' cy='534' r='0.9' fill='%23ffe9c4' opacity='0.56'/%3E%3Ccircle cx='548' cy='220' r='1.7' fill='%23bfe9ff' opacity='0.36'/%3E%3Ccircle cx='1264' cy='412' r='1.8' fill='%23cfe0ff' opacity='0.42'/%3E%3Ccircle cx='933' cy='795' r='1.8' fill='%23ffffff' opacity='0.87'/%3E%3Ccircle cx='848' cy='34' r='0.9' fill='%23ffe9c4' opacity='0.84'/%3E%3Ccircle cx='811' cy='901' r='1.5' fill='%23bfe9ff' opacity='0.72'/%3E%3Ccircle cx='1028' cy='324' r='1.7' fill='%23ffe9c4' opacity='0.50'/%3E%3Ccircle cx='1116' cy='1180' r='1.6' fill='%23cfe0ff' opacity='0.60'/%3E%3Ccircle cx='283' cy='275' r='1.5' fill='%23ffffff' opacity='0.71'/%3E%3Ccircle cx='938' cy='14' r='1.9' fill='%23ffe9c4' opacity='0.74'/%3E%3Ccircle cx='1065' cy='983' r='1.7' fill='%23ffe9c4' opacity='0.59'/%3E%3Ccircle cx='1109' cy='375' r='1.8' fill='%23cfe0ff' opacity='0.41'/%3E%3Ccircle cx='954' cy='771' r='1.3' fill='%23bfe9ff' opacity='0.96'/%3E%3Ccircle cx='974' cy='581' r='1.3' fill='%23bfe9ff' opacity='0.83'/%3E%3Ccircle cx='944' cy='898' r='1.1' fill='%23ffffff' opacity='0.40'/%3E%3Ccircle cx='637' cy='1407' r='1.9' fill='%23ffe9c4' opacity='0.42'/%3E%3Ccircle cx='136' cy='959' r='1.4' fill='%23ffffff' opacity='0.46'/%3E%3Ccircle cx='1329' cy='562' r='0.9' fill='%23cfe0ff' opacity='0.46'/%3E%3Ccircle cx='585' cy='956' r='1.7' fill='%23cfe0ff' opacity='0.75'/%3E%3Ccircle cx='1400' cy='139' r='1.3' fill='%23cfe0ff' opacity='0.36'/%3E%3Ccircle cx='787' cy='1271' r='1.5' fill='%23ffffff' opacity='0.72'/%3E%3Ccircle cx='1205' cy='730' r='1.9' fill='%23cfe0ff' opacity='0.52'/%3E%3Ccircle cx='650' cy='126' r='0.8' fill='%23bfe9ff' opacity='0.77'/%3E%3Ccircle cx='431' cy='131' r='1.0' fill='%23ffe9c4' opacity='0.84'/%3E%3Ccircle cx='278' cy='662' r='1.7' fill='%23bfe9ff' opacity='0.72'/%3E%3Ccircle cx='1467' cy='1484' r='1.6' fill='%23bfe9ff' opacity='0.77'/%3E%3Ccircle cx='1395' cy='1082' r='1.1' fill='%23ffe9c4' opacity='0.89'/%3E%3Ccircle cx='127' cy='458' r='1.0' fill='%23ffe9c4' opacity='0.90'/%3E%3Ccircle cx='237' cy='1050' r='1.5' fill='%23ffffff' opacity='0.52'/%3E%3Ccircle cx='956' cy='1425' r='1.2' fill='%23bfe9ff' opacity='0.56'/%3E%3Ccircle cx='383' cy='911' r='1.7' fill='%23bfe9ff' opacity='0.98'/%3E%3Ccircle cx='193' cy='1302' r='1.5' fill='%23ffe9c4' opacity='0.62'/%3E%3Ccircle cx='83' cy='741' r='0.9' fill='%23ffe9c4' opacity='0.59'/%3E%3Ccircle cx='1215' cy='751' r='0.8' fill='%23bfe9ff' opacity='0.53'/%3E%3Ccircle cx='463' cy='802' r='0.8' fill='%23cfe0ff' opacity='0.46'/%3E%3Ccircle cx='1359' cy='1464' r='1.4' fill='%23ffffff' opacity='0.92'/%3E%3Ccircle cx='1203' cy='892' r='0.9' fill='%23cfe0ff' opacity='0.75'/%3E%3Ccircle cx='502' cy='1109' r='1.6' fill='%23ffffff' opacity='0.53'/%3E%3Ccircle cx='303' cy='511' r='1.1' fill='%23ffe9c4' opacity='0.43'/%3E%3Ccircle cx='1422' cy='920' r='1.1' fill='%23ffe9c4' opacity='0.73'/%3E%3Ccircle cx='724' cy='211' r='1.5' fill='%23bfe9ff' opacity='0.44'/%3E%3Ccircle cx='942' cy='1144' r='1.0' fill='%23ffe9c4' opacity='0.93'/%3E%3Ccircle cx='122' cy='1194' r='1.7' fill='%23ffe9c4' opacity='0.43'/%3E%3Ccircle cx='389' cy='1258' r='0.9' fill='%23cfe0ff' opacity='0.60'/%3E%3Ccircle cx='575' cy='1001' r='1.2' fill='%23ffe9c4' opacity='0.38'/%3E%3Ccircle cx='871' cy='54' r='1.4' fill='%23bfe9ff' opacity='0.71'/%3E%3Ccircle cx='210' cy='818' r='1.3' fill='%23cfe0ff' opacity='0.80'/%3E%3Ccircle cx='471' cy='319' r='1.3' fill='%23ffe9c4' opacity='0.41'/%3E%3Ccircle cx='822' cy='898' r='1.5' fill='%23ffffff' opacity='0.83'/%3E%3Ccircle cx='171' cy='555' r='1.1' fill='%23cfe0ff' opacity='0.83'/%3E%3Ccircle cx='812' cy='538' r='1.9' fill='%23ffe9c4' opacity='0.87'/%3E%3Ccircle cx='285' cy='194' r='1.0' fill='%23ffffff' opacity='0.52'/%3E%3Ccircle cx='1003' cy='1225' r='1.9' fill='%23cfe0ff' opacity='0.55'/%3E%3Ccircle cx='144' cy='1114' r='1.8' fill='%23ffffff' opacity='0.43'/%3E%3Ccircle cx='99' cy='1366' r='1.7' fill='%23ffffff' opacity='0.70'/%3E%3Ccircle cx='129' cy='72' r='0.9' fill='%23ffe9c4' opacity='0.80'/%3E%3Ccircle cx='635' cy='762' r='1.9' fill='%23bfe9ff' opacity='0.96'/%3E%3Ccircle cx='244' cy='1247' r='0.9' fill='%23bfe9ff' opacity='0.95'/%3E%3C/svg%3E");
 }
 
-/* Rendered sky from SpaceScene; the CSS sky below is its no-WebGL fallback. */
-.space-scene {
+/* Rendered world from ThemeScene; each theme's CSS background is its no-WebGL fallback. */
+.theme-scene {
   position: fixed;
   inset: 0;
   z-index: -1;
@@ -100,45 +154,12 @@
   background: var(--glass);
 }
 
-[data-theme="space"] .pane-head {
-  position: static;
-  height: auto;
-  margin-bottom: 14px;
-}
-
-[data-theme="space"] .pane {
-  padding-top: 18px;
-}
-
-[data-theme="space"] .pane-head > * {
-  padding-inline: 0;
-  background: none;
-}
-
 [data-theme="space"] .pane-head h2 {
   color: var(--ink-2);
 }
 
-[data-theme="space"] .scope,
-[data-theme="space"] .consult-pane {
-  grid-template-rows: auto 1fr;
-}
-
-[data-theme="space"] .scope .pane-head,
-[data-theme="space"] .consult-pane .pane-head {
-  grid-column: 1 / -1;
-}
-
 [data-theme="space"] .meter-row {
   transition: border-color 200ms, transform 300ms var(--ease);
-}
-
-[data-theme="space"] .fleet,
-[data-theme="blueprint"] .fleet {
-  width: fit-content;
-  padding: 10px 18px;
-  border-radius: 12px;
-  background: var(--glass, rgb(14 69 131 / 0.82));
 }
 
 [data-theme="space"] .meter-row:hover {
@@ -208,693 +229,381 @@
   border-radius: 14px;
 }
 
-[data-theme="space"] .gate-form {
-  border-left: 0;
-  background: var(--glass);
-}
+/* ─────────────────────────── 오로라: a field notebook under the lights ─────────────────────────── */
 
-/* ─────────────────────────── 아케이드: an 8-bit cabinet ─────────────────────────── */
-
-@font-face {
-  font-family: "Galmuri14";
-  src: url("/fonts/Galmuri14.woff2") format("woff2");
-  font-display: swap;
-}
-
-[data-theme="arcade"] {
+[data-theme="aurora"] {
   color-scheme: dark;
-  --ground: #1a1c2c;
-  --raised: #333c57;
-  --ink: #f4f4f4;
-  --ink-2: #b4c6d6;
-  --line: #333c57;
-  --line-2: #94b0c2;
-  --watt: #a7f070;
-  --on-watt: #1a1c2c;
-  --warn: #ffcd75;
-  --bad: #ff8b8b;
-  --on-state: #1a1c2c;
-  --bloom: none;
-  --sans: "Galmuri14", var(--font-pixel), sans-serif;
-  --code: "Galmuri14", var(--font-pixel), monospace;
-  --dot: "Press Start 2P", var(--font-pixel), monospace;
-  --pixel: var(--font-pixel), sans-serif;
-  --px: 4px;
+  --ground: #060b14;
+  --raised: #131e2c;
+  --ink: #f1f5f3;
+  --ink-2: #b4c2c3;
+  --line: rgb(214 255 236 / 0.13);
+  --line-2: rgb(214 255 236 / 0.3);
+  --watt: #8ff5c0;
+  --on-watt: #04140d;
+  --warn: #f4c875;
+  --bad: #ff9aac;
+  --on-state: #060b14;
+  --bloom: drop-shadow(0 0 7px rgb(143 245 192 / 0.5));
+  --sans: "Gowun Batang", "Apple SD Gothic Neo", serif;
+  --dot: "Cormorant Garamond", "Gowun Batang", serif;
+  --pixel: "Gowun Batang", "Apple SD Gothic Neo", serif;
+  --glass: rgb(6 11 20 / 0.76);
+  --round: 20px;
 }
 
-[data-theme="arcade"] body {
-  background-color: var(--ground);
-  background-image: conic-gradient(#20233a 25%, transparent 0 50%, #20233a 0 75%, transparent 0);
-  background-size: 32px 32px;
-  font-size: 15px; /* Galmuri14's native size: anything else blurs the bitmap */
-  -webkit-font-smoothing: none;
-}
-
-/*
- * Bitmap faces lose strokes off their native size: at 13px a "1" all but disappears, which
- * would hide an exit code. So small text snaps to 12px bold, everything else to 15px.
- */
-[data-theme="arcade"] :is(.caption, .tool-state, .power-tag, .power-unit, .online-state, .crumb, .segmented button, .choice label, .key, .call-result, .call-count, .call-more, .chart-legend, .chart-reading, .chart-tip, .level-steps span, .consult-meta dt, .instrument-figures dt, .approval dt, .plan-rules dd, .bar-theme, .bar-theme select, .bar-clock, .bar nav a, .link-button, .data-table th, .cell-time, .meter-recs, .history a > :first-child, .field) {
-  font: 700 12px/1.5 var(--pixel);
-}
-
-[data-theme="arcade"] :is(.command, .session, .session pre, .copyable pre, .call code, .data-table .numeric, .data-table .cell-money, .field input, .field select, .text-button, .button, .entry-saving, .meter-cost .figure) {
-  font-family: var(--sans);
+[data-theme="aurora"] body {
+  background: linear-gradient(#060b14 38%, #0d4436 70%, #04080e 72%) fixed;
   font-size: 15px;
+}
+
+[data-theme="aurora"] :is(h1, h2, h3) {
   font-weight: 400;
-}
-
-[data-theme="arcade"] .chart-label,
-[data-theme="arcade"] .chart-peak {
-  font: 700 12px var(--pixel);
-}
-
-[data-theme="arcade"] .power-unit {
-  font-size: 12px;
-}
-
-/* Cut corners drawn with hard shadows: the box of every NES-era dialog. */
-[data-theme="arcade"] .pane,
-[data-theme="arcade"] .form-pane,
-[data-theme="arcade"] .meter-row {
-  border: 0;
-  background: var(--ground);
-  box-shadow:
-    0 calc(var(--px) * -1) 0 var(--ink),
-    0 var(--px) 0 var(--ink),
-    calc(var(--px) * -1) 0 0 var(--ink),
-    var(--px) 0 0 var(--ink),
-    0 calc(var(--px) * 2) 0 #000;
-}
-
-[data-theme="arcade"] .pane-head {
-  inset: -18px 12px auto;
-  height: 24px;
-}
-
-[data-theme="arcade"] .pane-head > * {
-  padding: 5px 10px;
-  background: var(--ink);
-  color: var(--ground);
-}
-
-[data-theme="arcade"] .pane-head .caption,
-[data-theme="arcade"] .pane-head .segmented button {
-  color: var(--ground);
-}
-
-[data-theme="arcade"] .pane-head .segmented button[aria-pressed="true"] {
-  background: var(--ground);
-  color: var(--watt);
-}
-
-[data-theme="arcade"] .pane {
-  padding-top: 30px;
-}
-
-[data-theme="arcade"] h1 {
-  color: #ffcd75;
-  text-shadow: 4px 4px 0 #b13e53;
-}
-
-[data-theme="arcade"] .console,
-[data-theme="arcade"] .console-grid,
-[data-theme="arcade"] .meter-board {
-  gap: 36px 28px;
-}
-
-[data-theme="arcade"] .meter-row:hover {
-  background: #29366f;
-}
-
-[data-theme="arcade"] .power-md .power-value,
-[data-theme="arcade"] .power-xl .power-value,
-[data-theme="arcade"] .figure-dot {
-  font-weight: 400;
-  letter-spacing: -0.06em;
-}
-
-[data-theme="arcade"] .power-md .power-value {
-  font-size: 1.875rem;
-}
-
-[data-theme="arcade"] .power-xl .power-value {
-  font-size: clamp(2rem, 3.6vw, 2.75rem);
-  line-height: 1.3;
-  color: var(--watt);
-  text-shadow: 3px 3px 0 #257179;
-}
-
-[data-theme="arcade"] .instrument-figures .figure-dot {
-  font-size: 1.25rem;
-}
-
-[data-theme="arcade"] .digit {
-  animation-timing-function: steps(3);
-}
-
-[data-theme="arcade"] .button {
-  border: 0;
-  background: #566c86;
-  color: #fff;
-  box-shadow:
-    inset -4px -4px 0 rgb(0 0 0 / 0.4),
-    inset 4px 4px 0 rgb(255 255 255 / 0.22);
-}
-
-[data-theme="arcade"] .button:hover:not(:disabled) {
-  background: #3b5dc9;
-  color: #fff;
-}
-
-[data-theme="arcade"] .button:active:not(:disabled) {
-  transform: translateY(4px);
-}
-
-[data-theme="arcade"] .button-primary {
-  background: #38b764;
-  color: #10131f;
-}
-
-[data-theme="arcade"] .button-primary:hover:not(:disabled) {
-  background: #a7f070;
-  color: #10131f;
-}
-
-[data-theme="arcade"] .button-danger {
-  background: #b13e53;
-  color: #fff;
-}
-
-/* Lines step between samples rather than glide, and no joint is rounded. */
-[data-theme="arcade"] .chart-line {
-  stroke-width: 3;
-  stroke-linejoin: miter;
-  stroke-linecap: square;
-  shape-rendering: crispEdges;
-}
-
-[data-theme="arcade"] .chart-line-estimated {
-  stroke-dasharray: 8 8;
-  stroke-linecap: butt;
-}
-
-[data-theme="arcade"] .chart-area {
-  opacity: 0.16;
-  shape-rendering: crispEdges;
-}
-
-[data-theme="arcade"] .chart-grid {
-  stroke-dasharray: 4 12;
-}
-
-[data-theme="arcade"] .chart-marker {
-  stroke: none;
-  shape-rendering: crispEdges;
-}
-
-[data-theme="arcade"] .gauge,
-[data-theme="arcade"] .stack {
-  --cell: repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 10px);
-  -webkit-mask: var(--cell);
-  mask: var(--cell);
-}
-
-[data-theme="arcade"] .level-steps li {
-  box-shadow: inset -4px -4px 0 rgb(0 0 0 / 0.35);
-}
-
-[data-theme="arcade"] .cursor {
-  animation-timing-function: steps(1);
-}
-
-[data-theme="arcade"] .approval {
-  background: repeating-linear-gradient(90deg, var(--warn) 0 16px, transparent 16px 32px) top / 100% 8px no-repeat;
-}
-
-[data-theme="arcade"] .gate-form {
-  border-left: 8px solid var(--ink);
-  background: var(--ground);
-}
-
-/* ─────────────────────────── 설계도: a drafted blueprint ─────────────────────────── */
-
-[data-theme="blueprint"] {
-  color-scheme: dark;
-  --ground: #0e4583;
-  --raised: #17558f;
-  --ink: #ffffff;
-  --ink-2: #d3e4f6;
-  --line: rgb(255 255 255 / 0.22);
-  --line-2: rgb(255 255 255 / 0.62);
-  --watt: #ffe066;
-  --on-watt: #0a2f5c;
-  --warn: #ffd27f;
-  --bad: #ffc4bb;
-  --on-state: #0a2f5c;
-  --bloom: none;
-  --sans: "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
-  --code: "Gowun Dodum", ui-monospace, monospace;
-  --dot: "Architects Daughter", "Gaegu", sans-serif;
-  --pixel: "Gaegu", "Gowun Dodum", sans-serif;
-  /* Hand-drawn outlines: uneven corner radii read as a pen that never quite closes. */
-  --sketch: 255px 18px 225px 18px / 18px 225px 18px 255px;
-}
-
-[data-theme="blueprint"] body {
-  background-color: var(--ground);
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.13) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.13) 1px, transparent 1px),
-    linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px);
-  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
-  font-size: 16px;
-}
-
-[data-theme="blueprint"] h1,
-[data-theme="blueprint"] h2,
-[data-theme="blueprint"] h3 {
   -webkit-font-smoothing: antialiased;
 }
 
-[data-theme="blueprint"] h1 {
-  font-size: 46px;
-  line-height: 1.05;
+[data-theme="aurora"] h1 {
+  font-size: 2.5rem;
+  letter-spacing: -0.01em;
 }
 
-[data-theme="blueprint"] h2 {
+[data-theme="aurora"] h2 {
+  color: var(--ink);
+  font-size: 1.0625rem;
+}
+
+[data-theme="aurora"] h3 {
+  font-size: 1rem;
+}
+
+[data-theme="aurora"] :is(.pane, .form-pane, .meter-row) {
+  border: 0;
+  border-radius: var(--round);
+  background: var(--glass);
+  box-shadow: inset 0 1px 0 rgb(214 255 236 / 0.2), inset 0 0 0 1px rgb(214 255 236 / 0.06);
+}
+
+[data-theme="aurora"] .pane {
+  padding-inline: clamp(18px, 2.4vw, 28px);
+}
+
+[data-theme="aurora"] .meter-row {
+  transition: box-shadow 300ms, transform 500ms var(--ease);
+}
+
+[data-theme="aurora"] .meter-row:hover {
+  box-shadow: inset 0 1px 0 var(--watt), 0 18px 50px -24px var(--watt);
+  transform: translateY(-3px);
+}
+
+[data-theme="aurora"] .meter-name strong {
   font-size: 1.375rem;
-}
-
-[data-theme="blueprint"] h3 {
-  color: var(--watt);
-  font-size: 1.125rem;
-}
-
-[data-theme="blueprint"] .pane,
-[data-theme="blueprint"] .form-pane,
-[data-theme="blueprint"] .meter-row {
-  border: 2px solid var(--line-2);
-  border-radius: var(--sketch);
-  background: rgb(14 69 131 / 0.82);
-}
-
-/* Titles sit on a dimension line with end ticks, as measurements do on a drawing. */
-[data-theme="blueprint"] .pane-head {
-  inset: -14px 28px auto;
-  height: 28px;
-}
-
-[data-theme="blueprint"] .pane-head > * {
-  background: var(--ground);
-}
-
-[data-theme="blueprint"] .pane {
-  padding-top: 32px;
-}
-
-[data-theme="blueprint"] .meter-row:hover {
-  border-color: var(--watt);
-  background: rgb(23 85 143 / 0.9);
-}
-
-[data-theme="blueprint"] .meter-name strong {
-  font-size: 28px;
-  -webkit-font-smoothing: antialiased;
-}
-
-[data-theme="blueprint"] .power-md .power-value,
-[data-theme="blueprint"] .power-xl .power-value,
-[data-theme="blueprint"] .figure-dot {
   font-weight: 400;
 }
 
-[data-theme="blueprint"] .power-value {
-  border-bottom-color: var(--watt);
+[data-theme="aurora"] :is(.power-md .power-value, .power-xl .power-value, .figure-dot) {
+  font-variant-numeric: lining-nums tabular-nums; /* old-style 1 reads as I */
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  border-bottom-width: 1px;
 }
 
-[data-theme="blueprint"] .figure,
-[data-theme="blueprint"] .chart-label {
-  font-family: var(--dot);
+[data-theme="aurora"] .power-md .power-value {
+  font-size: 3.5rem;
+  line-height: 0.95;
 }
 
-[data-theme="blueprint"] .button {
-  border: 2px solid var(--ink);
-  border-radius: var(--sketch);
-  background: transparent;
-  color: var(--ink);
-  font-size: 1rem;
+[data-theme="aurora"] .power-xl .power-value {
+  font-size: clamp(5rem, 9vw, 7rem);
+  line-height: 0.9;
 }
 
-[data-theme="blueprint"] .button:hover:not(:disabled) {
-  border-color: var(--watt);
-  background: transparent;
-  color: var(--watt);
-}
-
-[data-theme="blueprint"] .button-primary {
-  border-color: var(--watt);
-  background: var(--watt);
-  color: var(--on-watt);
-}
-
-[data-theme="blueprint"] .button-primary:hover:not(:disabled) {
-  background: #fff;
-  color: var(--on-watt);
-}
-
-[data-theme="blueprint"] .field input,
-[data-theme="blueprint"] .field select {
-  border-width: 0 0 2px;
-  background-color: transparent;
-}
-
-[data-theme="blueprint"] .command,
-[data-theme="blueprint"] .copyable pre {
-  border-left: 3px double var(--watt);
-  background: rgb(0 0 0 / 0.16);
-}
-
-/* Pencil, not phosphor: a white ruled line over a yellow current point. */
-[data-theme="blueprint"] .chart-line {
-  stroke: #fff;
-  stroke-width: 1.5;
-}
-
-[data-theme="blueprint"] .chart-area {
-  fill: #fff;
-  opacity: 0.07;
-}
-
-[data-theme="blueprint"] .chart-grid {
-  stroke: rgb(255 255 255 / 0.28);
-  stroke-dasharray: none;
-}
-
-[data-theme="blueprint"] .chart-peak {
-  fill: var(--watt);
-  font-family: var(--dot);
-  font-size: 13px;
-}
-
-[data-theme="blueprint"] .trace {
-  background-image: none;
-}
-
-[data-theme="blueprint"] .gauge,
-[data-theme="blueprint"] .stack {
-  --hatch: repeating-linear-gradient(115deg, #000 0 3px, transparent 3px 6px);
-  -webkit-mask: var(--hatch);
-  mask: var(--hatch);
-}
-
-[data-theme="blueprint"] .level-steps li {
-  border: 2px solid var(--line-2);
-  border-radius: var(--sketch);
-  background: transparent;
-}
-
-[data-theme="blueprint"] .level-steps [aria-current] {
-  border-color: transparent;
-}
-
-[data-theme="blueprint"] .gate-form {
-  border-left: 3px double var(--ink);
-  background: rgb(14 69 131 / 0.82);
-}
-
-/* ─────────────────────────── 팝: a neo-brutalist poster ─────────────────────────── */
-
-[data-theme="pop"] {
-  color-scheme: light;
-  --ground: #ffd93d;
-  --raised: #fff4b8;
-  --ink: #0b0b0b;
-  --ink-2: #33302a;
-  --line: #0b0b0b;
-  --line-2: #0b0b0b;
-  --watt: #1438e8;
-  --on-watt: #ffffff;
-  --warn: #8a4b00;
-  --bad: #c40b39;
-  --on-state: #ffffff;
-  --bloom: none;
-  --sans: "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
-  --code: var(--font-code), "Gowun Dodum", monospace;
-  --dot: "Rubik Mono One", "Black Han Sans", sans-serif;
-  --pixel: "Black Han Sans", "Gowun Dodum", sans-serif;
-  --hard: 7px 7px 0 var(--ink);
-}
-
-[data-theme="pop"] body {
-  background-color: var(--ground);
-  background-image: radial-gradient(#0b0b0b 1.4px, transparent 1.6px);
-  background-size: 22px 22px;
-}
-
-[data-theme="pop"] h1,
-[data-theme="pop"] h2,
-[data-theme="pop"] h3 {
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-}
-
-[data-theme="pop"] h1 {
-  width: fit-content;
-  padding: 2px 14px 4px;
-  border: 3px solid var(--ink);
-  background: #fff;
-  box-shadow: 5px 5px 0 var(--ink);
-  font-size: 40px;
-  transform: rotate(-1.2deg);
-}
-
-[data-theme="pop"] .crumb {
-  margin-bottom: 10px;
-}
-
-[data-theme="pop"] h2 {
-  font-size: 1.125rem;
-}
-
-[data-theme="pop"] h3 {
-  color: var(--ink);
-  font-size: 1rem;
-}
-
-[data-theme="pop"] .pane,
-[data-theme="pop"] .form-pane,
-[data-theme="pop"] .meter-row {
-  border: 3px solid var(--ink);
-  background: #fff;
-  box-shadow: var(--hard);
-}
-
-[data-theme="pop"] .meter-board li:nth-child(4n + 2) .meter-row {
-  background: #ff9de2;
-}
-
-[data-theme="pop"] .meter-board li:nth-child(4n + 3) .meter-row {
-  background: #8ff0ff;
-}
-
-[data-theme="pop"] .meter-board li:nth-child(4n) .meter-row {
-  background: #b6ff8f;
-}
-
-[data-theme="pop"] .meter-board,
-[data-theme="pop"] .console,
-[data-theme="pop"] .console-grid {
-  gap: 36px 28px;
-}
-
-[data-theme="pop"] .meter-row {
-  transition: transform 120ms, box-shadow 120ms;
-}
-
-[data-theme="pop"] .meter-row:hover {
-  border-color: var(--ink);
-  box-shadow: 11px 11px 0 var(--ink);
-  transform: translate(-4px, -4px);
-}
-
-[data-theme="pop"] .fleet {
-  width: fit-content;
-  padding: 10px 18px;
-  border: 3px solid var(--ink);
-  background: #fff;
-  box-shadow: 4px 4px 0 var(--ink);
-}
-
-[data-theme="pop"] .meter-recs {
-  width: fit-content;
-  padding: 0 6px;
-  background: var(--ink);
-  color: #fff;
-}
-
-[data-theme="pop"] .caption,
-[data-theme="pop"] .power-tag {
-  color: var(--ink);
-}
-
-[data-theme="pop"] .pane-head {
-  inset: -18px 14px auto;
-  height: 32px;
-}
-
-[data-theme="pop"] .pane-head > * {
-  padding: 3px 12px;
-  border: 3px solid var(--ink);
-  background: #ff9de2;
-}
-
-[data-theme="pop"] .pane-head h2 {
-  transform: rotate(-1.5deg);
-}
-
-[data-theme="pop"] .console-grid > :nth-child(2) .pane-head h2,
-[data-theme="pop"] .console-grid > .pane:nth-child(2) .pane-head h2 {
-  background: #8ff0ff;
-}
-
-[data-theme="pop"] .segmented {
-  background: #fff;
-}
-
-[data-theme="pop"] .pane {
-  padding-top: 32px;
-}
-
-[data-theme="pop"] .power-value {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-
-[data-theme="pop"] .power-md .power-value,
-[data-theme="pop"] .power-xl .power-value,
-[data-theme="pop"] .figure-dot {
-  font-weight: 400;
-  letter-spacing: -0.05em;
-  color: var(--ink);
-}
-
-[data-theme="pop"] .power-md .power-value {
+[data-theme="aurora"] .instrument-figures .figure-dot {
   font-size: 2rem;
 }
 
-[data-theme="pop"] .power-xl .power-value {
-  font-size: clamp(2.5rem, 4.4vw, 3.5rem);
+[data-theme="aurora"] .button,
+[data-theme="aurora"] .segmented button,
+[data-theme="aurora"] .choice label {
+  border-radius: 999px;
 }
 
-[data-theme="pop"] .instrument-figures .figure-dot {
-  font-size: 1.5rem;
+[data-theme="aurora"] .button {
+  padding-inline: 18px;
 }
 
-[data-theme="pop"] .button {
-  border: 3px solid var(--ink);
-  background: #fff;
-  box-shadow: 4px 4px 0 var(--ink);
-  font-weight: 700;
-  transition: transform 80ms, box-shadow 80ms;
+[data-theme="aurora"] :is(.field input, .field select) {
+  border-width: 0 0 1px;
+  background-color: transparent;
 }
 
-[data-theme="pop"] .button:hover:not(:disabled) {
-  background: #ff9de2;
-  color: var(--ink);
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--ink);
+[data-theme="aurora"] :is(.command, .copyable pre) {
+  border-radius: 14px;
+  background: rgb(214 255 236 / 0.07);
 }
 
-[data-theme="pop"] .button:active:not(:disabled) {
-  box-shadow: 0 0 0 var(--ink);
-  transform: translate(4px, 4px);
-}
-
-[data-theme="pop"] .button-primary {
-  background: var(--watt);
-  color: #fff;
-}
-
-[data-theme="pop"] .button-danger {
-  background: #fff;
-  color: var(--bad);
-}
-
-[data-theme="pop"] .field input,
-[data-theme="pop"] .field select {
-  border: 3px solid var(--ink);
-  background-color: #fff;
-}
-
-[data-theme="pop"] .command,
-[data-theme="pop"] .copyable pre {
-  border: 2px solid var(--ink);
-  background: var(--raised);
-}
-
-[data-theme="pop"] .chart-line {
-  stroke: var(--ink);
-  stroke-width: 3;
-  filter: none;
-}
-
-[data-theme="pop"] .chart-area {
-  fill: var(--watt);
-  opacity: 0.85;
-}
-
-[data-theme="pop"] .chart-grid {
-  stroke: var(--ink);
-  stroke-opacity: 0.35;
-}
-
-[data-theme="pop"] .chart-marker {
-  fill: #ff2d7a;
-  stroke: var(--ink);
-}
-
-[data-theme="pop"] .gauge,
-[data-theme="pop"] .stack {
-  border: 2px solid var(--ink);
+[data-theme="aurora"] :is(.gauge, .stack) {
+  height: 3px;
+  border-radius: 999px;
   -webkit-mask: none;
   mask: none;
 }
 
-[data-theme="pop"] .gauge {
-  background: #fff;
+[data-theme="aurora"] .stack {
+  overflow: hidden;
 }
 
-[data-theme="pop"] .level-steps li {
-  border: 3px solid var(--ink);
-  background: #fff;
+[data-theme="aurora"] .chart-line {
+  stroke-width: 1.5;
+}
+
+[data-theme="aurora"] .chart-area {
+  opacity: 0.09;
+}
+
+[data-theme="aurora"] .chart-grid {
+  stroke-dasharray: none;
+  stroke-opacity: 0.5;
+}
+
+[data-theme="aurora"] .level-steps li {
+  border-radius: 16px;
+}
+
+/* ─────────────────────────── 심해: the feed from a tethered vehicle ─────────────────────────── */
+
+[data-theme="abyss"] {
+  color-scheme: dark;
+  --ground: #01070b;
+  --raised: #0a1e26;
+  --ink: #def7f3;
+  --ink-2: #9cc4c4;
+  --line: rgb(95 242 214 / 0.15);
+  --line-2: rgb(95 242 214 / 0.4);
+  --watt: #5ff2d6;
+  --on-watt: #01120f;
+  --warn: #ffd166;
+  --bad: #ff8b99;
+  --on-state: #01070b;
+  --bloom: drop-shadow(0 0 5px rgb(95 242 214 / 0.65));
+  --sans: "Gothic A1", "Apple SD Gothic Neo", sans-serif;
+  --dot: "Saira Condensed", "Gothic A1", sans-serif;
+  --pixel: "Saira Condensed", "Gothic A1", sans-serif;
+  --glass: rgb(1 9 14 / 0.74);
+  --round: 0;
+  --bracket: var(--line-2);
+}
+
+[data-theme="abyss"] body {
+  background: radial-gradient(90% 60% at 55% 110%, #2d5653, #071519 60%, #01070b) fixed;
+}
+
+[data-theme="abyss"] :is(h1, h2, h3) {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+[data-theme="abyss"] h1 {
+  font-size: 2.5rem;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="abyss"] h2 {
+  color: var(--watt);
+  font-size: 0.9375rem;
+  letter-spacing: 0.1em;
+}
+
+[data-theme="abyss"] h3 {
+  font-size: 0.9375rem;
+}
+
+/* No box: four corner brackets, the frame a camera overlay puts around a target. */
+[data-theme="abyss"] :is(.pane, .form-pane, .meter-row) {
+  border: 0;
+  background:
+    linear-gradient(var(--bracket) 0 0) 0 0 / 16px 1px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 0 0 / 1px 16px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 100% 0 / 16px 1px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 100% 0 / 1px 16px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 0 100% / 16px 1px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 0 100% / 1px 16px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 100% 100% / 16px 1px no-repeat,
+    linear-gradient(var(--bracket) 0 0) 100% 100% / 1px 16px no-repeat,
+    var(--glass);
+}
+
+[data-theme="abyss"] .meter-row:hover {
+  --bracket: var(--watt);
+}
+
+[data-theme="abyss"] .meter-name strong {
+  font-family: var(--pixel);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+[data-theme="abyss"] :is(.power-md .power-value, .power-xl .power-value, .figure-dot) {
+  font-weight: 500;
+  letter-spacing: 0;
+  border-bottom-width: 1px;
+}
+
+[data-theme="abyss"] .power-md .power-value {
+  font-size: 3.25rem;
+}
+
+[data-theme="abyss"] .power-xl .power-value {
+  font-size: clamp(4.75rem, 8.5vw, 6.5rem);
+  text-shadow: 0 0 22px rgb(95 242 214 / 0.35);
+}
+
+[data-theme="abyss"] .instrument-figures .figure-dot {
+  font-size: 1.75rem;
+}
+
+[data-theme="abyss"] .button {
+  background: rgb(95 242 214 / 0.06);
+}
+
+[data-theme="abyss"] :is(.field input, .field select) {
+  background-color: rgb(95 242 214 / 0.05);
+}
+
+[data-theme="abyss"] :is(.command, .copyable pre) {
+  border-left: 2px solid var(--watt);
+  background: rgb(95 242 214 / 0.06);
+}
+
+[data-theme="abyss"] :is(.gauge, .stack) {
+  --cell: repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 5px);
+  -webkit-mask: var(--cell);
+  mask: var(--cell);
+}
+
+[data-theme="abyss"] .chart-area {
+  opacity: 0.12;
+}
+
+[data-theme="abyss"] .chart-grid {
+  stroke-dasharray: 1 7;
+  stroke-opacity: 0.9;
+}
+
+/* ─────────────────────────── 용암: slabs of cooled basalt ─────────────────────────── */
+
+[data-theme="lava"] {
+  color-scheme: dark;
+  --ground: #0b0706;
+  --raised: #261814;
+  --ink: #fdf0e6;
+  --ink-2: #d4bbac;
+  --line: rgb(255 170 120 / 0.16);
+  --line-2: rgb(255 170 120 / 0.4);
+  --watt: #ffa14a;
+  --on-watt: #1d0a02;
+  --warn: #ffe27a;
+  --bad: #ff93ab;
+  --on-state: #0b0706;
+  --bloom: drop-shadow(0 0 6px rgb(255 120 40 / 0.6));
+  --sans: "Hahmlet", "Apple SD Gothic Neo", serif;
+  --dot: "Big Shoulders Display", "Hahmlet", sans-serif;
+  --pixel: "Hahmlet", "Apple SD Gothic Neo", serif;
+  --glass: rgb(13 8 7 / 0.87);
+  --round: 0;
+  --edge: #6b2a12;
+}
+
+[data-theme="lava"] body {
+  background: radial-gradient(100% 70% at 30% 105%, #a8390f, #2a0d07 58%, #0b0706) fixed;
+}
+
+[data-theme="lava"] :is(h1, h2, h3) {
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="lava"] h1 {
+  font-size: 2.375rem;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="lava"] h2 {
   color: var(--ink);
+  font-size: 1rem;
 }
 
-[data-theme="pop"] .gate-mark {
-  color: var(--ink);
+[data-theme="lava"] h3 {
+  font-size: 0.9375rem;
 }
 
-[data-theme="pop"] .gate-logo {
-  --logo-mark: var(--watt);
+/* Chipped corners where supported, square slabs elsewhere; a molten seam runs along the foot. */
+[data-theme="lava"] :is(.pane, .form-pane, .meter-row) {
+  border: 0;
+  border-bottom: 2px solid var(--edge);
+  border-radius: 12px;
+  background: var(--glass);
+  corner-shape: bevel;
+  transition: border-color 240ms, box-shadow 240ms;
 }
 
-[data-theme="pop"] .gate-form {
-  border-left: 3px solid var(--ink);
-  background: #fff;
+[data-theme="lava"] .meter-row:hover {
+  --edge: var(--watt);
+  box-shadow: 0 14px 34px -18px #ff6a1f;
 }
 
-[data-theme="pop"] .pane-alert h2 {
-  color: var(--ink);
+[data-theme="lava"] .meter-name strong {
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
-@media (max-width: 620px) {
+[data-theme="lava"] :is(.power-md .power-value, .power-xl .power-value, .figure-dot) {
+  font-weight: 800;
+  letter-spacing: 0;
+}
 
-  [data-theme="blueprint"] h1,
-  [data-theme="pop"] h1 {
-    font-size: 30px;
-  }
+[data-theme="lava"] .power-md .power-value {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+[data-theme="lava"] .power-xl .power-value {
+  font-size: clamp(5.5rem, 10vw, 8rem);
+  line-height: 0.92;
+  text-shadow: 0 0 34px rgb(255 106 31 / 0.45);
+}
+
+[data-theme="lava"] .instrument-figures .figure-dot {
+  font-size: 2.25rem;
+}
+
+[data-theme="lava"] .button {
+  border-radius: 6px;
+  corner-shape: bevel;
+}
+
+[data-theme="lava"] :is(.field input, .field select) {
+  background-color: rgb(255 170 120 / 0.06);
+}
+
+[data-theme="lava"] :is(.command, .copyable pre) {
+  background: rgb(0 0 0 / 0.42);
+}
+
+[data-theme="lava"] :is(.gauge, .stack) {
+  height: 10px;
+  -webkit-mask: none;
+  mask: none;
+}
+
+[data-theme="lava"] .chart-area {
+  opacity: 0.2;
+}
+
+[data-theme="lava"] .chart-grid {
+  stroke-dasharray: none;
+  stroke-opacity: 0.5;
 }
 
 @media (forced-colors: active) {

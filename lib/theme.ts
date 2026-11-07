@@ -4,9 +4,9 @@ const FONT_CSS = "https://fonts.googleapis.com/css2?display=swap&family=";
 export const THEMES = [
   { value: "console", label: "콘솔", fonts: "" },
   { value: "space", label: "우주", fonts: `${FONT_CSS}Orbit&family=Michroma&family=IBM+Plex+Sans+KR:wght@400;500;700` },
-  { value: "arcade", label: "아케이드", fonts: `${FONT_CSS}Press+Start+2P` },
-  { value: "blueprint", label: "설계도", fonts: `${FONT_CSS}Gaegu:wght@400;700&family=Architects+Daughter&family=Gowun+Dodum` },
-  { value: "pop", label: "팝", fonts: `${FONT_CSS}Black+Han+Sans&family=Rubik+Mono+One&family=Gowun+Dodum` },
+  { value: "aurora", label: "오로라", fonts: `${FONT_CSS}Cormorant+Garamond:wght@300;400;500&family=Gowun+Batang:wght@400;700` },
+  { value: "abyss", label: "심해", fonts: `${FONT_CSS}Saira+Condensed:wght@400;500;600&family=Gothic+A1:wght@400;500;700` },
+  { value: "lava", label: "용암", fonts: `${FONT_CSS}Big+Shoulders+Display:wght@700;800&family=Hahmlet:wght@400;500;700` },
 ] as const;
 
 export type Theme = (typeof THEMES)[number]["value"];

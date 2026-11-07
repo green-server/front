@@ -1,6 +1,8 @@
 # Design
 
-Console below is the default theme. `app/themes.css` holds the other worlds: 우주, 아케이드, 설계도, 팝. A theme is tokens plus overrides on the same markup; components never branch on it. Status colours and the solid/dashed 실측·추정 rule hold in every theme. Fonts load only for the chosen theme. 우주 is rendered, not decorated: `components/SpaceScene.tsx` ray-marches the atmosphere in a WebGL2 shader at a low frame rate, pauses in hidden tabs, and falls back to the CSS sky. In 아케이드 bitmap text must stay at 12px bold or 15px, or strokes vanish.
+Console below is the default theme. `app/themes.css` holds the other worlds: 우주, 오로라, 심해, 용암. A theme is tokens plus overrides on the same markup; components never branch on it. Status colours and the solid/dashed 실측·추정 rule hold in every theme. Fonts load only for the chosen theme.
+
+Every world is a real place, rendered rather than decorated: `components/scenes.ts` holds a WebGL2 shader for each, and `components/ThemeScene.tsx` draws it at a low frame rate, pauses in hidden tabs, stops under reduced motion and falls back to the theme's CSS background. Physics is the brief: 오로라 uses oxygen and nitrogen emission colours on thin vertical sheets, 심해 is lit only by the vehicle's two lamps over a manganese nodule field, 용암 follows a blackbody ramp. Costume themes that only change colours and shapes do not belong here.
 
 A bench scope wired into a tmux session. Dark is the scope in a dim room; light is the same readings on a thermal printout.
 

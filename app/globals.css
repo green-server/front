@@ -2287,22 +2287,22 @@ ol.consult-list {
   --tile-ink: #f1f3f6;
 }
 
-.theme-tile[data-preview="arcade"] {
-  --tile: #1a1c2c;
-  --tile-line: #a7f070;
-  --tile-ink: #ffcd75;
+.theme-tile[data-preview="aurora"] {
+  --tile: linear-gradient(#070d18 10%, #0f5a44 62%, #05090f 66%, #0a2f28);
+  --tile-line: #eafff5;
+  --tile-ink: #eef3f2;
 }
 
-.theme-tile[data-preview="blueprint"] {
-  --tile: #0e4583;
-  --tile-line: #ffffff;
-  --tile-ink: #ffe066;
+.theme-tile[data-preview="abyss"] {
+  --tile: radial-gradient(90% 70% at 55% 115%, #3b6f6c, #071417 62%, #010508);
+  --tile-line: #5ff2d6;
+  --tile-ink: #dcf7f4;
 }
 
-.theme-tile[data-preview="pop"] {
-  --tile: #ffd93d;
-  --tile-line: #0b0b0b;
-  --tile-ink: #0b0b0b;
+.theme-tile[data-preview="lava"] {
+  --tile: radial-gradient(70% 60% at 30% 110%, #c8431a, #2a0d07 62%, #0b0706);
+  --tile-line: #ffb35c;
+  --tile-ink: #fbeee4;
 }
 
 .account-servers li + li {
