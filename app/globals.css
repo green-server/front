@@ -494,12 +494,11 @@ main:focus {
 }
 
 .power-xl {
-  flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 10px;
 }
 
 .power-xl .power-value {
-  font-size: clamp(4.5rem, 8vw, 6rem);
+  font-size: clamp(3.75rem, 5.6vw, 5.25rem);
   line-height: 1;
   border-bottom-width: 3px;
 }
@@ -806,11 +805,22 @@ main:focus {
   min-height: 0;
 }
 
+/* The fleet total is a status strip: cells split by hairlines, like tmux panes. */
 .fleet {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 48px;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 1px;
+  width: fit-content;
   margin-bottom: 24px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.fleet > div {
+  display: grid;
+  gap: 2px;
+  padding: 10px 20px 12px;
+  background: var(--ground);
 }
 
 .fleet dt {
@@ -821,10 +831,6 @@ main:focus {
 .fleet dd {
   font-size: 1.125rem;
   font-weight: 600;
-}
-
-.fleet .power-value {
-  border-bottom: 0;
 }
 
 .fleet .power-tag {
@@ -1037,7 +1043,7 @@ main:focus {
 
 .scope {
   display: grid;
-  grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
   gap: 16px clamp(20px, 3vw, 40px);
   align-items: start;
 }
@@ -1049,8 +1055,14 @@ main:focus {
 
 .instrument-figures {
   display: grid;
-  gap: 16px;
   margin-top: 8px;
+}
+
+.instrument-figures > div {
+  display: grid;
+  gap: 4px;
+  padding-block: 14px;
+  border-top: 1px solid var(--line);
 }
 
 .instrument-figures dt {
@@ -2411,6 +2423,16 @@ ol.consult-list {
 }
 
 @media (max-width: 620px) {
+  .fleet {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .fleet > div {
+    padding-inline: 14px;
+  }
+
   .wordmark,
   .bar-clock {
     display: none;
