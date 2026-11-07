@@ -19,20 +19,20 @@
   color-scheme: dark;
   --ground: #05060f;
   --raised: #141a33;
-  --ink: #eef2ff;
-  --ink-2: #a8b4d4;
-  --line: rgb(160 180 255 / 0.16);
-  --line-2: rgb(160 180 255 / 0.36);
-  --watt: #7df9ff;
-  --on-watt: #03161c;
+  --ink: #f1f3f6;
+  --ink-2: #aeb6c2;
+  --line: rgb(255 255 255 / 0.1);
+  --line-2: rgb(255 255 255 / 0.24);
+  --watt: #a8dcff;
+  --on-watt: #06131d;
   --warn: #ffc857;
   --bad: #ff7d96;
   --on-state: #05060f;
-  --bloom: drop-shadow(0 0 7px rgb(125 249 255 / 0.75));
+  --bloom: none;
   --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", sans-serif;
   --dot: "Michroma", "Orbit", sans-serif;
   --pixel: "Orbit", "IBM Plex Sans KR", sans-serif;
-  --glass: rgb(11 15 34 / 0.68);
+  --glass: rgb(5 7 12 / 0.74);
 }
 
 [data-theme="space"] body {
@@ -49,7 +49,15 @@
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'%3E%3Ccircle cx='331' cy='970' r='0.7' fill='%23ffffff' opacity='0.40'/%3E%3Ccircle cx='548' cy='96' r='0.9' fill='%23ffffff' opacity='0.94'/%3E%3Ccircle cx='219' cy='38' r='0.6' fill='%23ffe9c4' opacity='0.40'/%3E%3Ccircle cx='92' cy='564' r='0.9' fill='%23ffffff' opacity='0.97'/%3E%3Ccircle cx='645' cy='642' r='1.1' fill='%23ffffff' opacity='0.73'/%3E%3Ccircle cx='406' cy='50' r='1.5' fill='%23ffffff' opacity='0.71'/%3E%3Ccircle cx='136' cy='296' r='0.9' fill='%23ffffff' opacity='0.72'/%3E%3Ccircle cx='573' cy='835' r='1.2' fill='%23ffffff' opacity='0.73'/%3E%3Ccircle cx='654' cy='192' r='0.9' fill='%23ffffff' opacity='0.72'/%3E%3Ccircle cx='633' cy='210' r='1.0' fill='%23ffe9c4' opacity='0.86'/%3E%3Ccircle cx='476' cy='599' r='1.4' fill='%23bfe9ff' opacity='0.54'/%3E%3Ccircle cx='813' cy='184' r='1.2' fill='%23cfe0ff' opacity='0.40'/%3E%3Ccircle cx='307' cy='537' r='1.0' fill='%23bfe9ff' opacity='0.82'/%3E%3Ccircle cx='294' cy='623' r='1.5' fill='%23ffffff' opacity='0.68'/%3E%3Ccircle cx='168' cy='775' r='0.8' fill='%23ffe9c4' opacity='0.62'/%3E%3Ccircle cx='985' cy='684' r='0.6' fill='%23bfe9ff' opacity='0.57'/%3E%3Ccircle cx='358' cy='608' r='1.0' fill='%23ffe9c4' opacity='0.39'/%3E%3Ccircle cx='95' cy='967' r='0.8' fill='%23ffffff' opacity='0.39'/%3E%3Ccircle cx='718' cy='317' r='1.1' fill='%23ffe9c4' opacity='0.53'/%3E%3Ccircle cx='395' cy='908' r='1.2' fill='%23ffffff' opacity='0.96'/%3E%3Ccircle cx='363' cy='172' r='1.1' fill='%23ffe9c4' opacity='0.39'/%3E%3Ccircle cx='786' cy='294' r='0.6' fill='%23cfe0ff' opacity='0.61'/%3E%3Ccircle cx='938' cy='892' r='1.0' fill='%23cfe0ff' opacity='0.64'/%3E%3Ccircle cx='562' cy='284' r='1.4' fill='%23ffe9c4' opacity='0.91'/%3E%3Ccircle cx='285' cy='723' r='0.9' fill='%23bfe9ff' opacity='0.79'/%3E%3Ccircle cx='389' cy='980' r='0.7' fill='%23ffffff' opacity='0.46'/%3E%3Ccircle cx='237' cy='674' r='0.7' fill='%23ffe9c4' opacity='0.89'/%3E%3Ccircle cx='186' cy='269' r='0.8' fill='%23cfe0ff' opacity='0.62'/%3E%3Ccircle cx='378' cy='624' r='1.1' fill='%23cfe0ff' opacity='0.80'/%3E%3Ccircle cx='527' cy='973' r='1.1' fill='%23ffffff' opacity='0.65'/%3E%3Ccircle cx='891' cy='798' r='1.5' fill='%23ffe9c4' opacity='0.61'/%3E%3Ccircle cx='403' cy='106' r='1.0' fill='%23ffe9c4' opacity='0.39'/%3E%3Ccircle cx='68' cy='213' r='0.9' fill='%23ffffff' opacity='0.57'/%3E%3Ccircle cx='53' cy='104' r='0.5' fill='%23cfe0ff' opacity='0.70'/%3E%3Ccircle cx='971' cy='372' r='1.1' fill='%23ffffff' opacity='0.92'/%3E%3Ccircle cx='628' cy='385' r='0.6' fill='%23bfe9ff' opacity='0.97'/%3E%3Ccircle cx='616' cy='372' r='1.0' fill='%23ffffff' opacity='0.90'/%3E%3Ccircle cx='477' cy='491' r='1.0' fill='%23ffffff' opacity='0.44'/%3E%3Ccircle cx='767' cy='350' r='1.2' fill='%23ffe9c4' opacity='0.89'/%3E%3Ccircle cx='165' cy='528' r='0.5' fill='%23bfe9ff' opacity='0.45'/%3E%3Ccircle cx='556' cy='936' r='0.5' fill='%23bfe9ff' opacity='0.99'/%3E%3Ccircle cx='884' cy='93' r='1.2' fill='%23bfe9ff' opacity='0.69'/%3E%3Ccircle cx='930' cy='171' r='0.9' fill='%23cfe0ff' opacity='0.70'/%3E%3Ccircle cx='797' cy='514' r='0.8' fill='%23cfe0ff' opacity='0.75'/%3E%3Ccircle cx='807' cy='776' r='1.4' fill='%23cfe0ff' opacity='0.88'/%3E%3Ccircle cx='757' cy='822' r='0.7' fill='%23ffe9c4' opacity='0.58'/%3E%3Ccircle cx='29' cy='28' r='1.3' fill='%23ffe9c4' opacity='0.52'/%3E%3Ccircle cx='709' cy='619' r='1.5' fill='%23ffe9c4' opacity='0.88'/%3E%3Ccircle cx='740' cy='357' r='1.5' fill='%23bfe9ff' opacity='0.40'/%3E%3Ccircle cx='104' cy='232' r='1.0' fill='%23bfe9ff' opacity='0.48'/%3E%3Ccircle cx='639' cy='921' r='1.1' fill='%23ffffff' opacity='0.66'/%3E%3Ccircle cx='668' cy='352' r='1.3' fill='%23ffffff' opacity='0.89'/%3E%3Ccircle cx='122' cy='931' r='0.9' fill='%23cfe0ff' opacity='0.66'/%3E%3Ccircle cx='182' cy='444' r='1.3' fill='%23bfe9ff' opacity='0.41'/%3E%3Ccircle cx='968' cy='994' r='1.2' fill='%23ffe9c4' opacity='0.61'/%3E%3Ccircle cx='969' cy='86' r='1.2' fill='%23cfe0ff' opacity='1.00'/%3E%3Ccircle cx='28' cy='154' r='1.1' fill='%23ffe9c4' opacity='0.87'/%3E%3Ccircle cx='149' cy='626' r='1.3' fill='%23ffe9c4' opacity='0.78'/%3E%3Ccircle cx='358' cy='159' r='1.0' fill='%23cfe0ff' opacity='0.36'/%3E%3Ccircle cx='818' cy='994' r='1.2' fill='%23ffffff' opacity='0.69'/%3E%3Ccircle cx='956' cy='142' r='0.9' fill='%23cfe0ff' opacity='0.89'/%3E%3Ccircle cx='216' cy='28' r='0.8' fill='%23bfe9ff' opacity='0.68'/%3E%3Ccircle cx='782' cy='600' r='0.8' fill='%23ffe9c4' opacity='0.89'/%3E%3Ccircle cx='62' cy='931' r='1.2' fill='%23ffe9c4' opacity='0.78'/%3E%3Ccircle cx='834' cy='925' r='1.0' fill='%23cfe0ff' opacity='0.70'/%3E%3Ccircle cx='536' cy='522' r='0.5' fill='%23ffe9c4' opacity='0.85'/%3E%3Ccircle cx='623' cy='4' r='1.3' fill='%23cfe0ff' opacity='0.46'/%3E%3Ccircle cx='484' cy='633' r='1.2' fill='%23ffffff' opacity='0.56'/%3E%3Ccircle cx='530' cy='543' r='1.1' fill='%23ffffff' opacity='0.92'/%3E%3Ccircle cx='58' cy='254' r='0.7' fill='%23ffffff' opacity='0.85'/%3E%3Ccircle cx='519' cy='463' r='1.1' fill='%23ffffff' opacity='0.64'/%3E%3Ccircle cx='627' cy='996' r='1.0' fill='%23cfe0ff' opacity='0.80'/%3E%3Ccircle cx='463' cy='520' r='1.0' fill='%23ffe9c4' opacity='0.68'/%3E%3Ccircle cx='253' cy='715' r='1.0' fill='%23bfe9ff' opacity='0.95'/%3E%3Ccircle cx='914' cy='965' r='0.7' fill='%23ffe9c4' opacity='0.44'/%3E%3Ccircle cx='124' cy='401' r='0.9' fill='%23ffffff' opacity='0.79'/%3E%3Ccircle cx='438' cy='74' r='0.7' fill='%23bfe9ff' opacity='0.86'/%3E%3Ccircle cx='918' cy='795' r='0.7' fill='%23bfe9ff' opacity='0.44'/%3E%3Ccircle cx='904' cy='140' r='1.5' fill='%23cfe0ff' opacity='0.84'/%3E%3Ccircle cx='96' cy='407' r='1.4' fill='%23cfe0ff' opacity='0.99'/%3E%3Ccircle cx='852' cy='229' r='0.7' fill='%23ffe9c4' opacity='1.00'/%3E%3Ccircle cx='413' cy='347' r='0.9' fill='%23bfe9ff' opacity='0.56'/%3E%3Ccircle cx='739' cy='374' r='0.5' fill='%23ffe9c4' opacity='0.64'/%3E%3Ccircle cx='18' cy='393' r='0.8' fill='%23bfe9ff' opacity='0.68'/%3E%3Ccircle cx='65' cy='115' r='1.5' fill='%23cfe0ff' opacity='0.98'/%3E%3Ccircle cx='107' cy='86' r='0.8' fill='%23ffffff' opacity='0.94'/%3E%3Ccircle cx='185' cy='276' r='1.3' fill='%23ffe9c4' opacity='0.90'/%3E%3Ccircle cx='692' cy='838' r='1.4' fill='%23ffe9c4' opacity='0.45'/%3E%3Ccircle cx='941' cy='527' r='1.1' fill='%23bfe9ff' opacity='0.41'/%3E%3Ccircle cx='58' cy='818' r='1.2' fill='%23ffe9c4' opacity='0.93'/%3E%3Ccircle cx='275' cy='960' r='0.5' fill='%23ffffff' opacity='0.87'/%3E%3Ccircle cx='85' cy='622' r='1.4' fill='%23ffffff' opacity='0.52'/%3E%3Ccircle cx='124' cy='464' r='0.5' fill='%23ffe9c4' opacity='0.95'/%3E%3Ccircle cx='274' cy='636' r='0.6' fill='%23cfe0ff' opacity='0.96'/%3E%3Ccircle cx='992' cy='165' r='0.8' fill='%23cfe0ff' opacity='0.48'/%3E%3Ccircle cx='319' cy='643' r='0.8' fill='%23cfe0ff' opacity='0.54'/%3E%3Ccircle cx='512' cy='688' r='0.7' fill='%23bfe9ff' opacity='0.87'/%3E%3Ccircle cx='256' cy='37' r='0.5' fill='%23cfe0ff' opacity='0.68'/%3E%3Ccircle cx='251' cy='957' r='0.9' fill='%23ffe9c4' opacity='0.78'/%3E%3Ccircle cx='559' cy='854' r='1.4' fill='%23bfe9ff' opacity='0.80'/%3E%3Ccircle cx='235' cy='350' r='0.7' fill='%23cfe0ff' opacity='0.61'/%3E%3Ccircle cx='355' cy='55' r='1.3' fill='%23ffffff' opacity='0.40'/%3E%3Ccircle cx='758' cy='900' r='0.8' fill='%23cfe0ff' opacity='0.39'/%3E%3Ccircle cx='681' cy='861' r='0.9' fill='%23bfe9ff' opacity='0.74'/%3E%3Ccircle cx='709' cy='300' r='0.5' fill='%23cfe0ff' opacity='0.45'/%3E%3Ccircle cx='456' cy='3' r='0.8' fill='%23bfe9ff' opacity='0.98'/%3E%3Ccircle cx='560' cy='331' r='0.7' fill='%23bfe9ff' opacity='0.49'/%3E%3Ccircle cx='187' cy='1' r='0.8' fill='%23ffffff' opacity='0.66'/%3E%3Ccircle cx='514' cy='671' r='0.7' fill='%23ffffff' opacity='0.41'/%3E%3Ccircle cx='836' cy='91' r='0.6' fill='%23ffffff' opacity='0.61'/%3E%3C/svg%3E"),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1487' height='1487'%3E%3Ccircle cx='1386' cy='88' r='1.7' fill='%23ffffff' opacity='0.68'/%3E%3Ccircle cx='805' cy='711' r='1.9' fill='%23bfe9ff' opacity='0.73'/%3E%3Ccircle cx='1218' cy='534' r='0.9' fill='%23ffe9c4' opacity='0.56'/%3E%3Ccircle cx='548' cy='220' r='1.7' fill='%23bfe9ff' opacity='0.36'/%3E%3Ccircle cx='1264' cy='412' r='1.8' fill='%23cfe0ff' opacity='0.42'/%3E%3Ccircle cx='933' cy='795' r='1.8' fill='%23ffffff' opacity='0.87'/%3E%3Ccircle cx='848' cy='34' r='0.9' fill='%23ffe9c4' opacity='0.84'/%3E%3Ccircle cx='811' cy='901' r='1.5' fill='%23bfe9ff' opacity='0.72'/%3E%3Ccircle cx='1028' cy='324' r='1.7' fill='%23ffe9c4' opacity='0.50'/%3E%3Ccircle cx='1116' cy='1180' r='1.6' fill='%23cfe0ff' opacity='0.60'/%3E%3Ccircle cx='283' cy='275' r='1.5' fill='%23ffffff' opacity='0.71'/%3E%3Ccircle cx='938' cy='14' r='1.9' fill='%23ffe9c4' opacity='0.74'/%3E%3Ccircle cx='1065' cy='983' r='1.7' fill='%23ffe9c4' opacity='0.59'/%3E%3Ccircle cx='1109' cy='375' r='1.8' fill='%23cfe0ff' opacity='0.41'/%3E%3Ccircle cx='954' cy='771' r='1.3' fill='%23bfe9ff' opacity='0.96'/%3E%3Ccircle cx='974' cy='581' r='1.3' fill='%23bfe9ff' opacity='0.83'/%3E%3Ccircle cx='944' cy='898' r='1.1' fill='%23ffffff' opacity='0.40'/%3E%3Ccircle cx='637' cy='1407' r='1.9' fill='%23ffe9c4' opacity='0.42'/%3E%3Ccircle cx='136' cy='959' r='1.4' fill='%23ffffff' opacity='0.46'/%3E%3Ccircle cx='1329' cy='562' r='0.9' fill='%23cfe0ff' opacity='0.46'/%3E%3Ccircle cx='585' cy='956' r='1.7' fill='%23cfe0ff' opacity='0.75'/%3E%3Ccircle cx='1400' cy='139' r='1.3' fill='%23cfe0ff' opacity='0.36'/%3E%3Ccircle cx='787' cy='1271' r='1.5' fill='%23ffffff' opacity='0.72'/%3E%3Ccircle cx='1205' cy='730' r='1.9' fill='%23cfe0ff' opacity='0.52'/%3E%3Ccircle cx='650' cy='126' r='0.8' fill='%23bfe9ff' opacity='0.77'/%3E%3Ccircle cx='431' cy='131' r='1.0' fill='%23ffe9c4' opacity='0.84'/%3E%3Ccircle cx='278' cy='662' r='1.7' fill='%23bfe9ff' opacity='0.72'/%3E%3Ccircle cx='1467' cy='1484' r='1.6' fill='%23bfe9ff' opacity='0.77'/%3E%3Ccircle cx='1395' cy='1082' r='1.1' fill='%23ffe9c4' opacity='0.89'/%3E%3Ccircle cx='127' cy='458' r='1.0' fill='%23ffe9c4' opacity='0.90'/%3E%3Ccircle cx='237' cy='1050' r='1.5' fill='%23ffffff' opacity='0.52'/%3E%3Ccircle cx='956' cy='1425' r='1.2' fill='%23bfe9ff' opacity='0.56'/%3E%3Ccircle cx='383' cy='911' r='1.7' fill='%23bfe9ff' opacity='0.98'/%3E%3Ccircle cx='193' cy='1302' r='1.5' fill='%23ffe9c4' opacity='0.62'/%3E%3Ccircle cx='83' cy='741' r='0.9' fill='%23ffe9c4' opacity='0.59'/%3E%3Ccircle cx='1215' cy='751' r='0.8' fill='%23bfe9ff' opacity='0.53'/%3E%3Ccircle cx='463' cy='802' r='0.8' fill='%23cfe0ff' opacity='0.46'/%3E%3Ccircle cx='1359' cy='1464' r='1.4' fill='%23ffffff' opacity='0.92'/%3E%3Ccircle cx='1203' cy='892' r='0.9' fill='%23cfe0ff' opacity='0.75'/%3E%3Ccircle cx='502' cy='1109' r='1.6' fill='%23ffffff' opacity='0.53'/%3E%3Ccircle cx='303' cy='511' r='1.1' fill='%23ffe9c4' opacity='0.43'/%3E%3Ccircle cx='1422' cy='920' r='1.1' fill='%23ffe9c4' opacity='0.73'/%3E%3Ccircle cx='724' cy='211' r='1.5' fill='%23bfe9ff' opacity='0.44'/%3E%3Ccircle cx='942' cy='1144' r='1.0' fill='%23ffe9c4' opacity='0.93'/%3E%3Ccircle cx='122' cy='1194' r='1.7' fill='%23ffe9c4' opacity='0.43'/%3E%3Ccircle cx='389' cy='1258' r='0.9' fill='%23cfe0ff' opacity='0.60'/%3E%3Ccircle cx='575' cy='1001' r='1.2' fill='%23ffe9c4' opacity='0.38'/%3E%3Ccircle cx='871' cy='54' r='1.4' fill='%23bfe9ff' opacity='0.71'/%3E%3Ccircle cx='210' cy='818' r='1.3' fill='%23cfe0ff' opacity='0.80'/%3E%3Ccircle cx='471' cy='319' r='1.3' fill='%23ffe9c4' opacity='0.41'/%3E%3Ccircle cx='822' cy='898' r='1.5' fill='%23ffffff' opacity='0.83'/%3E%3Ccircle cx='171' cy='555' r='1.1' fill='%23cfe0ff' opacity='0.83'/%3E%3Ccircle cx='812' cy='538' r='1.9' fill='%23ffe9c4' opacity='0.87'/%3E%3Ccircle cx='285' cy='194' r='1.0' fill='%23ffffff' opacity='0.52'/%3E%3Ccircle cx='1003' cy='1225' r='1.9' fill='%23cfe0ff' opacity='0.55'/%3E%3Ccircle cx='144' cy='1114' r='1.8' fill='%23ffffff' opacity='0.43'/%3E%3Ccircle cx='99' cy='1366' r='1.7' fill='%23ffffff' opacity='0.70'/%3E%3Ccircle cx='129' cy='72' r='0.9' fill='%23ffe9c4' opacity='0.80'/%3E%3Ccircle cx='635' cy='762' r='1.9' fill='%23bfe9ff' opacity='0.96'/%3E%3Ccircle cx='244' cy='1247' r='0.9' fill='%23bfe9ff' opacity='0.95'/%3E%3C/svg%3E");
-  animation: drift 160s linear infinite alternate;
+}
+
+/* Rendered sky from SpaceScene; the CSS sky below is its no-WebGL fallback. */
+.space-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
 }
 
 /* The limb of a planet along the bottom of every screen. */
@@ -58,7 +66,7 @@
   position: fixed;
   left: 50%;
   bottom: -142vmax;
-  z-index: -1;
+  z-index: -2;
   width: 170vmax;
   height: 170vmax;
   border-radius: 50%;
@@ -68,12 +76,6 @@
     0 -24px 120px rgb(70 120 255 / 0.4),
     inset 0 24px 90px rgb(125 249 255 / 0.2);
   transform: translateX(-50%);
-}
-
-@keyframes drift {
-  to {
-    transform: translateY(14%);
-  }
 }
 
 [data-theme="space"] h1 {
@@ -94,10 +96,8 @@
 [data-theme="space"] .form-pane,
 [data-theme="space"] .meter-row {
   border-color: var(--line-2);
-  border-radius: 22px;
+  border-radius: 12px;
   background: var(--glass);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
 }
 
 [data-theme="space"] .pane-head {
@@ -116,17 +116,12 @@
 }
 
 [data-theme="space"] .pane-head h2 {
-  color: var(--watt);
+  color: var(--ink-2);
 }
 
 [data-theme="space"] .scope,
 [data-theme="space"] .consult-pane {
   grid-template-rows: auto 1fr;
-}
-
-/* The orbit may swing past the panel edge; the panel, not the page, clips it. */
-[data-theme="space"] .scope {
-  overflow: clip;
 }
 
 [data-theme="space"] .scope .pane-head,
@@ -162,60 +157,16 @@
 
 [data-theme="space"] .power-xl .power-value {
   font-size: clamp(2.75rem, 4.6vw, 3.75rem);
-  text-shadow: 0 0 22px rgb(125 249 255 / 0.5);
 }
 
 [data-theme="space"] .instrument-figures .figure-dot {
   font-size: 1.5rem;
 }
 
-/* A satellite circling the live reading. */
-[data-theme="space"] .power-xl {
-  position: relative;
-  isolation: isolate;
-}
-
-[data-theme="space"] .power-xl::before,
-[data-theme="space"] .power-xl::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: -1;
-  width: 104%;
-  aspect-ratio: 1;
-  margin: -52% 0 0 -52%;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: rotate(-9deg) scaleY(0.3);
-}
-
-[data-theme="space"] .power-xl::before {
-  border: 1px solid var(--line-2);
-}
-
-[data-theme="space"] .power-xl::after {
-  background: radial-gradient(circle at 50% 0, #ffe9c4 0 5px, transparent 6px);
-  animation: orbit 14s linear infinite;
-}
-
-@keyframes orbit {
-  from {
-    transform: rotate(-9deg) scaleY(0.3);
-  }
-  to {
-    transform: rotate(-9deg) scaleY(0.3) rotate(360deg);
-  }
-}
-
 [data-theme="space"] .button,
 [data-theme="space"] .segmented button,
 [data-theme="space"] .choice label {
-  border-radius: 999px;
-}
-
-[data-theme="space"] .button-primary {
-  box-shadow: 0 6px 26px -6px rgb(125 249 255 / 0.7);
+  border-radius: 8px;
 }
 
 [data-theme="space"] .field input,
@@ -239,7 +190,6 @@
 
 [data-theme="space"] .gauge span {
   border-radius: 999px;
-  box-shadow: 0 0 10px var(--watt);
 }
 
 [data-theme="space"] .stack {
@@ -259,10 +209,8 @@
   padding: 4px;
   overflow: hidden;
   border: 1px solid var(--line-2);
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--glass);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
   transform: translateX(50%);
 }
 
@@ -272,11 +220,11 @@
 
 [data-theme="space"] .bar nav a,
 [data-theme="space"] .bar .link-button {
-  border-radius: 999px;
+  border-radius: 8px;
 }
 
 [data-theme="space"] .bar-theme select {
-  border-radius: 999px;
+  border-radius: 6px;
   background: transparent;
 }
 
@@ -291,8 +239,6 @@
 [data-theme="space"] .gate-form {
   border-left: 0;
   background: var(--glass);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
 }
 
 /* ─────────────────────────── 아케이드: an 8-bit cabinet ─────────────────────────── */
@@ -1027,13 +973,6 @@
   [data-theme="blueprint"] h1,
   [data-theme="pop"] h1 {
     font-size: 30px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="space"] body::before,
-  [data-theme="space"] .power-xl::after {
-    animation: none;
   }
 }
 

@@ -2,6 +2,7 @@ import { Doto, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
 import localFont from "next/font/local";
 import type { Viewport } from "next";
 import type { ReactNode } from "react";
+import { SpaceScene } from "@/components/SpaceScene";
 import { THEME_BOOT } from "@/lib/theme";
 import "./globals.css";
 import "./themes.css";
@@ -33,7 +34,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <SpaceScene />
+        {children}
+      </body>
     </html>
   );
 }
