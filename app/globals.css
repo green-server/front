@@ -2305,6 +2305,12 @@ ol.consult-list {
   --tile-ink: #fbeee4;
 }
 
+.theme-tile[data-preview="modern"] {
+  --tile: linear-gradient(#18191b, #0e0f10);
+  --tile-line: #4cc38a;
+  --tile-ink: #ededee;
+}
+
 .account-servers li + li {
   border-top: 1px solid var(--line);
 }
