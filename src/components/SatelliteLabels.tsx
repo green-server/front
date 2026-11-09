@@ -1,7 +1,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { Link } from "react-router";
 import { Power } from "@/components/Power";
-import { getLabelPositions, getOrbit, MAX_LABELS, subscribeFrame, subscribeOrbit } from "@/lib/orbit";
+import { getLabelPositions, getOrbit, subscribeFrame, subscribeOrbit } from "@/lib/orbit";
 import "@/styles/scene.css";
 
 /**
@@ -31,7 +31,7 @@ export function SatelliteLabels() {
   }, [panel, satellites]);
 
   if (panel) return null;
-  const hiddenCount = satellites.length - MAX_LABELS;
+  const hiddenCount = satellites.filter((s) => !s.labelled).length;
   return (
     <div className="sat-labels">
       {satellites

@@ -94,12 +94,18 @@ export function OrbitScene() {
     const dot = new THREE.SphereGeometry(1, 16, 12);
     const onlineMaterial = new THREE.MeshBasicMaterial({ color: 0xeef2f6 });
     const offlineMaterial = new THREE.MeshBasicMaterial({ color: 0x5b6675 });
-    let drawn: Satellite[] | null = null;
+    let drawn: Satellite[] = [];
+    let narrow = false;
+    // No servers (or signed out): no ring to hang them on. Phones never show it.
+    const showRing = () => {
+      ring.visible = !narrow && drawn.length > 0;
+    };
     const dots = new Map<number, THREE.Mesh>();
     const placeSatellites = () => {
       const { satellites } = getOrbit();
       if (satellites === drawn) return;
       drawn = satellites;
+      showRing();
       spin.clear();
       dots.clear();
       for (const s of satellites) {
@@ -118,16 +124,18 @@ export function OrbitScene() {
     world.add(planet, ring);
     scene.add(stars, world);
 
-    let narrow = false;
+    let width = 1;
+    let height = 1;
     const resize = () => {
-      const { clientWidth: w, clientHeight: h } = el;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
+      width = el.clientWidth;
+      height = el.clientHeight;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
       narrow = window.innerWidth < NARROW;
       // Phones: the planet sits above the content, smaller, with no ring.
       camera.position.z = narrow ? 8 : 6.2;
       planet.position.y = narrow ? 0.9 : 0;
-      ring.visible = !narrow;
+      showRing();
       camera.updateProjectionMatrix();
     };
     resize();
@@ -147,8 +155,11 @@ export function OrbitScene() {
     const unsubscribe = subscribeOrbit(onOrbit);
 
     const positions = getLabelPositions();
+    // Scratch vectors, reused every frame.
     const world3 = new THREE.Vector3();
     const edge = new THREE.Vector3();
+    const centre = new THREE.Vector3();
+    const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * width, ((1 - v.y) / 2) * height, 0);
     const clock = new THREE.Clock();
     const frame = () => {
       const dt = Math.min(clock.getDelta(), 0.1);
@@ -168,20 +179,28 @@ export function OrbitScene() {
       }
       renderer.render(scene, camera);
 
-      positions.clear();
       if (ring.visible) {
-        const { clientWidth: w, clientHeight: h } = el;
-        const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * w, ((1 - v.y) / 2) * h, 0);
-        planet.getWorldPosition(world3);
-        edge.copy(world3).addScaledVector(camera.up, world.scale.x);
-        const centre = toScreen(world3.clone());
+        planet.getWorldPosition(centre);
+        edge.copy(centre).addScaledVector(camera.up, world.scale.x);
+        toScreen(centre);
         const radius = toScreen(edge).distanceTo(centre);
         for (const [id, mesh] of dots) {
           mesh.getWorldPosition(world3);
           const hidden = world3.z < 0;
           const p = toScreen(world3);
-          positions.set(id, { x: p.x, y: p.y, behind: hidden && p.distanceTo(centre) < radius });
+          const behind = hidden && p.distanceTo(centre) < radius;
+          const entry = positions.get(id);
+          if (entry) {
+            entry.x = p.x;
+            entry.y = p.y;
+            entry.behind = behind;
+          } else {
+            positions.set(id, { x: p.x, y: p.y, behind });
+          }
         }
+        for (const id of positions.keys()) if (!dots.has(id)) positions.delete(id);
+      } else {
+        positions.clear();
       }
       publishFrame();
     };

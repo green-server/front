@@ -54,7 +54,7 @@
   margin: 12px 0 0;
   padding: 4px 8px;
   border-radius: 4px;
-  background: rgb(5 8 15 / 0.72);
+  background: color-mix(in srgb, var(--space) 72%, transparent);
   white-space: nowrap;
   translate: -50% 0;
   transition: opacity 0.3s;
@@ -85,9 +85,9 @@
   top: calc(50% + 34vh);
   translate: -50% 0;
   padding: 4px 10px;
-  border: 1px solid rgb(255 255 255 / 0.1);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgb(5 8 15 / 0.72);
+  background: color-mix(in srgb, var(--space) 72%, transparent);
   font-size: 13px;
 }
 
