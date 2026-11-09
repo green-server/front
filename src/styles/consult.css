@@ -216,10 +216,6 @@ ol.consult-list {
 .session-output {
   color: var(--ink-2);
 }
-.saving .figure {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
 .tool-undo .muted {
   font-size: 0.875rem;
 }

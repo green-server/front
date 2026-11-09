@@ -83,7 +83,7 @@ export default function NewServerPage() {
         <ol className="steps">
           <li>설치 명령어가 나타납니다. 토큰은 이때 한 번만 보입니다.</li>
           <li>서버 터미널에서 명령어를 실행합니다.</li>
-          <li>첫 측정값이 들어오면 서버 목록에 파형이 그려집니다.</li>
+          <li>첫 측정값이 들어오면 서버 목록에 전력이 표시됩니다.</li>
         </ol>
       </section>
     </Panel>
