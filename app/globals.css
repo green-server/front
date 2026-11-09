@@ -200,7 +200,7 @@ main:focus {
 
 .wordmark svg {
   display: block;
-  height: 19px;
+  height: 26px;
 }
 
 .bar nav {
@@ -727,7 +727,7 @@ main:focus {
 .gate-logo {
   --logo-mark: var(--watt);
   display: block;
-  width: min(100%, 34rem);
+  width: 6rem;
   color: var(--ink);
   animation: rise 700ms var(--ease) backwards;
 }
@@ -797,7 +797,7 @@ main:focus {
 
 .auth-logo {
   --logo-mark: var(--watt);
-  width: 11rem;
+  width: 4rem;
   color: var(--ink);
 }
 
