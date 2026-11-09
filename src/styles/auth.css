@@ -12,8 +12,8 @@
 }
 .auth-card {
   top: 50%;
-  left: calc(50% + 18vw);
-  width: min(340px, 40vw);
+  left: min(calc(50% + 18vw), calc(100vw - 364px));
+  width: 340px;
   transform: translateY(-50%);
 }
 .notice-card {
@@ -43,9 +43,12 @@
 }
 
 @media (max-width: 759.98px) {
+  /* In flow below the planet, so the page scrolls when the keyboard opens. */
   .auth-card {
-    inset: auto 16px 16px;
+    position: relative;
+    inset: auto;
     width: auto;
+    margin: 52vh 16px 16px;
     transform: none;
   }
 }
