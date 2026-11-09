@@ -1,32 +1,46 @@
-import { Link, Outlet, useLocation, useNavigate } from "react-router";
-import { useEffect, useSyncExternalStore } from "react";
-import { Logo } from "@/components/Logo";
+import { Outlet, useLocation, useNavigate } from "react-router";
+import { useEffect } from "react";
+import { SatelliteLabels } from "@/components/SatelliteLabels";
+import { NAV, TopBar } from "@/components/TopBar";
 import { api, clearApiCache, useApi } from "@/lib/api";
-import { LiveProvider, useLiveDropped } from "@/lib/live";
-import { planetHealth, setOrbit } from "@/lib/orbit";
+import { LiveProvider, useLive, useLiveDropped } from "@/lib/live";
+import { layoutSatellites, planetHealth, setOrbit } from "@/lib/orbit";
 import type { ServerSummary } from "@/lib/types";
 
-const NAV = [
-  { href: "/", label: "서버" },
-  { href: "/reports", label: "절약 리포트" },
-  { href: "/account", label: "계정" },
-];
+export function AppLayout() {
+  return (
+    <LiveProvider>
+      <Shell />
+    </LiveProvider>
+  );
+}
 
-/** Feeds the background planet the fleet's draw; signed out, it goes back to green. */
-function PlanetFeed() {
-  const { data, reload } = useApi<ServerSummary[]>("/api/servers");
+function Shell() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { data, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
+
   useEffect(() => {
     const timer = setInterval(reload, 60_000);
     return () => clearInterval(timer);
   }, [reload]);
-  useEffect(() => setOrbit({ health: planetHealth(data) }), [data]);
-  useEffect(() => () => setOrbit({ health: 1 }), []);
-  return null;
-}
 
-export function AppLayout() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
+  useLive((event) => {
+    if (event.type === "reconnected") reload();
+    if (event.type === "metric") {
+      const { watts, isEstimated } = event.metric;
+      mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, latestWatts: watts, isEstimated } : s)));
+    }
+    if (event.type === "agent_status") {
+      mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, online: event.online } : s)));
+    }
+  });
+
+  useEffect(() => {
+    const list = data ?? [];
+    setOrbit({ satellites: layoutSatellites(list), health: planetHealth(list) });
+  }, [data]);
+  useEffect(() => () => setOrbit({ health: 1, satellites: [] }), []);
 
   const logout = () =>
     api("/api/auth/logout", { method: "POST" })
@@ -36,7 +50,6 @@ export function AppLayout() {
         navigate("/login", { replace: true });
       });
 
-  // The window numbers in the bar are real keys, as they are in tmux.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
@@ -49,51 +62,18 @@ export function AppLayout() {
   }, [navigate]);
 
   return (
-    <LiveProvider>
-      <PlanetFeed />
+    <>
       <a className="skip-link" href="#main">
         본문으로 건너뛰기
       </a>
-      <header className="bar">
-        <Link to="/" className="wordmark">
-          <Logo />
-        </Link>
-        <nav aria-label="주 메뉴">
-          {NAV.map(({ href, label }, index) => {
-            const current = href === "/" ? pathname === "/" || pathname.startsWith("/servers") : pathname.startsWith(href);
-            return (
-              <Link key={href} to={href} aria-current={current ? "page" : undefined}>
-                <span className="bar-key">{index + 1}</span>
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-        <Clock />
-        <button type="button" className="link-button" onClick={logout}>
-          로그아웃
-        </button>
-      </header>
+      <TopBar online={data?.filter((s) => s.online).length ?? 0} total={data?.length ?? 0} onLogout={logout} />
       <LiveNotice />
-      <main id="main" tabIndex={-1} className="page">
-        {/* Keyed by path so each navigation remounts it and replays the entrance. */}
-        <div className="route" key={pathname}>
-          <Outlet />
-        </div>
+      {pathname === "/" && <SatelliteLabels />}
+      <main id="main" tabIndex={-1}>
+        <Outlet />
       </main>
-    </LiveProvider>
+    </>
   );
-}
-
-const clockFormat = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
-const onSecond = (tick: () => void) => {
-  const timer = setInterval(tick, 1000);
-  return () => clearInterval(timer);
-};
-
-function Clock() {
-  const now = useSyncExternalStore(onSecond, () => clockFormat.format(Date.now()), () => "");
-  return <span className="bar-clock">{now}</span>;
 }
 
 function LiveNotice() {

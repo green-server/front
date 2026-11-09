@@ -1,0 +1,197 @@
+:root {
+  color-scheme: dark;
+  --space: #05080f;
+  --surface: rgb(12 18 30 / 0.86);
+  --line: rgb(255 255 255 / 0.1);
+  --ink: #eef2f6;
+  --ink-2: #9aa6b5;
+  --go: #4fe39a;
+  --on-go: #04140b;
+  --warn: #f2b544;
+  --bad: #ff6b5e;
+  --ground: var(--space);
+  --watt: var(--go);
+  --on-watt: var(--on-go);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--space);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.25;
+}
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+h2 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+a {
+  color: inherit;
+}
+code,
+pre,
+kbd {
+  font-family: var(--code);
+}
+
+:focus-visible {
+  outline: 2px solid var(--go);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover {
+  border-color: var(--ink-2);
+}
+.btn-go {
+  border-color: var(--go);
+  background: var(--go);
+  color: var(--on-go);
+}
+.btn-go:hover {
+  border-color: var(--go);
+  filter: brightness(1.08);
+}
+.btn-quiet {
+  border-color: transparent;
+  color: var(--ink-2);
+}
+.btn-quiet:hover {
+  border-color: transparent;
+  color: var(--ink);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form fields */
+.field {
+  display: grid;
+  gap: 6px;
+  font-weight: 500;
+}
+.field input,
+.field select,
+.field textarea,
+input.field,
+select.field,
+textarea.field {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.04);
+  color: var(--ink);
+  font: inherit;
+}
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  border-color: var(--go);
+}
+
+/* Provenance and source tags */
+.tag {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Page building blocks */
+.section {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+}
+.rows {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rows > * {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.rows > :first-child {
+  border-top: 0;
+}
+.figure-lg {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Power: solid rule under the digits is 실측, dashed is 추정. */
+.power {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5em;
+  white-space: nowrap;
+}
+.power-value {
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid currentcolor;
+}
+.is-estimated .power-value {
+  border-bottom-style: dashed;
+}
+.power-tag {
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
