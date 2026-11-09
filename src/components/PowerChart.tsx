@@ -118,7 +118,7 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
           ))}
           {runs.map((run) =>
             run.points.length === 1 ? (
-              <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
+              <circle key={run.points[0].ts} className={run.estimated ? "chart-point is-estimated" : "chart-point"} r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
             ) : (
               <g key={run.points[0].ts}>
                 <polyline
@@ -137,7 +137,7 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
             최고 {formatNumber(peak.watts)}W
           </text>
           {picked !== null && <line className="chart-cursor" x1={x(times[index])} x2={x(times[index])} y1={MARGIN.top} y2={MARGIN.top + plotHeight} />}
-          <circle className="chart-marker" r={4} cx={x(times[index])} cy={y(active.watts)} />
+          <circle className={active.isEstimated ? "chart-marker is-estimated" : "chart-marker"} r={4} cx={x(times[index])} cy={y(active.watts)} />
         </svg>
       </div>
     </figure>

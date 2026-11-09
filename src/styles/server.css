@@ -158,6 +158,10 @@
   fill: var(--go);
   stroke: none;
 }
+.panel .chart-point.is-estimated,
+.panel .chart-marker.is-estimated {
+  fill: var(--ink-2);
+}
 .panel .chart-peak {
   fill: var(--ink);
   font: 500 11px var(--sans);
