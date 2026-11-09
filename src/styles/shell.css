@@ -106,7 +106,6 @@ main#main {
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
-  backdrop-filter: blur(12px);
   animation: panel-in 200ms ease-out;
 }
 @keyframes panel-in {

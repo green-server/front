@@ -46,7 +46,7 @@
   text-decoration: none;
 }
 .notice-row.is-pending {
-  border-left: 3px solid var(--warn);
+  border-color: var(--warn);
 }
 .notice-row code {
   overflow: hidden;
