@@ -1,0 +1,99 @@
+/* The orbit scene behind every page; see components/OrbitScene.tsx. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.6s;
+}
+
+.scene.is-dim canvas,
+.scene.is-dim .scene-fallback {
+  opacity: 0.45;
+}
+
+/* The still includes the halo, so 64vh puts the planet at about the live scene's size. */
+.scene-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(64vh, 100vw);
+  translate: -50% -50%;
+}
+
+/* Satellite labels: placed by SatelliteLabels each frame, hanging under their dot. */
+.sat-labels {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sat-label,
+.sat-more {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+  text-decoration: none;
+  color: var(--ink);
+  font-family: var(--sans);
+}
+
+.sat-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 12px 0 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgb(5 8 15 / 0.72);
+  white-space: nowrap;
+  translate: -50% 0;
+  transition: opacity 0.3s;
+}
+
+.sat-label[hidden],
+.sat-more[hidden] {
+  display: none;
+}
+
+.sat-name {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.sat-off {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.sat-label:hover .sat-name,
+.sat-label:focus-visible .sat-name {
+  color: var(--ink);
+}
+
+.sat-more {
+  left: 50%;
+  top: calc(50% + 34vh);
+  translate: -50% 0;
+  padding: 4px 10px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  background: rgb(5 8 15 / 0.72);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene canvas,
+  .sat-label {
+    transition: none;
+  }
+}

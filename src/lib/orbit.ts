@@ -68,3 +68,16 @@ export function subscribeOrbit(listener: () => void) {
   listeners.add(listener);
   return () => void listeners.delete(listener);
 }
+
+// Where the scene drew each satellite on its last frame, in CSS pixels. Kept here rather than in
+// OrbitScene so the labels can read it without pulling three.js into the main bundle.
+// Empty when nothing is drawn (no WebGL, narrow screens), which hides the labels.
+export type LabelPosition = { x: number; y: number; behind: boolean };
+const labelPositions = new Map<number, LabelPosition>();
+const frameListeners = new Set<() => void>();
+export const getLabelPositions = () => labelPositions;
+export function subscribeFrame(cb: () => void) {
+  frameListeners.add(cb);
+  return () => void frameListeners.delete(cb);
+}
+export const publishFrame = () => frameListeners.forEach((cb) => cb());

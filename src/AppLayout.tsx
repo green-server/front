@@ -3,7 +3,8 @@ import { useEffect, useSyncExternalStore } from "react";
 import { Logo } from "@/components/Logo";
 import { api, clearApiCache, useApi } from "@/lib/api";
 import { LiveProvider, useLiveDropped } from "@/lib/live";
-import { planetHealth, setOrbit } from "@/lib/orbit";
+import { layoutSatellites, planetHealth, setOrbit } from "@/lib/orbit";
+import { SatelliteLabels } from "@/components/SatelliteLabels";
 import type { ServerSummary } from "@/lib/types";
 
 const NAV = [
@@ -19,8 +20,8 @@ function PlanetFeed() {
     const timer = setInterval(reload, 60_000);
     return () => clearInterval(timer);
   }, [reload]);
-  useEffect(() => setOrbit({ health: planetHealth(data) }), [data]);
-  useEffect(() => () => setOrbit({ health: 1 }), []);
+  useEffect(() => setOrbit({ health: planetHealth(data), satellites: layoutSatellites(data ?? []) }), [data]);
+  useEffect(() => () => setOrbit({ health: 1, satellites: [] }), []);
   return null;
 }
 
@@ -51,6 +52,7 @@ export function AppLayout() {
   return (
     <LiveProvider>
       <PlanetFeed />
+      <SatelliteLabels />
       <a className="skip-link" href="#main">
         본문으로 건너뛰기
       </a>
