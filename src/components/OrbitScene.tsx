@@ -11,8 +11,7 @@ const NARROW = 760;
 
 /**
  * The one scene behind every page: the planet, whose seas, forests and air follow the fleet's
- * draw (`lib/orbit.ts`), and a ring carrying each server as a satellite. Drawn with shaders,
- * so there are no textures to load. Never unmounts.
+ * draw (`lib/orbit.ts`), and a ring carrying each server as a satellite. Never unmounts.
  */
 export function OrbitScene() {
   const host = useRef<HTMLDivElement>(null);
@@ -49,7 +48,22 @@ export function OrbitScene() {
     camera.position.set(0, 0, 6.2);
 
     const sun = new THREE.Vector3(-0.9, 0.45, 0.75).normalize();
-    const uniforms = { health: { value: getOrbit().health }, time: { value: 0 }, sun: { value: sun } };
+    const loader = new THREE.TextureLoader();
+    const map = (name: string) => {
+      const texture = loader.load(`/earth/${name}`, () => markDirty());
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      return texture;
+    };
+    const textures = [map("day.jpg"), map("water.jpg"), map("lights.jpg"), map("clouds.png")];
+    const [dayMap, waterMap, lightsMap, cloudMap] = textures;
+    const uniforms = {
+      health: { value: getOrbit().health },
+      sun: { value: sun },
+      dayMap: { value: dayMap },
+      waterMap: { value: waterMap },
+      lightsMap: { value: lightsMap },
+      cloudMap: { value: cloudMap },
+    };
     const sphere = new THREE.SphereGeometry(1, 128, 96);
 
     const globe = new THREE.Group();
@@ -60,6 +74,8 @@ export function OrbitScene() {
       new THREE.ShaderMaterial({ uniforms, vertexShader: VERTEX, fragmentShader: CLOUDS, transparent: true, depthWrite: false }),
     );
     clouds.scale.setScalar(1.012);
+    // Start with Korea (127°E) facing the viewer.
+    surface.rotation.y = clouds.rotation.y = Math.PI / 2 - Math.PI * 2 * (0.5 + 127 / 360);
     globe.add(surface, clouds);
 
     const halo = new THREE.Mesh(
@@ -193,7 +209,6 @@ export function OrbitScene() {
       world.position.x += (goal.x - world.position.x) * k;
       world.scale.setScalar(world.scale.x + (goal.scale - world.scale.x) * k);
       if (!still.matches) {
-        uniforms.time.value += dt;
         surface.rotation.y += dt * 0.035;
         clouds.rotation.y += dt * 0.045;
         stars.rotation.y += dt * 0.002;
@@ -237,6 +252,7 @@ export function OrbitScene() {
       [sphere, starGeometry, ringGeometry, dot].forEach((g) => g.dispose());
       [surface, clouds, halo, stars].forEach((o) => (o.material as THREE.Material).dispose());
       [ringMaterial, onlineMaterial, offlineMaterial].forEach((m) => m.dispose());
+      textures.forEach((t) => t.dispose());
       renderer.dispose();
       renderer.domElement.remove();
     };
