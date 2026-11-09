@@ -1,9 +1,8 @@
 import { Link } from "react-router";
 import { useServers } from "@/AppLayout";
 import { Panel } from "@/components/Panel";
-import { Power } from "@/components/Power";
-import { Failure, Loading, OnlineState } from "@/components/Status";
-import { formatKrw, isServerEstimated, KIND_LABEL } from "@/lib/format";
+import { ServerList } from "@/components/ServerList";
+import { Failure, Loading } from "@/components/Status";
 import "@/styles/server.css";
 
 export default function Servers() {
@@ -21,22 +20,7 @@ export default function Servers() {
       {!error && !servers && <Loading />}
       {servers?.length === 0 && <p className="muted">등록한 서버가 없습니다.</p>}
       {servers && servers.length > 0 && (
-        <ul className="rows">
-          {servers.map((server) => (
-            <li key={server.id}>
-              <Link to={`/servers/${server.id}`} className="row server-row">
-                <span className="row-main">
-                  <strong>{server.name}</strong>
-                  <span className="muted">
-                    {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
-                  </span>
-                </span>
-                {server.online ? <Power value={server.latestWatts} estimated={isServerEstimated(server)} /> : <span className="muted">꺼짐</span>}
-                <span className="row-krw">{formatKrw(server.monthlyKrw)}/월</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <ServerList servers={servers} />
       )}
     </Panel>
   );

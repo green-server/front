@@ -1,6 +1,5 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
-import { setOrbit } from "@/lib/orbit";
 
 export function Panel({
   title,
@@ -15,11 +14,6 @@ export function Panel({
   children: ReactNode;
 }) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setOrbit({ panel: true });
-    return () => setOrbit({ panel: false });
-  }, []);
 
   useEffect(() => {
     if (!escape) return;
@@ -45,7 +39,7 @@ export function Panel({
           <h1>{title}</h1>
         </div>
         <Link to="/" className="panel-close" aria-label="닫기">
-          ✕
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
         </Link>
       </div>
       {children}

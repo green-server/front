@@ -1,6 +1,5 @@
-import { Outlet, useLocation, useNavigate, useOutletContext } from "react-router";
+import { Outlet, useNavigate, useOutletContext } from "react-router";
 import { useEffect } from "react";
-import { SatelliteLabels } from "@/components/SatelliteLabels";
 import { NAV, TopBar } from "@/components/TopBar";
 import { api, clearApiCache, useApi } from "@/lib/api";
 import { LiveProvider, useLive, useLiveDropped } from "@/lib/live";
@@ -21,7 +20,6 @@ export function AppLayout() {
 }
 
 function Shell() {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
   // Open recommendations ravage the planet; applying or dismissing one heals it.
@@ -81,7 +79,6 @@ function Shell() {
       </a>
       <TopBar online={data?.filter((s) => s.online).length ?? 0} total={data?.length ?? 0} onLogout={logout} />
       <LiveNotice />
-      {pathname === "/" && <SatelliteLabels />}
       <main id="main" tabIndex={-1}>
         <Outlet context={{ servers: data, error, reload } satisfies ServersContext} />
       </main>

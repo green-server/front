@@ -1,53 +1,26 @@
-.auth-card,
-.notice-card {
-  position: fixed;
-  z-index: 10;
-  display: grid;
-  gap: 16px;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
-}
-.auth-card {
-  top: 50%;
-  left: min(calc(50% + 18vw), calc(100vw - 364px));
-  width: 340px;
-  transform: translateY(-50%);
-}
-.notice-card {
-  top: 50%;
-  left: 50%;
-  width: min(360px, calc(100vw - 32px));
-  transform: translate(-50%, -50%);
-  justify-items: start;
-}
-.notice-card h1 {
-  font-size: 1.25rem;
-}
-.auth-form {
-  display: grid;
-  gap: 12px;
-}
-.auth-error {
-  margin: 0;
-  color: var(--bad);
-}
-.auth-card .auth-switch {
-  margin: 0;
-  color: var(--ink-2);
-}
-.auth-switch a {
-  color: var(--ink);
-}
-
-@media (max-width: 759.98px) {
-  /* In flow below the planet, so the page scrolls when the keyboard opens. */
-  .auth-card {
-    position: relative;
-    inset: auto;
-    width: auto;
-    margin: 52vh 16px 16px;
-    transform: none;
-  }
+.auth-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 100svh; padding: 24px; gap: 24px; }
+.auth-intro { position: relative; display: flex; flex-direction: column; min-width: 0; overflow: hidden; padding: 48px; border-radius: 16px; background: #19241a; }
+.auth-mark { width: 16px; height: 44px; margin-bottom: 56px; color: var(--go); }
+.auth-intro h2 { position: relative; z-index: 1; font-size: clamp(2rem, 3.2vw, 3rem); line-height: 1.4; font-weight: 600; }
+.auth-intro > p { position: relative; z-index: 1; margin-top: 20px; color: #b3c4b2; max-width: 32ch; }
+.auth-intro .orbit-view { flex: 1; min-height: 340px; margin-top: 24px; background: transparent; }
+.auth-card { width: min(100%, 380px); align-self: center; justify-self: center; padding-block: 40px; }
+.auth-card > .muted { margin: 12px 0 36px; }
+.auth-form { display: grid; gap: 20px; }
+.auth-form input, .auth-form .btn { min-height: 48px; }
+.auth-form .btn { margin-top: 8px; }
+.auth-error { margin: 0; color: var(--bad); }
+.auth-card .auth-switch { margin-top: 28px; color: var(--ink-2); font-size: 0.875rem; }
+.auth-switch a { color: var(--go); margin-left: 8px; }
+.notice-card { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; gap: 16px; justify-items: start; width: min(420px, calc(100vw - 40px)); padding: 32px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.notice-card h1 { font-size: 1.25rem; }
+@media (max-width: 959px) { .auth-intro { padding: 32px; } .auth-card { padding-inline: 16px; } }
+@media (max-width: 759px) {
+  .auth-layout { grid-template-columns: 1fr; align-content: start; gap: 0; padding: 20px; }
+  .auth-intro { min-height: 190px; padding: 24px; }
+  .auth-mark { width: 32px; height: 32px; margin-bottom: 20px; }
+  .auth-intro h2 { font-size: 1.5rem; }
+  .auth-intro > p, .auth-intro .orbit-view { display: none; }
+  .auth-card { padding: 36px 4px; }
+  .auth-card h1 { font-size: 1.5rem; }
 }
