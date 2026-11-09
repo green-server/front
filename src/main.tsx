@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense } from "react";
+import { lazy, StrictMode, Suspense, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { AppLayout } from "@/AppLayout";
@@ -12,10 +12,12 @@ import Recommendation from "@/pages/Recommendation";
 import Reports from "@/pages/Reports";
 import RouteError from "@/pages/RouteError";
 import Server from "@/pages/Server";
-import "./globals.css";
+import Servers from "@/pages/Servers";
+import "./styles/base.css";
+import "./styles/shell.css";
 
 // three.js is most of the bundle, so the backdrop loads after the page it sits behind.
-const Planet = lazy(() => import("@/components/Planet").then((m) => ({ default: m.Planet })));
+const OrbitScene = lazy<ComponentType>(() => import("@/components/OrbitScene").catch(() => ({ default: () => null })));
 
 const router = createBrowserRouter([
   { path: "/login", element: <AuthForm mode="login" /> },
@@ -25,6 +27,7 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { index: true, element: <Home /> },
+      { path: "servers", element: <Servers /> },
       { path: "servers/new", element: <NewServer /> },
       { path: "servers/:id", element: <Server /> },
       { path: "servers/:id/recommendations/:recommendationId", element: <Recommendation /> },
@@ -39,7 +42,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Suspense>
-      <Planet />
+      <OrbitScene />
     </Suspense>
     <RouterProvider router={router} />
   </StrictMode>,

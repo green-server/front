@@ -22,6 +22,7 @@ export type ServerSummary = Server & {
   isEstimated: boolean | null;
   monthlyKwh: number;
   monthlyKrw: number;
+  monthlyCo2Kg: number;
 };
 export type Metric = { ts: string; cpuPct: number; memPct: number; watts: number; isEstimated: boolean };
 export type ProcessSample = { ts: string; pid: number; name: string; cpuPct: number; watts: number };
@@ -73,8 +74,10 @@ export type SavingsReport = {
     afterWatts: number;
     savedKwhMonth: number;
     savedKrwMonth: number;
+    savedCo2KgMonth: number;
   }[];
-  bySource: { source: "rule" | "ai"; total: number; applied: number; savedKrwMonth: number }[];
+  bySource: { source: "rule" | "ai"; total: number; applied: number; savedKrwMonth: number; savedCo2KgMonth: number }[];
+  total: { savedKrwMonth: number; savedCo2KgMonth: number };
 };
 
 export type ActivityReport = {

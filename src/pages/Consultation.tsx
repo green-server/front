@@ -1,60 +1,54 @@
-import { Link } from "react-router";
 import { useParams } from "react-router";
+import { Panel } from "@/components/Panel";
 import { Session, useConsultation } from "@/components/Session";
 import { Failure, Loading } from "@/components/Status";
-import { api, useSubmit } from "@/lib/api";
+import { api, useApi, useSubmit } from "@/lib/api";
 import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, outcome, SERVER_LEVELS, TIER_LABEL, undoState } from "@/lib/format";
-import type { ServerLevel, ToolCall } from "@/lib/types";
+import "@/styles/consult.css";
+import type { ServerLevel, ServerSummary, ToolCall } from "@/lib/types";
 
 export default function ConsultationPage() {
+  return <ConsultationPageBody key={useParams().id} />;
+}
+
+function ConsultationPageBody() {
   const { id } = useParams() as { id: string };
   const { data, error, reload, putCall } = useConsultation(Number(id));
+  const servers = useApi<ServerSummary[]>("/api/servers");
+  const back = { to: data ? `/servers/${data.serverId}` : "/", label: servers.data?.find((s) => s.id === data?.serverId)?.name ?? "서버" };
 
-  if (error) return <Failure error={error} retry={reload} />;
-  if (!data) return <Loading />;
+  if (error) return <Panel title="AI 컨설팅" back={back}><Failure error={error} retry={reload} /></Panel>;
+  if (!data) return <Panel title="AI 컨설팅" back={back}><Loading /></Panel>;
 
   const pending = data.toolCalls.filter((call) => call.decision === "pending");
   const log = data.toolCalls.filter((call) => call.decision !== "pending");
   const active = data.status === "requested" || data.status === "running";
 
   return (
-    <div className="console">
+    <Panel title="AI 컨설팅" back={back}>
       <title>AI 컨설팅 · Green Server</title>
-      <div className="page-head">
+      <dl className="consult-meta">
         <div>
-          <p className="crumb">
-            <Link to={`/servers/${data.serverId}`}>서버로 돌아가기</Link>
-          </p>
-          <h1>
-            AI 컨설팅
-            {active && <span className="cursor" aria-hidden="true" />}
-          </h1>
+          <dt>상태</dt>
+          <dd>
+            <span role="status">{CONSULTATION_STATUS[data.status]}</span>
+          </dd>
         </div>
-        <dl className="consult-meta">
-          <div>
-            <dt>상태</dt>
-            <dd>
-              <span role="status">{CONSULTATION_STATUS[data.status]}</span>
-            </dd>
-          </div>
-          <div>
-            <dt>요청 시각</dt>
-            <dd>{formatDateTime(data.requestedAt)}</dd>
-          </div>
-          <div>
-            <dt>인증 방식</dt>
-            <dd>{AUTH_MODE_LABEL[data.authMode]}</dd>
-          </div>
-        </dl>
-      </div>
+        <div>
+          <dt>요청 시각</dt>
+          <dd>{formatDateTime(data.requestedAt)}</dd>
+        </div>
+        <div>
+          <dt>인증 방식</dt>
+          <dd>{AUTH_MODE_LABEL[data.authMode]}</dd>
+        </div>
+      </dl>
 
       <div aria-live="polite">
         {pending.length > 0 && (
-          <section aria-labelledby="pending-heading" className="pane pane-alert">
-            <div className="pane-head">
-              <h2 id="pending-heading">권한 요청</h2>
-            </div>
-            <p>10분 안에 결정하지 않으면 거부로 처리됩니다.</p>
+          <section aria-labelledby="pending-heading" className="section">
+            <h2 id="pending-heading">권한 요청</h2>
+            <p className="muted">10분 안에 결정하지 않으면 거절로 처리됩니다.</p>
             {pending.map((call) => (
               <PendingCall key={call.id} call={call} onChange={putCall} />
             ))}
@@ -64,12 +58,10 @@ export default function ConsultationPage() {
 
       {(active || data.stream.length > 0) && <Session entries={data.stream} active={active} />}
 
-      <div className="console-grid">
+      <div>
         {(data.level || data.summary || data.feedback.length > 0 || data.fixes.length > 0) && (
-          <section aria-labelledby="report-heading" className="pane">
-            <div className="pane-head">
-              <h2 id="report-heading">진단</h2>
-            </div>
+          <section aria-labelledby="report-heading" className="section">
+            <h2 id="report-heading">진단</h2>
             {data.level && <LevelSteps level={data.level} />}
             {data.summary && <p className="consult-summary">{data.summary}</p>}
             {data.feedback.length > 0 && (
@@ -95,12 +87,10 @@ export default function ConsultationPage() {
           </section>
         )}
 
-        <section aria-labelledby="log-heading" className="pane">
-          <div className="pane-head">
-            <h2 id="log-heading">실행 기록</h2>
-          </div>
+        <section aria-labelledby="log-heading" className="section">
+          <h2 id="log-heading">실행 기록</h2>
           {log.length === 0 ? (
-            <p className="status">아직 실행한 명령이 없습니다.</p>
+            <p className="muted">아직 실행한 명령이 없습니다.</p>
           ) : (
             <ol className="tool-log">
               {log.map((call) => (
@@ -110,7 +100,7 @@ export default function ConsultationPage() {
           )}
         </section>
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -121,34 +111,24 @@ function PendingCall({ call, onChange }: { call: ToolCall; onChange: (call: Tool
     run(async () => onChange(await api<ToolCall>(`/api/tool-calls/${call.id}/decision`, { method: "POST", body: { decision } })));
 
   return (
-    <article className="approval">
-      <dl>
-        <div>
-          <dt>실행할 명령어</dt>
-          <dd>
-            <Command text={call.command} />
-          </dd>
-        </div>
-        <div>
-          <dt>권한 단계</dt>
-          <dd>{TIER_LABEL[call.tier]}</dd>
-        </div>
-        <div>
-          <dt>되돌리는 명령어</dt>
-          <dd>{call.undoCommand ? <Command text={call.undoCommand} /> : "기록된 명령어가 없어 되돌릴 수 없습니다."}</dd>
-        </div>
-      </dl>
+    <article className="ask">
+      <p className="ask-label">
+        실행할 명령어 <span className="tag">{TIER_LABEL[call.tier]}</span>
+      </p>
+      <Command text={call.command} />
+      <p className="ask-label">되돌리는 명령어</p>
+      {call.undoCommand ? <Command text={call.undoCommand} undo /> : <p className="muted">기록된 명령어가 없어 되돌릴 수 없습니다.</p>}
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-      <div className="approval-actions">
-        <button type="button" className="button button-primary" disabled={busy} onClick={() => decide("approved")}>
+      <div className="ask-actions">
+        <button type="button" className="btn btn-go" disabled={busy} onClick={() => decide("approved")}>
           허용
         </button>
-        <button type="button" className="button" disabled={busy} onClick={() => decide("denied")}>
-          거부
+        <button type="button" className="btn btn-quiet" disabled={busy} onClick={() => decide("denied")}>
+          거절
         </button>
       </div>
     </article>
@@ -163,7 +143,7 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
     run(async () => onChange(await api<ToolCall>(`/api/tool-calls/${call.id}/undo`, { method: "POST" })));
 
   return (
-    <li className="tool-entry">
+    <li className={`tool-entry is-${call.decision}`}>
       <Command text={call.command} />
       <p className="tool-state">
         {call.undoOf !== null && <span>되돌리기</span>}
@@ -172,12 +152,12 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
       </p>
       {call.undoCommand && (
         <div className="tool-undo">
-          <span className="caption">되돌리는 명령어</span>
-          <Command text={call.undoCommand} />
+          <span className="muted">되돌리는 명령어</span>
+          <Command text={call.undoCommand} undo />
         </div>
       )}
-      {undo === "running" && <p className="caption">되돌리는 중</p>}
-      {undo === "done" && <p className="caption">되돌림</p>}
+      {undo === "running" && <p className="muted">되돌리는 중</p>}
+      {undo === "done" && <p className="muted">되돌림</p>}
       {undo === "failed" && <p className="error">되돌리지 못했습니다.</p>}
       {error && (
         <p className="error" role="alert">
@@ -185,7 +165,7 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
         </p>
       )}
       {(undo === "ready" || undo === "failed") && (
-        <button type="button" className="button" disabled={busy} onClick={requestUndo}>
+        <button type="button" className="btn" disabled={busy} onClick={requestUndo}>
           되돌리기
         </button>
       )}
@@ -193,9 +173,9 @@ function LogEntry({ call, calls, onChange }: { call: ToolCall; calls: ToolCall[]
   );
 }
 
-function Command({ text }: { text: string }) {
+function Command({ text, undo }: { text: string; undo?: boolean }) {
   return (
-    <pre className="command" translate="no">
+    <pre className={undo ? "command command-undo" : "command"} translate="no">
       <code>{text}</code>
     </pre>
   );

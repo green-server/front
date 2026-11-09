@@ -1,7 +1,3 @@
-import { useEffect, useRef } from "react";
-import * as THREE from "three";
-import { getPlanetHealth } from "@/lib/planet";
-
 // 3D simplex noise (Ashima Arts / Stefan Gustavson, MIT) and a 5-octave fbm on top of it.
 const NOISE = /* glsl */ `
 vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
@@ -52,7 +48,7 @@ float fbm(vec3 p) {
 }
 `;
 
-const VERTEX = /* glsl */ `
+export const VERTEX = /* glsl */ `
 varying vec3 vPos;
 varying vec3 vNormal;
 varying vec3 vView;
@@ -65,7 +61,7 @@ void main() {
 }
 `;
 
-const SURFACE = /* glsl */ `
+export const SURFACE = /* glsl */ `
 uniform float health;
 uniform vec3 sun;
 varying vec3 vPos;
@@ -106,7 +102,7 @@ void main() {
 }
 `;
 
-const CLOUDS = /* glsl */ `
+export const CLOUDS = /* glsl */ `
 uniform float health;
 uniform float time;
 uniform vec3 sun;
@@ -125,7 +121,7 @@ void main() {
 }
 `;
 
-const HALO = /* glsl */ `
+export const HALO = /* glsl */ `
 uniform float health;
 varying vec3 vNormal;
 varying vec3 vView;
@@ -136,114 +132,3 @@ void main() {
   gl_FragColor = vec4(air * glow * 2.4, 1.0);
 }
 `;
-
-/**
- * A planet behind every page whose seas, forests and air follow the fleet's draw against
- * its 7-day average (`lib/planet.ts`). Drawn with shaders, so there are no textures to load.
- */
-export function Planet() {
-  const host = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = host.current;
-    if (!el) return;
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
-    } catch {
-      return; // No WebGL: the page is complete without the backdrop.
-    }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    el.appendChild(renderer.domElement);
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
-    camera.position.set(0, 0, 7.5);
-
-    const sun = new THREE.Vector3(-0.9, 0.45, 0.75).normalize();
-    const uniforms = { health: { value: getPlanetHealth() }, time: { value: 0 }, sun: { value: sun } };
-    const sphere = new THREE.SphereGeometry(1, 128, 96);
-
-    const globe = new THREE.Group();
-    globe.rotation.z = 0.41; // Earth's axial tilt.
-    const surface = new THREE.Mesh(sphere, new THREE.ShaderMaterial({ uniforms, vertexShader: VERTEX, fragmentShader: SURFACE }));
-    const clouds = new THREE.Mesh(
-      sphere,
-      new THREE.ShaderMaterial({ uniforms, vertexShader: VERTEX, fragmentShader: CLOUDS, transparent: true, depthWrite: false }),
-    );
-    clouds.scale.setScalar(1.012);
-    globe.add(surface, clouds);
-
-    const halo = new THREE.Mesh(
-      sphere,
-      new THREE.ShaderMaterial({
-        uniforms,
-        vertexShader: VERTEX,
-        fragmentShader: HALO,
-        side: THREE.BackSide,
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        depthWrite: false,
-      }),
-    );
-    halo.scale.setScalar(1.07);
-
-    const starPositions = new Float32Array(1800 * 3);
-    for (let i = 0; i < starPositions.length; i += 3) {
-      const v = new THREE.Vector3().randomDirection().multiplyScalar(40);
-      starPositions.set([v.x, v.y, v.z], i);
-    }
-    const starGeometry = new THREE.BufferGeometry();
-    starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
-    const stars = new THREE.Points(
-      starGeometry,
-      new THREE.PointsMaterial({ size: 1.3, sizeAttenuation: false, color: 0xffffff, transparent: true, opacity: 0.55 }),
-    );
-
-    const planet = new THREE.Group();
-    planet.add(globe, halo);
-    scene.add(stars, planet);
-
-    const resize = () => {
-      const { clientWidth: w, clientHeight: h } = el;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      // Wide screens keep the planet to the right of the content; narrow ones centre it.
-      planet.position.x = camera.aspect > 1.1 ? 1.5 * camera.aspect - 0.6 : 0;
-      planet.position.y = camera.aspect > 1.1 ? -0.35 : 0.4;
-    };
-    resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(el);
-
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const clock = new THREE.Clock();
-    const frame = () => {
-      const dt = Math.min(clock.getDelta(), 0.1);
-      // Ease toward the new reading so a change reads as weather, not a cut.
-      uniforms.health.value += (getPlanetHealth() - uniforms.health.value) * Math.min(1, dt * 0.8);
-      if (!still.matches) {
-        uniforms.time.value += dt;
-        surface.rotation.y += dt * 0.035;
-        clouds.rotation.y += dt * 0.045;
-        stars.rotation.y += dt * 0.002;
-      }
-      renderer.render(scene, camera);
-    };
-    renderer.setAnimationLoop(frame);
-
-    return () => {
-      renderer.setAnimationLoop(null);
-      observer.disconnect();
-      sphere.dispose();
-      starGeometry.dispose();
-      [surface, clouds, halo].forEach((mesh) => (mesh.material as THREE.Material).dispose());
-      (stars.material as THREE.Material).dispose();
-      renderer.dispose();
-      renderer.domElement.remove();
-    };
-  }, []);
-
-  return <div ref={host} className="planet" aria-hidden="true" />;
-}

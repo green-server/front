@@ -1,15 +1,14 @@
 import { Link } from "react-router";
-import { Logo } from "@/components/Logo";
+import "@/styles/auth.css";
 
 export default function NotFound() {
   return (
-    <main className="auth">
+    <main className="notice-card">
       <title>찾을 수 없음 · Green Server</title>
-      <Logo className="auth-logo" />
       <h1>페이지를 찾을 수 없습니다</h1>
-      <p>
-        <Link to="/">서버 목록으로 돌아가기</Link>
-      </p>
+      <Link to="/" className="btn">
+        홈으로
+      </Link>
     </main>
   );
 }

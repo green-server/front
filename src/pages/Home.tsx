@@ -1,140 +1,108 @@
 import { Link } from "react-router";
+import { useServers } from "@/AppLayout";
 import { Power } from "@/components/Power";
-import { Failure, Loading, OnlineState } from "@/components/Status";
-import { Trace } from "@/components/Trace";
+import { Failure } from "@/components/Status";
 import { useApi } from "@/lib/api";
-import { appendMetric, formatKrw, isServerEstimated, KIND_LABEL } from "@/lib/format";
+import { formatKrw, isServerEstimated } from "@/lib/format";
 import { useLive } from "@/lib/live";
-import type { ActivityReport, Metric, ServerSummary } from "@/lib/types";
+import { weekChangePct } from "@/lib/orbit";
+import type { ActivityReport } from "@/lib/types";
+import "@/styles/home.css";
 
-const HOUR_MS = 3_600_000;
+const MAX_ROWS = 3;
 
-export default function ServersPage() {
-  const { data: servers, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
-  // The rows work without it: a failed count must not take the board down.
+export default function Home() {
+  const { servers, error, reload } = useServers();
   const activity = useApi<ActivityReport>("/api/reports/activity");
 
   useLive((event) => {
-    if (event.type === "reconnected") reload();
-    // A consultation is what files or applies recommendations.
-    if (event.type === "reconnected" || event.type === "consultation") activity.reload();
-    if (event.type === "metric") {
-      const { watts, isEstimated } = event.metric;
-      mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, latestWatts: watts, isEstimated } : s)));
-    }
-    if (event.type === "agent_status") {
-      mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, online: event.online } : s)));
-    }
+    if (event.type === "reconnected" || event.type === "consultation" || event.type === "tool_call") activity.reload();
   });
 
-  return (
-    <>
-      <title>서버 · Green Server</title>
-      <div className="page-head">
-        <h1>서버</h1>
-        {servers && servers.length > 0 && (
-          <Link to="/servers/new" className="button">
-            서버 추가
-          </Link>
-        )}
+  if (servers?.length === 0) {
+    return (
+      <div className="home-empty">
+        <Link to="/servers/new" className="btn btn-go">
+          서버 연결하기
+        </Link>
       </div>
+    );
+  }
 
-      {error && <Failure error={error} retry={reload} />}
-      {!error && !servers && <Loading />}
+  const change = weekChangePct(servers);
+  const reading = servers?.filter((s) => s.online && s.latestWatts !== null) ?? [];
+  const watts = reading.reduce((sum, s) => sum + s.latestWatts!, 0);
+  const krw = servers?.reduce((sum, s) => sum + s.monthlyKrw, 0) ?? 0;
 
-      {servers?.length === 0 && (
-        <div className="empty">
-          <p>아직 추가한 서버가 없습니다. 서버를 추가하고 에이전트를 설치하면 전력과 요금이 여기에 나타납니다.</p>
-          <ol className="setup-steps">
-            <li>서버를 등록합니다.</li>
-            <li>설치 명령어를 서버 터미널에서 실행합니다.</li>
-            <li>첫 측정값이 들어오면 이 화면에 파형이 그려집니다.</li>
-          </ol>
-          <Link to="/servers/new" className="button button-primary">
-            서버 추가
-          </Link>
+  const rows: { key: string; to: string; title: string; detail: string; pending: boolean }[] = [];
+  for (const call of activity.data?.calls ?? []) {
+    if (call.decision === "pending") {
+      rows.push({ key: `c${call.id}`, to: `/consultations/${call.consultationId}`, title: `${call.serverName} · 명령 승인 대기`, detail: call.command, pending: true });
+    }
+  }
+  for (const row of activity.data?.servers ?? []) {
+    if (row.open > 0) {
+      const saving = row.openSavingKrw > 0 ? ` · 월 ${formatKrw(row.openSavingKrw)} 절약 예상` : "";
+      rows.push({ key: `s${row.serverId}`, to: `/servers/${row.serverId}`, title: `${row.serverName} · 추천 ${row.open}건${saving}`, detail: "", pending: false });
+    }
+  }
+
+  return (
+    <div className="home">
+      {change === 0 && <p className="home-line">7일 평균과 같음</p>}
+      {change !== null && change !== 0 && (
+        <p className="home-line">
+          7일 평균보다 <b className={change < 0 ? "is-less" : "is-more"}>{Math.abs(change)}%</b> {change < 0 ? "적게" : "많이"}
+        </p>
+      )}
+
+      {(error || rows.length > 0) && (
+        <div className="home-notice">
+          {error && <Failure error={error} retry={reload} />}
+          {rows.slice(0, MAX_ROWS).map((r) => (
+            <Link key={r.key} to={r.to} className={r.pending ? "notice-row is-pending" : "notice-row"}>
+              <span>{r.title}</span>
+              {r.detail && <code>{r.detail}</code>}
+              {r.pending && <span className="notice-go">승인하러 가기</span>}
+            </Link>
+          ))}
+          {rows.length > MAX_ROWS && <p className="muted">외 {rows.length - MAX_ROWS}건</p>}
         </div>
       )}
 
-      {servers && servers.length > 1 && <FleetSummary servers={servers} waiting={activity.data} />}
+      {servers && (
+        <dl className="home-figures">
+          <div>
+            <dt>지금 전체 전력</dt>
+            <dd>
+              {/* Nothing online means no reading, not a measured zero. */}
+              {reading.length > 0 ? (
+                <Power value={watts} estimated={reading.some(isServerEstimated)} size="xl" />
+              ) : (
+                <span className="figure-lg muted">—</span>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>이번 달 예상 요금</dt>
+            <dd className="home-krw">{formatKrw(krw)}</dd>
+          </div>
+        </dl>
+      )}
 
-      {servers && servers.length > 0 && (
-        <ul className={servers.length > 3 ? "meter-board is-fleet" : "meter-board"}>
-          {servers.map((server) => (
-            <li key={server.id}>
-              <ServerRow server={server} activity={activity.data?.servers.find((row) => row.serverId === server.id)} />
+      {servers && (
+        <ul className="home-list rows">
+          {servers.map((s) => (
+            <li key={s.id}>
+              <Link to={`/servers/${s.id}`}>
+                <span>{s.name}</span>
+                {s.online ? <Power value={s.latestWatts} estimated={isServerEstimated(s)} /> : <span className="muted">꺼짐</span>}
+                <span>{formatKrw(s.monthlyKrw)}</span>
+              </Link>
             </li>
           ))}
         </ul>
       )}
-    </>
-  );
-}
-
-function FleetSummary({ servers, waiting }: { servers: ServerSummary[]; waiting?: ActivityReport }) {
-  const reading = servers.filter((server) => server.latestWatts !== null);
-  const watts = reading.reduce((sum, server) => sum + server.latestWatts!, 0);
-  const krw = servers.reduce((sum, server) => sum + server.monthlyKrw, 0);
-  const online = servers.filter((server) => server.online).length;
-  const open = waiting?.servers.reduce((sum, row) => sum + row.open, 0);
-
-  return (
-    <dl className="fleet">
-      <div>
-        <dt>지금 전체 전력</dt>
-        <dd>
-          <Power value={watts} estimated={reading.some(isServerEstimated)} />
-        </dd>
-      </div>
-      <div>
-        <dt>이번 달 예상 요금</dt>
-        <dd className="figure">{formatKrw(krw)}</dd>
-      </div>
-      <div>
-        <dt>연결됨</dt>
-        <dd className="figure">
-          {online} / {servers.length}대
-        </dd>
-      </div>
-      {open !== undefined && (
-        <div>
-          <dt>대기 중인 추천</dt>
-          <dd className="figure">{open}건</dd>
-        </div>
-      )}
-    </dl>
-  );
-}
-
-function ServerRow({ server, activity }: { server: ServerSummary; activity?: ActivityReport["servers"][number] }) {
-  const { data: metrics, reload, mutate } = useApi<Metric[]>(`/api/servers/${server.id}/metrics?range=1h`);
-
-  useLive((event) => {
-    if (event.type === "reconnected") reload();
-    if (event.type === "metric" && event.serverId === server.id) mutate((list) => appendMetric(list, event.metric, HOUR_MS));
-  });
-
-  return (
-    <Link to={`/servers/${server.id}`} className={server.online ? "meter-row" : "meter-row meter-row-off"}>
-      <span className="meter-name">
-        <strong>{server.name}</strong>
-        {server.name !== KIND_LABEL[server.kind] && <span className="caption">{KIND_LABEL[server.kind]}</span>}
-        <OnlineState online={server.online} />
-      </span>
-      <span className="meter-reading">
-        <Power value={server.latestWatts} estimated={isServerEstimated(server)} size="md" />
-      </span>
-      <span className="meter-cost">
-        <span className="caption">이번 달 예상 요금</span>
-        <span className="figure">{formatKrw(server.monthlyKrw)}</span>
-        {activity !== undefined && activity.open > 0 && (
-          <span className="meter-recs">
-            추천 {activity.open}건{activity.openSavingKrw > 0 && ` · 예상 ${formatKrw(activity.openSavingKrw)}`}
-          </span>
-        )}
-      </span>
-      {metrics && metrics.length > 1 && <span className="caption meter-range">최근 1시간</span>}
-      <Trace metrics={metrics ?? []} />
-    </Link>
+    </div>
   );
 }

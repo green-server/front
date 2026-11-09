@@ -1,0 +1,184 @@
+/* Home HUD over the orbit scene. Empty regions ignore the pointer so satellites stay clickable. */
+.home,
+.home-empty {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.home a,
+.home button {
+  pointer-events: auto;
+}
+
+.home-line {
+  position: absolute;
+  top: calc(96px + var(--notice-h));
+  left: 50%;
+  margin: 0;
+  translate: -50% 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.home-line .is-less {
+  color: var(--go);
+}
+.home-line .is-more {
+  color: var(--warn);
+}
+
+.home-notice {
+  position: absolute;
+  top: calc(72px + var(--notice-h));
+  right: 20px;
+  display: grid;
+  gap: 8px;
+  width: min(360px, calc(100vw - 40px));
+}
+.notice-row {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+.notice-row.is-pending {
+  border-color: var(--warn);
+}
+.notice-row code {
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notice-go {
+  color: var(--go);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.home-notice .muted {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.home-figures {
+  position: absolute;
+  inset: auto 24px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 0;
+}
+.home-figures dt {
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+}
+.home-figures dd {
+  margin: 0;
+}
+.home-figures > div:last-child {
+  text-align: right;
+}
+.home-krw {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-empty {
+  display: grid;
+  place-items: center;
+}
+.home-empty .btn {
+  pointer-events: auto;
+}
+
+.home .home-list {
+  display: none;
+}
+/* Without WebGL there are no satellites, so the servers are a plain list. */
+@media (min-width: 760px) {
+  .no-webgl .home .home-list {
+    position: absolute;
+    top: calc(72px + var(--notice-h));
+    left: 20px;
+    display: grid;
+    width: min(360px, calc(100vw - 40px));
+    padding: 4px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .no-webgl .home-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 759px) {
+  .home {
+    overflow-y: auto;
+    padding: calc(120px + var(--notice-h)) 16px 88px;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .home > * {
+    position: static;
+    translate: none;
+    width: auto;
+    inset: auto;
+  }
+  .home-line {
+    order: 1;
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: var(--surface);
+    white-space: normal;
+  }
+  .home-figures {
+    order: 2;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .home-figures .power-value,
+  .home-figures .figure-lg {
+    font-size: 1.5rem;
+  }
+  .home-krw {
+    font-size: 1.375rem;
+    white-space: nowrap;
+  }
+  .home-notice {
+    order: 3;
+  }
+  .home .home-list {
+    order: 4;
+    display: grid;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .home-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+  }
+}

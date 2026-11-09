@@ -1,12 +1,11 @@
-import { Logo } from "@/components/Logo";
+import "@/styles/auth.css";
 
 export default function RouteError() {
   return (
-    <main className="auth">
+    <main className="notice-card">
       <title>오류 · Green Server</title>
-      <Logo className="auth-logo" />
       <h1>화면을 표시하지 못했습니다</h1>
-      <button type="button" className="button" onClick={() => location.reload()}>
+      <button type="button" className="btn" onClick={() => location.reload()}>
         다시 시도
       </button>
     </main>

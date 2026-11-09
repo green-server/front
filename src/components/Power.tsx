@@ -4,7 +4,7 @@ type Props = {
   value: number | null;
   estimated: boolean;
   unit?: "W" | "kWh" | "kWh/월";
-  size?: "sm" | "md" | "xl";
+  size?: "sm" | "xl";
 };
 
 /**
@@ -46,7 +46,7 @@ function Digits({ text, rolling }: { text: string; rolling: boolean }) {
 /** A won amount at display size. */
 export function Krw({ value }: { value: number }) {
   return (
-    <span className="figure figure-dot">
+    <span className="figure">
       <span className="sr-only">{formatKrw(value)}</span>
       <span aria-hidden="true">
         <Digits text={formatKrw(value)} rolling />
