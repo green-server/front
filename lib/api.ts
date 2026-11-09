@@ -63,7 +63,10 @@ export function useApi<T>(path: string) {
         cache.set(path, data);
         if (!stale) setState({ path, data });
       },
-      (error: Error) => !stale && setState((prev) => ({ ...prev, path, error })),
+      // Keep data only if it belongs to this path: a failed switch must not relabel the old range.
+      (error: Error) =>
+        !stale &&
+        setState((prev) => (prev.path === path ? { ...prev, error } : { path, data: cache.get(path) as T | undefined, error })),
     );
     return () => {
       stale = true;
