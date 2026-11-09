@@ -74,7 +74,12 @@ export default function Home() {
           <div>
             <dt>지금 전체 전력</dt>
             <dd>
-              <Power value={watts} estimated={reading.some(isServerEstimated)} size="xl" />
+              {/* Nothing online means no reading, not a measured zero. */}
+              {reading.length > 0 ? (
+                <Power value={watts} estimated={reading.some(isServerEstimated)} size="xl" />
+              ) : (
+                <span className="figure-lg muted">—</span>
+              )}
             </dd>
           </div>
           <div>

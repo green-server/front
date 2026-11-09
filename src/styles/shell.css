@@ -1,6 +1,11 @@
 :root {
   --bar-h: 56px;
   --tabs-h: 56px;
+  /* Room the live notice takes under the top bar; panels and the home HUD move down by it. */
+  --notice-h: 0px;
+}
+:root:has(.live-notice) {
+  --notice-h: 44px;
 }
 
 .topbar {
@@ -73,9 +78,11 @@
   top: var(--bar-h);
   left: 50%;
   z-index: 30;
+  max-width: calc(100vw - 32px);
   transform: translateX(-50%);
   margin: 0;
   padding: 6px 14px;
+  white-space: nowrap;
   border: 1px solid var(--warn);
   border-radius: 10px;
   background: var(--surface);
@@ -89,7 +96,7 @@ main#main {
 
 .panel {
   position: fixed;
-  top: 72px;
+  top: calc(72px + var(--notice-h));
   right: 16px;
   bottom: 16px;
   z-index: 10;
@@ -161,12 +168,22 @@ main#main {
   .tabbar a {
     display: grid;
     place-items: center;
+    padding: 0 4px;
     border-radius: 0;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+  :root:has(.live-notice) {
+    --notice-h: 64px;
+  }
+  .live-notice {
+    width: calc(100vw - 32px);
+    white-space: normal;
   }
   .panel {
     inset: 0 0 var(--tabs-h);
     width: auto;
-    padding-top: calc(var(--bar-h) + 8px);
+    padding-top: calc(var(--bar-h) + 8px + var(--notice-h));
     border: 0;
     border-radius: 0;
     background: var(--space);

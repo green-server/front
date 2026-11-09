@@ -80,7 +80,7 @@ function LiveNotice() {
   const dropped = useLiveDropped();
   return (
     <div role="status">
-      {dropped && <p className="live-notice">실시간 연결이 끊겼습니다. 다시 연결하는 중이며, 화면의 값은 최신이 아닐 수 있습니다.</p>}
+      {dropped && <p className="live-notice">연결이 끊겨 다시 연결하는 중입니다. 값이 최신이 아닐 수 있습니다.</p>}
     </div>
   );
 }
