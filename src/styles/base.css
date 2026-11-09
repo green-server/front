@@ -36,8 +36,9 @@
   --warn: #f2b544;
   --bad: #ff6b5e;
   --sans: "Paperlogy", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  /* IBM Plex Mono loads from Google Fonts in index.html; until it does, any mono face. */
-  --code: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* IBM Plex Mono loads from Google Fonts in index.html; until it does, any mono face.
+     Paperlogy only fills in Hangul, which the mono faces lack. */
+  --code: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, "Paperlogy", monospace;
 }
 
 *,
