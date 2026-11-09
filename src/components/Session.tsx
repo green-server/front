@@ -26,7 +26,7 @@ export function useConsultation(id: number) {
   return { data, error, reload, putCall };
 }
 
-/** Reads like the terminal Claude is working in, and stays on the newest line unless scrolled up. */
+/** A mono log that stays on the newest line unless scrolled up. */
 export function Session({ entries, active }: { entries: StreamEntry[]; active: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const following = useRef(true);
@@ -41,10 +41,8 @@ export function Session({ entries, active }: { entries: StreamEntry[]; active: b
   };
 
   return (
-    <section aria-labelledby="session-heading" className="pane session-pane">
-      <div className="pane-head">
-        <h2 id="session-heading">실시간 진행</h2>
-      </div>
+    <section aria-labelledby="session-heading" className="section">
+      <h2 id="session-heading">실시간 진행</h2>
       {/* Not a live region: a screen reader would read every line of output aloud. */}
       <div ref={box} className="session" tabIndex={0} role="group" aria-labelledby="session-heading" onScroll={onScroll}>
         {entries.map((entry) => (
