@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { getLabelPositions, getOrbit, publishFrame, subscribeOrbit, type Satellite } from "@/lib/orbit";
+import { subsolar } from "@/lib/sun";
 import { CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
@@ -8,6 +9,9 @@ export { getLabelPositions, subscribeFrame } from "@/lib/orbit";
 
 const RING_RADIUS = 1.75;
 const NARROW = 760;
+// Live global cloud cover, a geostationary satellite composite refreshed about every 3 hours.
+const LIVE_CLOUDS = "https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg";
+const CLOUD_REFRESH = 3 * 3600_000;
 
 /**
  * The one scene behind every page: the planet, whose seas, forests and air follow the fleet's
@@ -47,7 +51,17 @@ export function OrbitScene() {
     const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
     camera.position.set(0, 0, 6.2);
 
-    const sun = new THREE.Vector3(-0.9, 0.45, 0.75).normalize();
+    // The real sun: its overhead point in the globe's own frame, turned into the scene each frame.
+    const sunLocal = new THREE.Vector3();
+    const placeSun = () => {
+      const { lat, lon } = subsolar(new Date());
+      const b = THREE.MathUtils.degToRad(lat);
+      const l = THREE.MathUtils.degToRad(lon);
+      // Matches SphereGeometry's UVs: longitude L sits at (cos L, 0, -sin L).
+      sunLocal.set(Math.cos(b) * Math.cos(l), Math.sin(b), -Math.cos(b) * Math.sin(l));
+    };
+    placeSun();
+    const sun = new THREE.Vector3();
     const loader = new THREE.TextureLoader();
     const map = (name: string) => {
       const texture = loader.load(`/earth/${name}`, () => markDirty());
@@ -64,7 +78,28 @@ export function OrbitScene() {
       waterMap: { value: waterMap },
       lightsMap: { value: lightsMap },
       cloudMap: { value: cloudMap },
+      liveClouds: { value: 0 },
     };
+    // Today's clouds replace the bundled still once they arrive; a failed fetch keeps the still.
+    let liveMap: THREE.Texture | null = null;
+    const loadClouds = () => {
+      const bucket = Math.floor(Date.now() / CLOUD_REFRESH);
+      loader.load(`${LIVE_CLOUDS}?t=${bucket}`, (texture) => {
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        liveMap?.dispose();
+        liveMap = texture;
+        uniforms.cloudMap.value = texture;
+        uniforms.liveClouds.value = 1;
+        markDirty();
+      });
+    };
+    loadClouds();
+    const cloudTimer = window.setInterval(loadClouds, CLOUD_REFRESH);
+    // The terminator creeps ~0.25° a minute; reduced motion redraws for it once a minute.
+    const sunTimer = window.setInterval(() => {
+      placeSun();
+      markDirty();
+    }, 60_000);
     const sphere = new THREE.SphereGeometry(1, 128, 96);
 
     const globe = new THREE.Group();
@@ -219,11 +254,14 @@ export function OrbitScene() {
       world.position.x += (goal.x - world.position.x) * k;
       world.scale.setScalar(world.scale.x + (goal.scale - world.scale.x) * k);
       if (!still.matches) {
+        // Clouds are pinned to the map they were photographed on, so they turn with the ground.
         surface.rotation.y += dt * 0.035;
-        clouds.rotation.y += dt * 0.045;
+        clouds.rotation.y = surface.rotation.y;
         stars.rotation.y += dt * 0.002;
         spin.rotation.y += dt * 0.02;
       }
+      world.updateMatrixWorld();
+      sun.copy(sunLocal).transformDirection(surface.matrixWorld);
       renderer.render(scene, camera);
 
       if (ring.visible) {
@@ -255,6 +293,9 @@ export function OrbitScene() {
 
     return () => {
       renderer.setAnimationLoop(null);
+      window.clearInterval(cloudTimer);
+      window.clearInterval(sunTimer);
+      liveMap?.dispose();
       unsubscribe();
       observer.disconnect();
       positions.clear();

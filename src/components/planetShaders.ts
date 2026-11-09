@@ -65,11 +65,14 @@ export const CLOUDS = /* glsl */ `
 uniform float health;
 uniform vec3 sun;
 uniform sampler2D cloudMap;
+// 1 once today's satellite cloud map has loaded: brightness is cloud, faint haze and ice cut away.
+uniform float liveClouds;
 varying vec2 vUv;
 varying vec3 vNormal;
 ${DRYNESS}
 void main() {
-  float c = texture2D(cloudMap, vUv).a;
+  vec4 map = texture2D(cloudMap, vUv);
+  float c = mix(map.a, smoothstep(0.45, 0.95, map.r), liveClouds);
   float alpha = c * mix(0.95, 0.45, dryness());
   // Smog: a thin brown-grey veil everywhere, clouds turned dirty.
   alpha = max(alpha, blight * 0.35);

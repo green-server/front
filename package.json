@@ -7,7 +7,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/format.test.ts src/lib/orbit.test.ts"
+    "test": "node --test --experimental-strip-types src/lib/format.test.ts src/lib/orbit.test.ts src/lib/sun.test.ts"
   },
   "dependencies": {
     "react": "^19.3.1",
