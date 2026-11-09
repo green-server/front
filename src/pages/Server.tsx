@@ -31,6 +31,10 @@ const RANGES = [
 ];
 
 export default function ServerPage() {
+  return <ServerPageBody key={useParams().id} />;
+}
+
+function ServerPageBody() {
   const { id } = useParams() as { id: string };
   const { data: server, error, reload, mutate } = useApi<ServerSummary>(`/api/servers/${id}`);
   const serverId = Number(id);
@@ -67,7 +71,7 @@ export default function ServerPage() {
         {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
         {!server.online && server.lastSeenAt && <span className="muted"> · 마지막 연결 {formatDateTime(server.lastSeenAt)}</span>}
       </p>
-      <Power value={server.latestWatts} estimated={estimated} size="xl" />
+      {server.online ? <Power value={server.latestWatts} estimated={estimated} size="xl" /> : <span className="figure-lg muted">꺼짐</span>}
       {!estimated && <p className="muted note">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</p>}
       <dl className="figures">
         <div>

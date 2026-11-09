@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate, useOutletContext } from "react-router";
 import { useEffect } from "react";
 import { SatelliteLabels } from "@/components/SatelliteLabels";
 import { NAV, TopBar } from "@/components/TopBar";
@@ -6,6 +6,11 @@ import { api, clearApiCache, useApi } from "@/lib/api";
 import { LiveProvider, useLive, useLiveDropped } from "@/lib/live";
 import { layoutSatellites, planetHealth, setOrbit } from "@/lib/orbit";
 import type { ServerSummary } from "@/lib/types";
+
+type ServersContext = { servers: ServerSummary[] | undefined; error: ReturnType<typeof useApi>["error"]; reload: () => void };
+
+/** The fleet list AppLayout keeps live; pages read it instead of fetching their own copy. */
+export const useServers = () => useOutletContext<ServersContext>();
 
 export function AppLayout() {
   return (
@@ -18,7 +23,7 @@ export function AppLayout() {
 function Shell() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { data, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
+  const { data, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
 
   useEffect(() => {
     const timer = setInterval(reload, 60_000);
@@ -70,7 +75,7 @@ function Shell() {
       <LiveNotice />
       {pathname === "/" && <SatelliteLabels />}
       <main id="main" tabIndex={-1}>
-        <Outlet />
+        <Outlet context={{ servers: data, error, reload } satisfies ServersContext} />
       </main>
     </>
   );

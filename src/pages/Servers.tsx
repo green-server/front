@@ -1,26 +1,13 @@
 import { Link } from "react-router";
+import { useServers } from "@/AppLayout";
 import { Panel } from "@/components/Panel";
 import { Power } from "@/components/Power";
 import { Failure, Loading, OnlineState } from "@/components/Status";
-import { useApi } from "@/lib/api";
-import { useLive } from "@/lib/live";
 import { formatKrw, isServerEstimated, KIND_LABEL } from "@/lib/format";
-import type { ServerSummary } from "@/lib/types";
 import "@/styles/server.css";
 
 export default function Servers() {
-  const { data: servers, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
-
-  useLive((event) => {
-    if (event.type === "reconnected") reload();
-    if (event.type === "metric") {
-      const { watts, isEstimated } = event.metric;
-      mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, latestWatts: watts, isEstimated } : s)));
-    }
-    if (event.type === "agent_status") {
-      mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, online: event.online } : s)));
-    }
-  });
+  const { servers, error, reload } = useServers();
 
   return (
     <Panel title="서버">
@@ -44,7 +31,7 @@ export default function Servers() {
                     {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
                   </span>
                 </span>
-                <Power value={server.latestWatts} estimated={isServerEstimated(server)} />
+                {server.online ? <Power value={server.latestWatts} estimated={isServerEstimated(server)} /> : <span className="muted">꺼짐</span>}
                 <span className="row-krw">{formatKrw(server.monthlyKrw)}/월</span>
               </Link>
             </li>

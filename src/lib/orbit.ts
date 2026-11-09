@@ -8,7 +8,7 @@ import type { ServerSummary } from "./types";
 export function planetHealth(servers: ServerSummary[] | undefined): number {
   const tracked = servers?.filter((s) => s.weekWatts !== null && s.weekWatts > 0) ?? [];
   const week = tracked.reduce((sum, s) => sum + (s.weekWatts ?? 0), 0);
-  if (week === 0) return 1;
+  if (week === 0 || !tracked.some((s) => s.online)) return 0.5;
   const now = tracked.reduce((sum, s) => sum + (s.online ? (s.latestWatts ?? 0) : 0), 0);
   return Math.min(1, Math.max(0, 0.5 + (1 - now / week) * 1.5));
 }

@@ -1,17 +1,18 @@
 import { Link } from "react-router";
+import { useServers } from "@/AppLayout";
 import { Power } from "@/components/Power";
 import { Failure } from "@/components/Status";
 import { useApi } from "@/lib/api";
 import { formatKrw, isServerEstimated } from "@/lib/format";
 import { useLive } from "@/lib/live";
 import { weekChangePct } from "@/lib/orbit";
-import type { ActivityReport, ServerSummary } from "@/lib/types";
+import type { ActivityReport } from "@/lib/types";
 import "@/styles/home.css";
 
 const MAX_ROWS = 3;
 
 export default function Home() {
-  const { data: servers, error, reload } = useApi<ServerSummary[]>("/api/servers");
+  const { servers, error, reload } = useServers();
   const activity = useApi<ActivityReport>("/api/reports/activity");
 
   useLive((event) => {

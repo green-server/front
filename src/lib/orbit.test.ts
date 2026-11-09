@@ -35,7 +35,11 @@ test("week change compares online draw with the 7-day average", () => {
   assert.equal(weekChangePct([server(1, 50, { online: false }), server(2, 50, { online: false })]), null);
 });
 
+test("health is neutral when nothing tracked is online", () => {
+  assert.equal(planetHealth([server(1, 100, { online: false })]), 0.5);
+});
+
 test("health keeps the old mapping", () => {
   assert.equal(planetHealth([server(1, 100)]), 0.5);
-  assert.equal(planetHealth(undefined), 1);
+  assert.equal(planetHealth(undefined), 0.5);
 });

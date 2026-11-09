@@ -112,7 +112,7 @@ export function appendStream(entries: StreamEntry[], entry: StreamEntry) {
 }
 
 export function outcome(call: Pick<ToolCall, "decision" | "exitCode">) {
-  if (call.decision === "denied") return "거부됨";
+  if (call.decision === "denied") return "거절됨";
   if (call.decision === "blocked") return "차단됨";
   if (call.decision === "pending") return "허용 대기";
   const decided = call.decision === "approved" ? "허용됨" : "자동 실행";
