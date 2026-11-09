@@ -172,14 +172,14 @@ function AiPlan({
           </div>
         )}
         {done && open && (
-          <div className="ask-actions plan-go">
+          <div className="ask-actions">
             <button type="button" className="btn btn-go" onClick={() => onExecute(id)} disabled={busy}>
               이 계획대로 적용해주세요
             </button>
           </div>
         )}
         {data.status === "failed" && open && (
-          <div className="ask-actions plan-go">
+          <div className="ask-actions">
             <button type="button" className="btn" onClick={onRetry} disabled={busy}>
               다시 세우기
             </button>

@@ -13,7 +13,6 @@ import Reports from "@/pages/Reports";
 import RouteError from "@/pages/RouteError";
 import Server from "@/pages/Server";
 import Servers from "@/pages/Servers";
-import "./globals.css";
 import "./styles/base.css";
 import "./styles/shell.css";
 

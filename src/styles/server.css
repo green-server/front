@@ -1,58 +1,4 @@
-/* Server pages: list, detail, new. Scoped under .panel so the old console styles never win. */
-.panel .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.panel .no-reading {
-  color: var(--ink-2);
-}
-.panel .error {
-  margin: 0;
-  color: var(--bad);
-}
-
-/* Status */
-.panel .skeleton {
-  display: grid;
-  gap: 8px;
-}
-.panel .skeleton-line {
-  height: 14px;
-  border-radius: 6px;
-  background: var(--line);
-}
-.panel .failure {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  color: var(--bad);
-}
-.panel .failure p {
-  margin: 0;
-}
-.panel .online-state {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.panel .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ink-2);
-}
-.panel .is-online .dot {
-  background: var(--go);
-}
-.panel .is-online {
-  color: var(--go);
-}
-
+/* Server pages: list, detail, new. */
 /* List */
 .list-actions {
   display: flex;
@@ -103,20 +49,12 @@
   margin: 8px 0 0;
   font-size: 0.9375rem;
 }
-.panel .power-value,
-.panel .power-tag {
-  font-family: var(--sans);
-}
 .panel .power-xl .power-value {
   color: var(--ink);
   font-size: clamp(3rem, 6vw, 4.5rem);
   font-weight: 800;
   line-height: 1;
   border-bottom-width: 3px;
-}
-.panel .power-xl .power-unit {
-  margin-left: 0.15em;
-  font-size: 0.5em;
 }
 .panel .figures {
   display: grid;
@@ -145,7 +83,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 8px 16px;
 }
 .chart-slot {
@@ -198,6 +136,7 @@
 }
 .panel .chart-grid {
   stroke: var(--line);
+  stroke-dasharray: 1 5;
 }
 .panel .chart-label {
   fill: var(--ink-2);
@@ -253,11 +192,30 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
+  list-style: none;
   cursor: pointer;
 }
+.entry summary::-webkit-details-marker {
+  display: none;
+}
+/* A drawn caret, turned when the row opens. */
 .entry-title {
+  position: relative;
   display: grid;
+  padding-left: 16px;
   font-weight: 600;
+}
+.entry-title::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 2px;
+  border-block: 4px solid transparent;
+  border-left: 6px solid var(--ink-2);
+  transition: transform 120ms;
+}
+details[open] .entry-title::before {
+  transform: rotate(90deg);
 }
 .entry-title .muted {
   font-size: 0.875rem;

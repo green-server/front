@@ -50,12 +50,7 @@ export function Session({ entries, active }: { entries: StreamEntry[]; active: b
             {entry.text}
           </pre>
         ))}
-        {active && (
-          <p className="session-wait">
-            {entries.length === 0 && "서버에서 시작하는 중…"}
-            <span className="cursor" aria-hidden="true" />
-          </p>
-        )}
+        {active && entries.length === 0 && <p className="session-wait">서버에서 시작하는 중…</p>}
       </div>
     </section>
   );
