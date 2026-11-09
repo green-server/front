@@ -30,7 +30,12 @@ export function OrbitScene() {
       img.className = "scene-fallback";
       img.alt = "";
       el.appendChild(img);
-      return () => img.remove();
+      // Lets the home page show its server list in place of the satellites.
+      document.documentElement.classList.add("no-webgl");
+      return () => {
+        img.remove();
+        document.documentElement.classList.remove("no-webgl");
+      };
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     el.appendChild(renderer.domElement);

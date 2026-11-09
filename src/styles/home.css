@@ -101,6 +101,27 @@
 .home .home-list {
   display: none;
 }
+/* Without WebGL there are no satellites, so the servers are a plain list. */
+@media (min-width: 760px) {
+  .no-webgl .home .home-list {
+    position: absolute;
+    top: calc(72px + var(--notice-h));
+    left: 20px;
+    display: grid;
+    width: min(360px, calc(100vw - 40px));
+    padding: 4px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .no-webgl .home-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+  }
+}
 
 @media (max-width: 759px) {
   .home {
