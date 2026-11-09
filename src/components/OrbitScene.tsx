@@ -9,7 +9,10 @@ export { getLabelPositions, subscribeFrame } from "@/lib/orbit";
 const RING_RADIUS = 1.75;
 const NARROW = 760;
 
-/** Earth and fleet satellites, sized to the overview or sign-in visual. */
+/**
+ * The one scene behind every page: the planet, whose seas, forests and air follow the fleet's
+ * draw (`lib/orbit.ts`), and a ring carrying each server as a satellite. Never unmounts.
+ */
 export function OrbitScene() {
   const host = useRef<HTMLDivElement>(null);
 
@@ -20,11 +23,22 @@ export function OrbitScene() {
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
     } catch {
-      const message = document.createElement("p");
-      message.className = "scene-status";
-      message.textContent = "지구 보기를 사용할 수 없습니다.";
-      el.appendChild(message);
-      return () => message.remove();
+      // No WebGL: a still of the planet; the labels stay hidden and the pages list the servers.
+      const img = document.createElement("img");
+      img.src = "/planet.png";
+      img.className = "scene-fallback";
+      img.alt = "";
+      el.appendChild(img);
+      // Lets the home page show its server list in place of the satellites.
+      document.documentElement.classList.add("no-webgl");
+      const dim = () => el.classList.toggle("is-dim", getOrbit().panel);
+      dim();
+      const stop = subscribeOrbit(dim);
+      return () => {
+        stop();
+        img.remove();
+        document.documentElement.classList.remove("no-webgl");
+      };
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     el.appendChild(renderer.domElement);
@@ -143,13 +157,12 @@ export function OrbitScene() {
     const resize = () => {
       width = el.clientWidth;
       height = el.clientHeight;
-      if (width === 0 || height === 0) return;
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       narrow = window.innerWidth < NARROW;
-      // Phones keep the overview compact and omit the ring.
-      camera.position.z = narrow ? 7 : 6.8;
-      planet.position.y = 0;
+      // Phones: the planet sits above the content, smaller, with no ring.
+      camera.position.z = narrow ? 8 : 6.2;
+      planet.position.y = narrow ? 0.9 : 0;
       showRing();
       camera.updateProjectionMatrix();
       dirty = true;
@@ -178,10 +191,10 @@ export function OrbitScene() {
     const centre = new THREE.Vector3();
     const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * width, ((1 - v.y) / 2) * height, 0);
     const clock = new THREE.Clock();
-    // Hidden authentication visuals and covered scenes do not render.
+    // Reduced motion draws only when something moved; a phone sheet covers the scene, so it draws nothing.
     const frame = () => {
       const covered = narrow && getOrbit().panel;
-      if (covered || width === 0 || height === 0) return;
+      if (covered) return;
       const settling =
         Math.abs(getOrbit().health - uniforms.health.value) > 1e-3 ||
         Math.abs(getOrbit().blight - uniforms.blight.value) > 1e-3 ||
@@ -244,7 +257,6 @@ export function OrbitScene() {
       [ringMaterial, onlineMaterial, offlineMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       renderer.dispose();
-      renderer.forceContextLoss();
       renderer.domElement.remove();
     };
   }, []);

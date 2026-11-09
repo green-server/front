@@ -26,14 +26,12 @@
 
 :root {
   color-scheme: dark;
-  scrollbar-color: #46554b #101413;
-  caret-color: #b6ed80;
-  --space: #101413;
-  --surface: #181e1b;
+  --space: #05080f;
+  --surface: rgb(12 18 30 / 0.86);
   --line: rgb(255 255 255 / 0.1);
-  --ink: #eff3ed;
-  --ink-2: #a0ada5;
-  --go: #b6ed80;
+  --ink: #eef2f6;
+  --ink-2: #9aa6b5;
+  --go: #4fe39a;
   --on-go: #04140b;
   --warn: #f2b544;
   --bad: #ff6b5e;
@@ -54,7 +52,7 @@ body {
   background: var(--space);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.6;
   -webkit-text-size-adjust: 100%;
   font-variant-numeric: tabular-nums;
@@ -103,8 +101,8 @@ h3 {
   font-size: 0.9375rem;
 }
 h1 {
-  font-size: clamp(1.625rem, 2.5vw, 2rem);
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 h2 {
   font-size: 1.0625rem;
@@ -112,7 +110,6 @@ h2 {
 }
 
 a {
-  text-underline-offset: 4px;
   color: inherit;
 }
 code,
@@ -147,7 +144,7 @@ kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 16px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -204,7 +201,7 @@ kbd {
 input.field,
 select.field,
 textarea.field {
-  min-height: 44px;
+  min-height: 40px;
   padding: 8px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;

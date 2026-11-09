@@ -5,7 +5,7 @@
   justify-content: flex-end;
   margin-bottom: 8px;
 }
-.row {
+.panel .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -324,11 +324,9 @@ details[open] .entry-title::before {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  .server-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
+  .panel .server-row {
+    flex-wrap: wrap;
   }
-  .server-row .row-main { grid-column: 1 / -1; }
   .row-krw {
     min-width: 0;
   }

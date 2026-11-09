@@ -1,7 +1,6 @@
-.orbit-view { position: relative; min-width: 0; min-height: 380px; overflow: hidden; background: #0c1511; }
-/* The orbit scene stays inside the home overview. */
+/* The orbit scene behind every page; see components/OrbitScene.tsx. */
 .scene {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
@@ -14,15 +13,30 @@
   transition: opacity 0.6s;
 }
 
-.scene.is-dim canvas {
+.scene.is-dim canvas,
+.scene.is-dim .scene-fallback {
   opacity: 0.45;
 }
 
-.scene-status { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; color: var(--ink-2); font-size: 0.875rem; }
+/* The still includes the halo, so 64vh puts the planet at about the live scene's size. */
+.scene-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(64vh, 100vw);
+  translate: -50% -50%;
+}
+/* With a panel open the still moves into the space left of it, like the live planet. */
+@media (min-width: 760px) {
+  .scene.is-dim .scene-fallback {
+    left: calc((100vw - min(60vw, 880px) - 16px) / 2);
+    height: min(52vh, 100vw);
+  }
+}
 
 /* Satellite labels: placed by SatelliteLabels each frame, hanging under their dot. */
 .sat-labels {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
@@ -75,8 +89,7 @@
 
 .sat-more {
   left: 50%;
-  top: auto;
-  bottom: 12px;
+  top: calc(50% + 34vh);
   translate: -50% 0;
   padding: 4px 10px;
   border: 1px solid var(--line);

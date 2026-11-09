@@ -2,8 +2,6 @@ import { Link } from "react-router";
 import { useNavigate } from "react-router";
 import type { FormEvent } from "react";
 import { api, clearApiCache, useSubmit } from "@/lib/api";
-import { Logo } from "@/components/Logo";
-import { PlanetView } from "@/components/PlanetView";
 import type { User } from "@/lib/types";
 import "@/styles/auth.css";
 
@@ -34,17 +32,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   };
 
   return (
-    <main className="auth-layout">
+    <main>
       <title>{`${signup ? "회원가입" : "로그인"} · Green Server`}</title>
-      <aside className="auth-intro">
-        <Logo className="auth-mark" />
-        <h2>서버의 전력과 비용을<br />한눈에.</h2>
-        <p>사용량을 확인하고, 낭비를 줄이는 방법을 찾아보세요.</p>
-        <PlanetView />
-      </aside>
       <div className="auth-card">
-        <h1>{signup ? "계정 만들기" : "다시 만나 반가워요"}</h1>
-        <p className="muted">{signup ? "계정을 만들고 첫 서버를 연결하세요." : "로그인하고 서버 상태를 확인하세요."}</p>
+        <h1 className="sr-only">{signup ? "회원가입" : "로그인"}</h1>
         <form className="auth-form" onSubmit={submit}>
           <label className="field">
             이메일

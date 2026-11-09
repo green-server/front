@@ -1,47 +1,184 @@
-.page-heading p { margin-top: 10px; }
-.page-heading .btn { flex: none; }
-.home > .failure { margin-bottom: 24px; }
-.fleet-overview { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: #181f19; }
-.fleet-readings { padding: 36px; align-self: center; min-width: 0; }
-.fleet-readings h2 { color: var(--ink-2); font-weight: 400; font-size: 0.9375rem; }
-.fleet-power { margin: 20px 0; min-height: 72px; }
-.fleet-power .power-xl .power-value { font-size: clamp(3rem, 4.5vw, 4.5rem); font-weight: 600; }
-.home-change { color: var(--ink-2); font-size: 0.875rem; }
-.is-less { color: var(--go); }
-.is-more { color: var(--warn); }
-.home-figures { display: flex; gap: 36px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
-.home-figures dt { color: var(--ink-2); font-size: 0.8125rem; }
-.home-figures dd { margin-top: 8px; font-size: 1.625rem; font-weight: 600; line-height: 1.3; white-space: nowrap; }
-.home-figures small { color: var(--ink-2); font-size: 0.875rem; font-weight: 400; }
-.home-workspace { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 36px; margin-top: 40px; }
-.home-workspace .section-head { min-height: 32px; margin-bottom: 20px; }
-.text-link { color: var(--ink-2); font-size: 0.8125rem; text-decoration: none; }
-.text-link:hover { color: var(--go); text-decoration: underline; }
-.fleet-list, .home-actions { min-width: 0; }
-.fleet-list .rows > * { padding-block: 20px; }
-.home-actions { padding-left: 28px; border-left: 1px solid var(--line); }
-.action-count { color: var(--go); font-size: 0.875rem; }
-.notice-row { display: grid; gap: 8px; padding: 20px 0; border-top: 1px solid var(--line); text-decoration: none; }
-.notice-row:first-child { padding-top: 0; border-top: 0; }
-.notice-row:hover .notice-go { text-decoration: underline; }
-.notice-row code { overflow: hidden; color: var(--ink-2); font-size: 0.8125rem; text-overflow: ellipsis; white-space: nowrap; }
-.notice-detail { color: var(--ink-2); font-size: 0.8125rem; }
-.notice-go { color: var(--go); font-size: 0.8125rem; font-weight: 600; }
-.is-pending .notice-go { color: var(--warn); }
-.empty-state { display: grid; justify-items: start; gap: 12px; padding: 24px 0; }
-.empty-state h3 { color: var(--ink); margin: 0; }
-@media (max-width: 1199px) {
-  .home-workspace { grid-template-columns: 1fr; }
-  .home-actions { padding: 24px 0 0; border-left: 0; border-top: 1px solid var(--line); }
-  .fleet-readings { padding: 28px; }
-  .home-figures { gap: 24px; }
-  .home-figures dd { font-size: 1.375rem; }
+/* Home HUD over the orbit scene. Empty regions ignore the pointer so satellites stay clickable. */
+.home,
+.home-empty {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
-@media (max-width: 959px) { .fleet-overview { grid-template-columns: 1fr; } .orbit-view { min-height: 280px; } }
+.home a,
+.home button {
+  pointer-events: auto;
+}
+
+.home-line {
+  position: absolute;
+  top: calc(96px + var(--notice-h));
+  left: 50%;
+  margin: 0;
+  translate: -50% 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.home-line .is-less {
+  color: var(--go);
+}
+.home-line .is-more {
+  color: var(--warn);
+}
+
+.home-notice {
+  position: absolute;
+  top: calc(72px + var(--notice-h));
+  right: 20px;
+  display: grid;
+  gap: 8px;
+  width: min(360px, calc(100vw - 40px));
+}
+.notice-row {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+.notice-row.is-pending {
+  border-color: var(--warn);
+}
+.notice-row code {
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notice-go {
+  color: var(--go);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.home-notice .muted {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.home-figures {
+  position: absolute;
+  inset: auto 24px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 0;
+}
+.home-figures dt {
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+}
+.home-figures dd {
+  margin: 0;
+}
+.home-figures > div:last-child {
+  text-align: right;
+}
+.home-krw {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-empty {
+  display: grid;
+  place-items: center;
+}
+.home-empty .btn {
+  pointer-events: auto;
+}
+
+.home .home-list {
+  display: none;
+}
+/* Without WebGL there are no satellites, so the servers are a plain list. */
+@media (min-width: 760px) {
+  .no-webgl .home .home-list {
+    position: absolute;
+    top: calc(72px + var(--notice-h));
+    left: 20px;
+    display: grid;
+    width: min(360px, calc(100vw - 40px));
+    padding: 4px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .no-webgl .home-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+  }
+}
+
 @media (max-width: 759px) {
-  .fleet-readings { padding: 24px; }
-  .fleet-power .power-xl .power-value { font-size: 3.25rem; }
-  .home-figures { justify-content: space-between; gap: 16px; margin-top: 24px; }
-  .home-workspace { gap: 24px; margin-top: 32px; }
-  .orbit-view { min-height: 220px; }
+  .home {
+    overflow-y: auto;
+    padding: calc(120px + var(--notice-h)) 16px 88px;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .home > * {
+    position: static;
+    translate: none;
+    width: auto;
+    inset: auto;
+  }
+  .home-line {
+    order: 1;
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: var(--surface);
+    white-space: normal;
+  }
+  .home-figures {
+    order: 2;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .home-figures .power-value,
+  .home-figures .figure-lg {
+    font-size: 1.5rem;
+  }
+  .home-krw {
+    font-size: 1.375rem;
+    white-space: nowrap;
+  }
+  .home-notice {
+    order: 3;
+  }
+  .home .home-list {
+    order: 4;
+    display: grid;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .home-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+  }
 }
