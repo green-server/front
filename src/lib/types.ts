@@ -74,8 +74,10 @@ export type SavingsReport = {
     afterWatts: number;
     savedKwhMonth: number;
     savedKrwMonth: number;
+    savedCo2KgMonth: number;
   }[];
-  bySource: { source: "rule" | "ai"; total: number; applied: number; savedKrwMonth: number }[];
+  bySource: { source: "rule" | "ai"; total: number; applied: number; savedKrwMonth: number; savedCo2KgMonth: number }[];
+  total: { savedKrwMonth: number; savedCo2KgMonth: number };
 };
 
 export type ActivityReport = {

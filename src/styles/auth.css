@@ -1,0 +1,54 @@
+.auth-card,
+.notice-card {
+  position: fixed;
+  z-index: 10;
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+}
+.auth-card {
+  top: 50%;
+  left: min(calc(50% + 18vw), calc(100vw - 364px));
+  width: 340px;
+  transform: translateY(-50%);
+}
+.notice-card {
+  top: 50%;
+  left: 50%;
+  width: min(360px, calc(100vw - 32px));
+  transform: translate(-50%, -50%);
+  justify-items: start;
+}
+.notice-card h1 {
+  font-size: 1.25rem;
+}
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+.auth-error {
+  margin: 0;
+  color: var(--bad);
+}
+.auth-card .auth-switch {
+  margin: 0;
+  color: var(--ink-2);
+}
+.auth-switch a {
+  color: var(--ink);
+}
+
+@media (max-width: 759.98px) {
+  /* In flow below the planet, so the page scrolls when the keyboard opens. */
+  .auth-card {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin: 52vh 16px 16px;
+    transform: none;
+  }
+}

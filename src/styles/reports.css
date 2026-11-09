@@ -1,0 +1,114 @@
+.report-total {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.report-co2 {
+  color: var(--ink-2);
+  font-size: 1.0625rem;
+  font-variant-numeric: tabular-nums;
+}
+.report-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  gap: 8px 20px;
+}
+.report-change {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.report-money {
+  min-width: 7em;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.report-filter {
+  display: flex;
+  gap: 4px;
+}
+.report-filter .btn {
+  min-height: 32px;
+}
+.report-filter [aria-pressed="true"] {
+  background: rgb(255 255 255 / 0.1);
+}
+.call-group {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.call-group summary {
+  cursor: pointer;
+}
+.call-list {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+.call-list li {
+  display: grid;
+  gap: 2px;
+}
+.call-list code {
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+}
+.call-problem code {
+  color: var(--bad);
+}
+
+/* Account */
+.profile-line {
+  margin: 0;
+}
+.form {
+  display: grid;
+  gap: 12px;
+  max-width: 360px;
+}
+.form .btn {
+  justify-self: start;
+}
+.form-error {
+  margin: 0;
+  color: var(--bad);
+}
+.account-servers a {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  text-decoration: none;
+}
+.account-servers .state {
+  color: var(--ink-2);
+  font-size: 0.875rem;
+}
+.account-servers .state.is-online {
+  color: var(--go);
+}
+.btn-danger {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+.btn-danger:hover {
+  border-color: var(--bad);
+}
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 759.98px) {
+  .report-row {
+    grid-template-columns: 1fr auto;
+  }
+  .report-change {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
