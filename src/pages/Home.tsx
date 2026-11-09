@@ -29,7 +29,7 @@ export default function Home() {
   }
 
   const change = weekChangePct(servers);
-  const reading = servers?.filter((s) => s.latestWatts !== null) ?? [];
+  const reading = servers?.filter((s) => s.online && s.latestWatts !== null) ?? [];
   const watts = reading.reduce((sum, s) => sum + s.latestWatts!, 0);
   const krw = servers?.reduce((sum, s) => sum + s.monthlyKrw, 0) ?? 0;
 
@@ -48,6 +48,7 @@ export default function Home() {
 
   return (
     <div className="home">
+      {change === 0 && <p className="home-line">7일 평균과 같음</p>}
       {change !== null && change !== 0 && (
         <p className="home-line">
           7일 평균보다 <b className={change < 0 ? "is-less" : "is-more"}>{Math.abs(change)}%</b> {change < 0 ? "적게" : "많이"}
@@ -89,7 +90,7 @@ export default function Home() {
             <li key={s.id}>
               <Link to={`/servers/${s.id}`}>
                 <span>{s.name}</span>
-                <Power value={s.latestWatts} estimated={isServerEstimated(s)} />
+                {s.online ? <Power value={s.latestWatts} estimated={isServerEstimated(s)} /> : <span className="muted">꺼짐</span>}
                 <span>{formatKrw(s.monthlyKrw)}</span>
               </Link>
             </li>

@@ -119,6 +119,10 @@
   }
   .home-line {
     order: 1;
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: var(--surface);
     white-space: normal;
   }
   .home-figures {
