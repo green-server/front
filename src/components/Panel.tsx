@@ -12,7 +12,10 @@ export function Panel({ title, back, children }: { title: string; back?: { to: s
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented) navigate("/");
+      if (event.key !== "Escape" || event.defaultPrevented || event.isComposing) return;
+      // Escape in a field belongs to the field, not to the panel.
+      if ((event.target as HTMLElement).closest("input, select, textarea")) return;
+      navigate("/");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
