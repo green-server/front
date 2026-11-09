@@ -11,7 +11,8 @@
 }
 .auth-card {
   top: 50%;
-  left: min(calc(50% + 18vw), calc(100vw - 364px));
+  /* The planet (radius ≈ 28.1vh) sits 190px left of centre; the card starts 40px past its edge. */
+  left: min(calc(50% - 150px + 28.1vh), calc(100vw - 356px));
   width: 340px;
   transform: translateY(-50%);
 }

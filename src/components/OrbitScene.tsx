@@ -172,9 +172,14 @@ export function OrbitScene() {
     observer.observe(el);
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // World units per CSS pixel at the planet's depth.
+    const unitsPerPx = () => (2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / height;
     const target = () => {
-      const panel = getOrbit().panel && !narrow;
-      return { x: panel ? -1.6 : 0, scale: panel ? 0.8 : 1 };
+      const { panel, auth } = getOrbit();
+      if (narrow) return { x: 0, scale: 1 };
+      if (panel) return { x: -1.6, scale: 0.8 };
+      // Half the sign-in card (340px) and its gap (40px); auth.css places the card to match.
+      return { x: auth ? -190 * unitsPerPx() : 0, scale: 1 };
     };
     const onOrbit = () => {
       el.classList.toggle("is-dim", getOrbit().panel);

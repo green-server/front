@@ -69,8 +69,9 @@ export function planetBlight(activity: ActivityReport | undefined): number {
 }
 
 // Read every frame by the scene; React writes it.
-export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; focusId: number | null };
-let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, focusId: null };
+// `auth`: the sign-in card sits beside the planet, so the planet steps left to centre the pair.
+export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; auth: boolean; focusId: number | null };
+let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, auth: false, focusId: null };
 const listeners = new Set<() => void>();
 export const getOrbit = () => state;
 export function setOrbit(patch: Partial<OrbitState>) {

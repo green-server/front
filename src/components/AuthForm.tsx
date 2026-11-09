@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
-import type { FormEvent } from "react";
+import { useEffect, type FormEvent } from "react";
 import { api, clearApiCache, useSubmit } from "@/lib/api";
+import { setOrbit } from "@/lib/orbit";
 import type { User } from "@/lib/types";
 import "@/styles/auth.css";
 
@@ -9,6 +10,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const navigate = useNavigate();
   const { busy, error, run } = useSubmit();
   const signup = mode === "signup";
+
+  useEffect(() => {
+    setOrbit({ auth: true });
+    return () => setOrbit({ auth: false });
+  }, []);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
