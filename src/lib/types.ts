@@ -22,6 +22,7 @@ export type ServerSummary = Server & {
   isEstimated: boolean | null;
   monthlyKwh: number;
   monthlyKrw: number;
+  monthlyCo2Kg: number;
 };
 export type Metric = { ts: string; cpuPct: number; memPct: number; watts: number; isEstimated: boolean };
 export type ProcessSample = { ts: string; pid: number; name: string; cpuPct: number; watts: number };

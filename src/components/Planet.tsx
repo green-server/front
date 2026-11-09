@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { getPlanetHealth } from "@/lib/planet";
+import { getOrbit } from "@/lib/orbit";
 
 // 3D simplex noise (Ashima Arts / Stefan Gustavson, MIT) and a 5-octave fbm on top of it.
 const NOISE = /* glsl */ `
@@ -139,7 +139,7 @@ void main() {
 
 /**
  * A planet behind every page whose seas, forests and air follow the fleet's draw against
- * its 7-day average (`lib/planet.ts`). Drawn with shaders, so there are no textures to load.
+ * its 7-day average (`lib/orbit.ts`). Drawn with shaders, so there are no textures to load.
  */
 export function Planet() {
   const host = useRef<HTMLDivElement>(null);
@@ -161,7 +161,7 @@ export function Planet() {
     camera.position.set(0, 0, 7.5);
 
     const sun = new THREE.Vector3(-0.9, 0.45, 0.75).normalize();
-    const uniforms = { health: { value: getPlanetHealth() }, time: { value: 0 }, sun: { value: sun } };
+    const uniforms = { health: { value: getOrbit().health }, time: { value: 0 }, sun: { value: sun } };
     const sphere = new THREE.SphereGeometry(1, 128, 96);
 
     const globe = new THREE.Group();
@@ -222,7 +222,7 @@ export function Planet() {
     const frame = () => {
       const dt = Math.min(clock.getDelta(), 0.1);
       // Ease toward the new reading so a change reads as weather, not a cut.
-      uniforms.health.value += (getPlanetHealth() - uniforms.health.value) * Math.min(1, dt * 0.8);
+      uniforms.health.value += (getOrbit().health - uniforms.health.value) * Math.min(1, dt * 0.8);
       if (!still.matches) {
         uniforms.time.value += dt;
         surface.rotation.y += dt * 0.035;
