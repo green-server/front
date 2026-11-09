@@ -133,6 +133,8 @@ export function OrbitScene() {
     world.add(planet, ring);
     scene.add(stars, world);
 
+    let dirty = true;
+    const markDirty = () => void (dirty = true);
     let width = 1;
     let height = 1;
     const resize = () => {
@@ -146,6 +148,7 @@ export function OrbitScene() {
       planet.position.y = narrow ? 0.9 : 0;
       showRing();
       camera.updateProjectionMatrix();
+      dirty = true;
     };
     resize();
     const observer = new ResizeObserver(resize);
@@ -159,6 +162,7 @@ export function OrbitScene() {
     const onOrbit = () => {
       el.classList.toggle("is-dim", getOrbit().panel);
       placeSatellites();
+      markDirty();
     };
     onOrbit();
     const unsubscribe = subscribeOrbit(onOrbit);
@@ -170,7 +174,16 @@ export function OrbitScene() {
     const centre = new THREE.Vector3();
     const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * width, ((1 - v.y) / 2) * height, 0);
     const clock = new THREE.Clock();
+    // Reduced motion draws only when something moved; a phone sheet covers the scene, so it draws nothing.
     const frame = () => {
+      const covered = narrow && getOrbit().panel;
+      if (covered) return;
+      const settling =
+        Math.abs(getOrbit().health - uniforms.health.value) > 1e-3 ||
+        Math.abs(target().x - world.position.x) > 1e-3 ||
+        Math.abs(target().scale - world.scale.x) > 1e-3;
+      if (still.matches && !dirty && !settling) return;
+      dirty = false;
       const dt = Math.min(clock.getDelta(), 0.1);
       // Ease toward the new reading so a change reads as weather, not a cut.
       uniforms.health.value += (getOrbit().health - uniforms.health.value) * Math.min(1, dt * 0.8);

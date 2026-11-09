@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense } from "react";
+import { lazy, StrictMode, Suspense, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { AppLayout } from "@/AppLayout";
@@ -17,7 +17,7 @@ import "./styles/base.css";
 import "./styles/shell.css";
 
 // three.js is most of the bundle, so the backdrop loads after the page it sits behind.
-const OrbitScene = lazy(() => import("@/components/OrbitScene"));
+const OrbitScene = lazy<ComponentType>(() => import("@/components/OrbitScene").catch(() => ({ default: () => null })));
 
 const router = createBrowserRouter([
   { path: "/login", element: <AuthForm mode="login" /> },

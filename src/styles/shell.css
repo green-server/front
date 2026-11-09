@@ -148,6 +148,7 @@ main#main {
 
 @media (max-width: 759.98px) {
   .topbar {
+    background: var(--space);
     grid-template-columns: 1fr auto;
   }
   .pills,
