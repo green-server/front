@@ -1,4 +1,4 @@
-import type { ServerSummary } from "./types";
+import type { ActivityReport, ServerSummary } from "./types";
 
 /**
  * How green the planet is, 0 (parched) to 1 (lush): total draw now against the 7-day average.
@@ -58,9 +58,19 @@ export function weekChangePct(servers: ServerSummary[] | undefined): number | nu
   return Math.round((now / week - 1) * 100);
 }
 
+/**
+ * How ravaged the planet is, 0 (untouched) toward 1: waste the rules or the AI found and nobody
+ * has fixed yet. Eight open recommendations take it about two thirds of the way; it never quite
+ * arrives, so every fix still shows.
+ */
+export function planetBlight(activity: ActivityReport | undefined): number {
+  const open = activity?.servers.reduce((sum, s) => sum + s.open, 0) ?? 0;
+  return 1 - Math.exp(-open / 8);
+}
+
 // Read every frame by the scene; React writes it.
-export type OrbitState = { satellites: Satellite[]; health: number; panel: boolean; focusId: number | null };
-let state: OrbitState = { satellites: [], health: 1, panel: false, focusId: null };
+export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; focusId: number | null };
+let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, focusId: null };
 const listeners = new Set<() => void>();
 export const getOrbit = () => state;
 export function setOrbit(patch: Partial<OrbitState>) {

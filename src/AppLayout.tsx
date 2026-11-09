@@ -4,8 +4,8 @@ import { SatelliteLabels } from "@/components/SatelliteLabels";
 import { NAV, TopBar } from "@/components/TopBar";
 import { api, clearApiCache, useApi } from "@/lib/api";
 import { LiveProvider, useLive, useLiveDropped } from "@/lib/live";
-import { layoutSatellites, planetHealth, setOrbit } from "@/lib/orbit";
-import type { ServerSummary } from "@/lib/types";
+import { layoutSatellites, planetBlight, planetHealth, setOrbit } from "@/lib/orbit";
+import type { ActivityReport, ServerSummary } from "@/lib/types";
 
 type ServersContext = { servers: ServerSummary[] | undefined; error: ReturnType<typeof useApi>["error"]; reload: () => void };
 
@@ -24,14 +24,21 @@ function Shell() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data, error, reload, mutate } = useApi<ServerSummary[]>("/api/servers");
+  // Open recommendations ravage the planet; applying or dismissing one heals it.
+  const activity = useApi<ActivityReport>("/api/reports/activity");
+  const reloadActivity = activity.reload;
 
   useEffect(() => {
-    const timer = setInterval(reload, 60_000);
+    const timer = setInterval(() => {
+      reload();
+      reloadActivity();
+    }, 60_000);
     return () => clearInterval(timer);
-  }, [reload]);
+  }, [reload, reloadActivity]);
 
   useLive((event) => {
     if (event.type === "reconnected") reload();
+    if (event.type === "reconnected" || event.type === "consultation" || event.type === "tool_call") reloadActivity();
     if (event.type === "metric") {
       const { watts, isEstimated } = event.metric;
       mutate((list) => list.map((s) => (s.id === event.serverId ? { ...s, latestWatts: watts, isEstimated } : s)));
@@ -45,7 +52,8 @@ function Shell() {
     const list = data ?? [];
     setOrbit({ satellites: layoutSatellites(list), health: planetHealth(list) });
   }, [data]);
-  useEffect(() => () => setOrbit({ health: 1, satellites: [] }), []);
+  useEffect(() => setOrbit({ blight: planetBlight(activity.data) }), [activity.data]);
+  useEffect(() => () => setOrbit({ health: 1, blight: 0, satellites: [] }), []);
 
   const logout = () =>
     api("/api/auth/logout", { method: "POST" })

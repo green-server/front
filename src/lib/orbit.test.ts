@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { layoutSatellites, planetHealth, weekChangePct, MAX_LABELS } from "./orbit.ts";
+import { layoutSatellites, planetBlight, planetHealth, weekChangePct, MAX_LABELS } from "./orbit.ts";
 import type { ServerSummary } from "./types.ts";
 
 const server = (id: number, watts: number | null, over: Partial<ServerSummary> = {}): ServerSummary => ({
@@ -42,4 +42,17 @@ test("health is neutral when nothing tracked is online", () => {
 test("health keeps the old mapping", () => {
   assert.equal(planetHealth([server(1, 100)]), 0.5);
   assert.equal(planetHealth(undefined), 1);
+});
+
+test("blight grows with open recommendations and never reaches 1", () => {
+  const activity = (open: number[]) => ({
+    servers: open.map((n, i) => ({ serverId: i, serverName: "", total: n, open: n, applied: 0, openSavingKrw: 0 })),
+    calls: [],
+  });
+  assert.equal(planetBlight(undefined), 0);
+  assert.equal(planetBlight(activity([0, 0])), 0);
+  const few = planetBlight(activity([2]));
+  const many = planetBlight(activity([5, 5, 5]));
+  assert.ok(few > 0 && few < many && many < 1);
+  assert.ok(Math.abs(planetBlight(activity([8])) - (1 - Math.exp(-1))) < 1e-9);
 });

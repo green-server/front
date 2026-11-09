@@ -58,6 +58,7 @@ export function OrbitScene() {
     const [dayMap, waterMap, lightsMap, cloudMap] = textures;
     const uniforms = {
       health: { value: getOrbit().health },
+      blight: { value: getOrbit().blight },
       sun: { value: sun },
       dayMap: { value: dayMap },
       waterMap: { value: waterMap },
@@ -196,6 +197,7 @@ export function OrbitScene() {
       if (covered) return;
       const settling =
         Math.abs(getOrbit().health - uniforms.health.value) > 1e-3 ||
+        Math.abs(getOrbit().blight - uniforms.blight.value) > 1e-3 ||
         Math.abs(target().x - world.position.x) > 1e-3 ||
         Math.abs(target().scale - world.scale.x) > 1e-3;
       if (still.matches && !dirty && !settling) return;
@@ -203,6 +205,7 @@ export function OrbitScene() {
       const dt = Math.min(clock.getDelta(), 0.1);
       // Ease toward the new reading so a change reads as weather, not a cut.
       uniforms.health.value += (getOrbit().health - uniforms.health.value) * Math.min(1, dt * 0.8);
+      uniforms.blight.value += (getOrbit().blight - uniforms.blight.value) * Math.min(1, dt * 0.8);
       // ~600 ms to settle when a panel opens or closes.
       const goal = target();
       const k = still.matches ? 1 : Math.min(1, dt * 7);
