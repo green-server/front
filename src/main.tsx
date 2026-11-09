@@ -12,7 +12,10 @@ import Recommendation from "@/pages/Recommendation";
 import Reports from "@/pages/Reports";
 import RouteError from "@/pages/RouteError";
 import Server from "@/pages/Server";
+import Servers from "@/pages/Servers";
 import "./globals.css";
+import "./styles/base.css";
+import "./styles/shell.css";
 
 // three.js is most of the bundle, so the backdrop loads after the page it sits behind.
 const OrbitScene = lazy(() => import("@/components/OrbitScene"));
@@ -25,6 +28,7 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { index: true, element: <Home /> },
+      { path: "servers", element: <Servers /> },
       { path: "servers/new", element: <NewServer /> },
       { path: "servers/:id", element: <Server /> },
       { path: "servers/:id/recommendations/:recommendationId", element: <Recommendation /> },
