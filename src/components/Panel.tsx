@@ -2,7 +2,18 @@ import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { setOrbit } from "@/lib/orbit";
 
-export function Panel({ title, back, children }: { title: string; back?: { to: string; label: string }; children: ReactNode }) {
+export function Panel({
+  title,
+  back,
+  escape = true,
+  children,
+}: {
+  title: string;
+  back?: { to: string; label: string };
+  /** False where leaving would lose something that cannot be shown again. */
+  escape?: boolean;
+  children: ReactNode;
+}) {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -11,6 +22,7 @@ export function Panel({ title, back, children }: { title: string; back?: { to: s
   }, []);
 
   useEffect(() => {
+    if (!escape) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented || event.isComposing) return;
       // Escape in a field belongs to the field, not to the panel.
@@ -19,7 +31,7 @@ export function Panel({ title, back, children }: { title: string; back?: { to: s
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigate]);
+  }, [navigate, escape]);
 
   return (
     <section className="panel" aria-label={title}>

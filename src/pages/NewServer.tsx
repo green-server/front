@@ -96,7 +96,7 @@ function AgentToken({ server, agentToken }: Created) {
   const installCommand = `curl -fsSL https://raw.githubusercontent.com/green-server/server_app/main/install.sh | sudo bash -s -- --server ${agentUrl}`;
 
   return (
-    <Panel title={`${server.name} 에이전트 설치`}>
+    <Panel title={`${server.name} 에이전트 설치`} escape={false}>
       <title>에이전트 설치 · Green Server</title>
       <div className="token">
         <p className="token-notice">

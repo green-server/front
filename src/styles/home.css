@@ -6,7 +6,8 @@
   z-index: 2;
   pointer-events: none;
 }
-.home a {
+.home a,
+.home button {
   pointer-events: auto;
 }
 

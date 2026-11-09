@@ -8,6 +8,10 @@ import "@/styles/consult.css";
 import type { ServerLevel, ServerSummary, ToolCall } from "@/lib/types";
 
 export default function ConsultationPage() {
+  return <ConsultationPageBody key={useParams().id} />;
+}
+
+function ConsultationPageBody() {
   const { id } = useParams() as { id: string };
   const { data, error, reload, putCall } = useConsultation(Number(id));
   const servers = useApi<ServerSummary[]>("/api/servers");
