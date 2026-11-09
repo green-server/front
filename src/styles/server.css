@@ -73,6 +73,7 @@
 .row-main strong,
 .row-main code {
   overflow: hidden;
+  white-space: nowrap;
   font-size: 1rem;
   text-overflow: ellipsis;
 }
@@ -102,7 +103,12 @@
   margin: 8px 0 0;
   font-size: 0.9375rem;
 }
+.panel .power-value,
+.panel .power-tag {
+  font-family: var(--sans);
+}
 .panel .power-xl .power-value {
+  color: var(--ink);
   font-size: clamp(3rem, 6vw, 4.5rem);
   font-weight: 800;
   line-height: 1;
@@ -112,18 +118,18 @@
   margin-left: 0.15em;
   font-size: 0.5em;
 }
-.figures {
+.panel .figures {
   display: grid;
   grid-template-columns: repeat(3, auto);
   justify-content: start;
   gap: 8px 40px;
   margin: 24px 0 0;
 }
-.figures dt {
+.panel .figures dt {
   color: var(--ink-2);
   font-size: 0.875rem;
 }
-.figures dd {
+.panel .figures dd {
   margin: 0;
   font-size: 1.375rem;
   font-weight: 700;
@@ -146,13 +152,13 @@
   min-width: 0;
   min-height: 260px;
 }
-.segmented {
+.panel .segmented {
   display: inline-flex;
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
 }
-.segmented button {
+.panel .segmented button {
   min-height: 36px;
   padding: 0 14px;
   border: 0;
@@ -161,7 +167,7 @@
   font: inherit;
   cursor: pointer;
 }
-.segmented button[aria-pressed="true"] {
+.panel .segmented button[aria-pressed="true"] {
   background: var(--go);
   color: var(--on-go);
   font-weight: 700;
@@ -180,7 +186,7 @@
   align-items: center;
   gap: 6px;
 }
-.chart-box {
+.panel .chart-box {
   position: relative;
 }
 .panel .chart-head {
@@ -199,6 +205,7 @@
 }
 .panel .chart-line {
   fill: none;
+  filter: none;
   stroke: var(--go);
   stroke-width: 2;
   stroke-linejoin: round;
@@ -219,7 +226,7 @@
 .panel .chart-cursor {
   stroke: var(--ink-2);
 }
-.chart-tip {
+.panel .chart-tip {
   position: absolute;
   top: 8px;
   z-index: 1;
@@ -235,7 +242,7 @@
   white-space: nowrap;
   pointer-events: none;
 }
-.chart-tip strong {
+.panel .chart-tip strong {
   color: var(--ink);
   font-size: 1rem;
 }
@@ -313,31 +320,31 @@
   gap: 16px;
   max-width: 28rem;
 }
-.steps {
+.panel .steps {
   list-style: decimal;
   margin: 0;
   padding-left: 1.25rem;
   color: var(--ink-2);
 }
-.section-title {
+.panel .section-title {
   margin-top: 20px;
 }
-.token {
+.panel .token {
   display: grid;
   gap: 12px;
 }
-.token p {
+.panel .token p {
   margin: 0;
 }
 .token-notice {
   color: var(--warn);
 }
-.copyable {
+.panel .copyable {
   display: grid;
   gap: 8px;
   justify-items: start;
 }
-.copyable pre {
+.panel .copyable pre {
   width: 100%;
   margin: 0;
   padding: 12px 14px;
@@ -351,7 +358,7 @@
 }
 
 @media (max-width: 759.98px) {
-  .figures {
+  .panel .figures {
     grid-template-columns: 1fr;
     gap: 12px;
   }
@@ -363,20 +370,6 @@
   }
 }
 
-.panel .power-value,
-.panel .power-tag {
-  font-family: var(--sans);
-}
-.panel .power-xl .power-value {
-  color: var(--ink);
-}
-.panel .chart-line,
-.panel .chart-legend .chart-line {
-  filter: none;
-}
-.panel .chart-line-estimated {
-  stroke: var(--ink-2);
-}
 .consult-start .choice label {
   position: relative;
   display: inline-flex;

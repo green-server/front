@@ -116,7 +116,6 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
               {(showDays ? day : time).format(tick)}
             </text>
           ))}
-          <g>
           {runs.map((run) =>
             run.points.length === 1 ? (
               <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
@@ -129,7 +128,6 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
               </g>
             ),
           )}
-          </g>
           <text
             className="chart-peak"
             x={Math.max(MARGIN.left + 4, Math.min(peakX, width - MARGIN.right - 4))}
