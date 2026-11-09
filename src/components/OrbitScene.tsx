@@ -178,8 +178,10 @@ export function OrbitScene() {
       const { panel, auth } = getOrbit();
       if (narrow) return { x: 0, scale: 1 };
       if (panel) return { x: -1.6, scale: 0.8 };
-      // Half the sign-in card (340px) and its gap (96px); auth.css places the card to match.
-      return { x: auth ? -218 * unitsPerPx() : 0, scale: 1 };
+      // Sign-in: the planet centres in the left half (auth.css centres the card in the right),
+      // shrinking on narrow windows so it stays inside its half.
+      if (auth) return { x: -(width / 4) * unitsPerPx(), scale: Math.min(1, width * 0.2 * unitsPerPx()) };
+      return { x: 0, scale: 1 };
     };
     const onOrbit = () => {
       el.classList.toggle("is-dim", getOrbit().panel);

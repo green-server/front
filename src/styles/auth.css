@@ -11,10 +11,10 @@
 }
 .auth-card {
   top: 50%;
-  /* The planet (radius ≈ 28.1vh) sits 218px left of centre; the card starts 96px past its edge. */
-  left: min(calc(50% - 122px + 28.1vh), calc(100vw - 356px));
+  /* Centred in the right half; the planet centres in the left. */
+  left: 75%;
   width: 340px;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
 }
 .notice-card {
   top: 50%;
