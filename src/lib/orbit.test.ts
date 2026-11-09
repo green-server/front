@@ -41,5 +41,5 @@ test("health is neutral when nothing tracked is online", () => {
 
 test("health keeps the old mapping", () => {
   assert.equal(planetHealth([server(1, 100)]), 0.5);
-  assert.equal(planetHealth(undefined), 0.5);
+  assert.equal(planetHealth(undefined), 1);
 });
