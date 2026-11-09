@@ -50,7 +50,7 @@ export function layoutSatellites(servers: ServerSummary[]): Satellite[] {
 export function weekChangePct(servers: ServerSummary[] | undefined): number | null {
   const tracked = servers?.filter((s) => s.weekWatts !== null && s.weekWatts > 0) ?? [];
   const week = tracked.reduce((sum, s) => sum + (s.weekWatts ?? 0), 0);
-  if (week === 0) return null;
+  if (week === 0 || !tracked.some((s) => s.online)) return null;
   const now = tracked.reduce((sum, s) => sum + (s.online ? (s.latestWatts ?? 0) : 0), 0);
   return Math.round((now / week - 1) * 100);
 }

@@ -31,6 +31,8 @@ test("size grows with draw and offline servers are smallest", () => {
 test("week change compares online draw with the 7-day average", () => {
   assert.equal(weekChangePct([server(1, 88), server(2, 88)]), -12);
   assert.equal(weekChangePct([server(1, 50, { weekWatts: null })]), null);
+  // An all-offline fleet is an outage, not a saving.
+  assert.equal(weekChangePct([server(1, 50, { online: false }), server(2, 50, { online: false })]), null);
 });
 
 test("health keeps the old mapping", () => {
