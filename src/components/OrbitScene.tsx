@@ -32,7 +32,11 @@ export function OrbitScene() {
       el.appendChild(img);
       // Lets the home page show its server list in place of the satellites.
       document.documentElement.classList.add("no-webgl");
+      const dim = () => el.classList.toggle("is-dim", getOrbit().panel);
+      dim();
+      const stop = subscribeOrbit(dim);
       return () => {
+        stop();
         img.remove();
         document.documentElement.classList.remove("no-webgl");
       };

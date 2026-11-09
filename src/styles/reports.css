@@ -104,4 +104,7 @@
     grid-column: 1 / -1;
     grid-row: 2;
   }
+  .report-money {
+    grid-column: -2;
+  }
 }

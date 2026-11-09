@@ -26,6 +26,13 @@
   height: min(64vh, 100vw);
   translate: -50% -50%;
 }
+/* With a panel open the still moves into the space left of it, like the live planet. */
+@media (min-width: 760px) {
+  .scene.is-dim .scene-fallback {
+    left: calc((100vw - min(60vw, 880px) - 16px) / 2);
+    height: min(52vh, 100vw);
+  }
+}
 
 /* Satellite labels: placed by SatelliteLabels each frame, hanging under their dot. */
 .sat-labels {
