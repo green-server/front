@@ -1,8 +1,9 @@
 import { Link } from "react-router";
 import { useNavigate, useParams } from "react-router";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent } from "react";
+import { Panel } from "@/components/Panel";
 import { PowerChart } from "@/components/PowerChart";
-import { Krw, Power } from "@/components/Power";
+import { Power } from "@/components/Power";
 import { Failure, Loading, OnlineState } from "@/components/Status";
 import { api, useApi, useSubmit } from "@/lib/api";
 import {
@@ -12,12 +13,15 @@ import {
   SERVER_LEVELS,
   formatDateTime,
   formatKrw,
+  formatNumber,
+  KIND_LABEL,
   isServerEstimated,
   recommendationTypeLabel,
   SOURCE_LABEL,
   upsertById,
 } from "@/lib/format";
 import { useLive } from "@/lib/live";
+import "@/styles/server.css";
 import type { Consultation, Metric, ProcessSample, Recommendation, ServerSummary } from "@/lib/types";
 
 const RANGES = [
@@ -41,57 +45,56 @@ export default function ServerPage() {
     }
   });
 
-  if (error) return <Failure error={error} retry={reload} />;
-  if (!server) return <Loading />;
+  if (error)
+    return (
+      <Panel title="서버" back={{ to: "/servers", label: "서버" }}>
+        <Failure error={error} retry={reload} />
+      </Panel>
+    );
+  if (!server)
+    return (
+      <Panel title="서버" back={{ to: "/servers", label: "서버" }}>
+        <Loading />
+      </Panel>
+    );
 
   const estimated = isServerEstimated(server);
 
   return (
-    <div className="console">
+    <Panel title={server.name} back={{ to: "/servers", label: "서버" }}>
       <title>{`${server.name} · Green Server`}</title>
-      <div className="page-head">
+      <p className="server-state">
+        {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
+        {!server.online && server.lastSeenAt && <span className="muted"> · 마지막 연결 {formatDateTime(server.lastSeenAt)}</span>}
+      </p>
+      <Power value={server.latestWatts} estimated={estimated} size="xl" />
+      {!estimated && <p className="muted note">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</p>}
+      <dl className="figures">
         <div>
-          <p className="crumb">
-            <Link to="/">서버</Link>
-          </p>
-          <h1>{server.name}</h1>
+          <dt>이번 달 예상 요금</dt>
+          <dd>{formatKrw(server.monthlyKrw)}</dd>
         </div>
-        <p className="console-state">
-          <OnlineState online={server.online} />
-          {!server.online && server.lastSeenAt && <span className="caption">마지막 연결 {formatDateTime(server.lastSeenAt)}</span>}
-        </p>
-      </div>
-      <Chart serverId={serverId}>
-        <aside className="instrument-panel">
-          <Power value={server.latestWatts} estimated={estimated} size="xl" />
-          {!estimated && <p className="caption instrument-note">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</p>}
-          <dl className="instrument-figures">
-            <div>
-              <dt>이번 달 예상 요금</dt>
-              <dd>
-                <Krw value={server.monthlyKrw} />
-              </dd>
-            </div>
-            <div>
-              <dt>이번 달 예상 사용량</dt>
-              <dd>
-                {/* A projection, so never 실측, whatever the samples behind it were. */}
-                <Power value={server.monthlyKwh} estimated unit="kWh" />
-              </dd>
-            </div>
-          </dl>
-        </aside>
-      </Chart>
-      <div className="console-grid">
-        <Processes serverId={serverId} />
-        <Recommendations serverId={serverId} />
-      </div>
+        <div>
+          <dt>이번 달 예상 사용량</dt>
+          <dd>
+            {/* A projection, so never 실측, whatever the samples behind it were. */}
+            <Power value={server.monthlyKwh} estimated unit="kWh" />
+          </dd>
+        </div>
+        <div>
+          <dt>이번 달 CO₂</dt>
+          <dd>{formatNumber(server.monthlyCo2Kg)}kg</dd>
+        </div>
+      </dl>
+      <Chart serverId={serverId} />
+      <Recommendations serverId={serverId} />
+      <Processes serverId={serverId} />
       <Consultations serverId={serverId} />
-    </div>
+    </Panel>
   );
 }
 
-function Chart({ serverId, children }: { serverId: number; children: ReactNode }) {
+function Chart({ serverId }: { serverId: number }) {
   const [range, setRange] = useState(RANGES[1]);
   const { data, error, reload, mutate } = useApi<Metric[]>(`/api/servers/${serverId}/metrics?range=${range.value}`);
 
@@ -104,9 +107,8 @@ function Chart({ serverId, children }: { serverId: number; children: ReactNode }
   });
 
   return (
-    <section aria-labelledby="chart-heading" className="pane scope">
-      <div className="pane-head">
-        <h2 id="chart-heading">전력</h2>
+    <section aria-label="전력 그래프" className="section">
+      <div className="chart-head">
         <div className="segmented" role="group" aria-label="기간">
           {RANGES.map((option) => (
             <button key={option.value} type="button" aria-pressed={option === range} onClick={() => setRange(option)}>
@@ -115,11 +117,10 @@ function Chart({ serverId, children }: { serverId: number; children: ReactNode }
           ))}
         </div>
       </div>
-      {children}
       <div className="chart-slot">
         {error && <Failure error={error} retry={reload} />}
         {!error && !data && <Loading />}
-        {data?.length === 0 && <p className="status">이 기간에는 측정값이 없습니다.</p>}
+        {data?.length === 0 && <p className="muted">이 기간에는 측정값이 없습니다.</p>}
         {data && data.length > 0 && <PowerChart metrics={data} showDays={range.value === "7d"} windowMs={range.ms} />}
       </div>
     </section>
@@ -135,42 +136,26 @@ function Processes({ serverId }: { serverId: number }) {
   });
 
   return (
-    <section aria-labelledby="processes-heading" className="pane">
-      <div className="pane-head">
+    <section aria-labelledby="processes-heading" className="section">
+      <div className="section-head">
         <h2 id="processes-heading">전력 상위 프로세스</h2>
       </div>
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
-      {data?.length === 0 && <p className="status">아직 수집된 프로세스가 없습니다.</p>}
+      {data?.length === 0 && <p className="muted">아직 수집된 프로세스가 없습니다.</p>}
       {data && data.length > 0 && (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th scope="col">프로세스</th>
-              <th scope="col" className="numeric col-pid">PID</th>
-              <th scope="col" className="numeric">CPU</th>
-              <th scope="col" className="numeric">전력</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((process) => (
-              <tr key={process.pid}>
-                <td className="mono">{process.name}</td>
-                <td className="numeric col-pid">{process.pid}</td>
-                <td className="numeric">
-                  <span className="gauge" aria-hidden="true">
-                    <span style={{ width: `${Math.min(process.cpuPct, 100)}%` }} />
-                  </span>
-                  {process.cpuPct.toFixed(1)}%
-                </td>
-                <td className="numeric">
-                  {/* A share of the total by CPU time: derived, so always 추정. */}
-                  <Power value={process.watts} estimated />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ul className="rows">
+          {data.map((process) => (
+            <li key={process.pid} className="row">
+              <span className="row-main">
+                <code>{process.name}</code>
+                <span className="muted">PID {process.pid} · CPU {process.cpuPct.toFixed(1)}%</span>
+              </span>
+              {/* A share of the total by CPU time: derived, so always 추정. */}
+              <Power value={process.watts} estimated />
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );
@@ -198,20 +183,20 @@ function Recommendations({ serverId }: { serverId: number }) {
   const saving = open.reduce((sum, item) => sum + item.estSavingKrw, 0);
 
   return (
-    <section aria-labelledby="recommendations-heading" className="pane">
-      <div className="pane-head">
+    <section aria-labelledby="recommendations-heading" className="section">
+      <div className="section-head">
         <h2 id="recommendations-heading">추천</h2>
         {open.length > 0 && (
-          <span className="caption">
+          <span className="muted">
             대기 {open.length}건{saving > 0 && ` · 예상 ${formatKrw(saving)}`}
           </span>
         )}
       </div>
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
-      {data?.length === 0 && <p className="status">지금은 추천할 조치가 없습니다.</p>}
+      {data?.length === 0 && <p className="muted">지금은 추천할 조치가 없습니다.</p>}
       {ordered && ordered.length > 0 && (
-        <ul className="entries">
+        <ul className="rows">
           {ordered.map((item, index) => (
             <RecommendationEntry key={item.id} item={item} defaultOpen={index === 0} onChange={(next) => mutate((list) => upsertById(list, next))} />
           ))}
@@ -240,17 +225,17 @@ function RecommendationEntry({
     run(async () => onChange(await api<Recommendation>(`/api/recommendations/${item.id}/dismiss`, { method: "POST" })));
 
   return (
-    <li className={item.status === "open" ? "entry" : "entry entry-closed"}>
+    <li className={item.status === "open" ? "entry" : "entry is-closed"}>
       <details open={defaultOpen}>
         <summary>
           <span className="entry-title">
             {recommendationTypeLabel(item.type)}
-            <span className="caption">
+            <span className="muted">
               {SOURCE_LABEL[item.source]} 추천
               {item.status !== "open" && ` · ${RECOMMENDATION_STATUS[item.status]}`}
             </span>
           </span>
-          {item.estSavingKrw > 0 && <span className="figure entry-saving">{formatKrw(item.estSavingKrw)}</span>}
+          {item.estSavingKrw > 0 && <span className="entry-saving">{formatKrw(item.estSavingKrw)}</span>}
         </summary>
         <p className="entry-detail">{item.detail}</p>
         {error && (
@@ -260,20 +245,20 @@ function RecommendationEntry({
         )}
         {item.status === "open" && (
           <div className="entry-actions">
-            <Link to={`/servers/${item.serverId}/recommendations/${item.id}`} className="button button-primary">
+            <Link to={`/servers/${item.serverId}/recommendations/${item.id}`} className="btn btn-go">
               적용 방법 보기
             </Link>
-            <button type="button" className="text-button" onClick={apply} disabled={busy}>
+            <button type="button" className="btn btn-quiet" onClick={apply} disabled={busy}>
               적용했어요
             </button>
-            <button type="button" className="text-button" onClick={dismiss} disabled={busy}>
+            <button type="button" className="btn btn-quiet" onClick={dismiss} disabled={busy}>
               무시
             </button>
           </div>
         )}
         {item.status === "applied" && (
           <div className="entry-actions">
-            <button type="button" className="text-button" onClick={unapply} disabled={busy}>
+            <button type="button" className="btn btn-quiet" onClick={unapply} disabled={busy}>
               적용 취소
             </button>
           </div>
@@ -313,8 +298,9 @@ function Consultations({ serverId }: { serverId: number }) {
   };
 
   return (
-    <section aria-labelledby="consultations-heading" className="pane consult-pane">
-      <div className="pane-head">
+    <>
+    <section aria-labelledby="consultations-heading" className="section">
+      <div className="section-head">
         <h2 id="consultations-heading">AI 컨설팅</h2>
       </div>
       <form className="consult-start" onSubmit={start}>
@@ -351,7 +337,7 @@ function Consultations({ serverId }: { serverId: number }) {
             구독
           </label>
         </fieldset>
-        <button className="button button-primary" disabled={busy}>
+        <button className="btn btn-go" disabled={busy}>
           컨설팅 시작
         </button>
         {startError && (
@@ -361,17 +347,21 @@ function Consultations({ serverId }: { serverId: number }) {
         )}
       </form>
 
-      <div>
+    </section>
+    <section aria-labelledby="history-heading" className="section">
+      <div className="section-head">
+        <h2 id="history-heading">컨설팅 기록</h2>
+      </div>
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
-      {data?.length === 0 && <p className="status">아직 진행한 컨설팅이 없습니다.</p>}
+      {data?.length === 0 && <p className="muted">아직 진행한 컨설팅이 없습니다.</p>}
       {history && history.length > 0 && (
-        <ul className="history">
+        <ul className="rows">
           {history.map((item) => (
             <li key={item.id}>
-              <Link to={`/consultations/${item.id}`}>
+              <Link to={`/consultations/${item.id}`} className="history-link">
                 <span>{formatDateTime(item.requestedAt)}</span>
-                <span className="caption">
+                <span className="muted">
                   {CONSULTATION_STATUS[item.status]}
                   {item.level && ` · ${SERVER_LEVELS.find((level) => level.value === item.level)?.label}`}
                 </span>
@@ -381,7 +371,7 @@ function Consultations({ serverId }: { serverId: number }) {
           ))}
         </ul>
       )}
-      </div>
     </section>
+    </>
   );
 }

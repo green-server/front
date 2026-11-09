@@ -1,7 +1,9 @@
+import { Panel } from "@/components/Panel";
 import { Link } from "react-router";
 import { useState, type FormEvent } from "react";
 import { API_URL, api, useSubmit } from "@/lib/api";
 import { KIND_LABEL, RATE_PLAN_LABEL } from "@/lib/format";
+import "@/styles/server.css";
 import type { Server, ServerInput } from "@/lib/types";
 
 type Created = { server: Server; agentToken: string };
@@ -28,13 +30,9 @@ export default function NewServerPage() {
   if (created) return <AgentToken {...created} />;
 
   return (
-    <>
+    <Panel title="서버 추가" back={{ to: "/servers", label: "서버" }}>
       <title>서버 추가 · Green Server</title>
-      <div className="page-head">
-        <h1>서버 추가</h1>
-      </div>
-      <div className="split">
-      <form className="form form-pane" onSubmit={submit}>
+      <form className="form" onSubmit={submit}>
         <label className="field">
           서버 이름
           <input name="name" required autoFocus />
@@ -76,20 +74,19 @@ export default function NewServerPage() {
             {error}
           </p>
         )}
-        <button className="button button-primary" disabled={busy}>
+        <button className="btn btn-go" disabled={busy}>
           서버 추가
         </button>
       </form>
-      <aside className="setup-note">
+      <section className="section">
         <h2>등록한 다음에는</h2>
-        <ol className="setup-steps">
+        <ol className="steps">
           <li>설치 명령어가 나타납니다. 토큰은 이때 한 번만 보입니다.</li>
           <li>서버 터미널에서 명령어를 실행합니다.</li>
           <li>첫 측정값이 들어오면 서버 목록에 파형이 그려집니다.</li>
         </ol>
-      </aside>
-      </div>
-    </>
+      </section>
+    </Panel>
   );
 }
 
@@ -99,25 +96,22 @@ function AgentToken({ server, agentToken }: Created) {
   const installCommand = `curl -fsSL https://raw.githubusercontent.com/green-server/server_app/main/install.sh | sudo bash -s -- --server ${agentUrl}`;
 
   return (
-    <>
+    <Panel title={`${server.name} 에이전트 설치`}>
       <title>에이전트 설치 · Green Server</title>
-      <div className="page-head">
-        <h1>{server.name} 에이전트 설치</h1>
-      </div>
       <div className="token">
         <p className="token-notice">
           <strong>다시 볼 수 없음.</strong> 이 토큰은 지금 한 번만 표시됩니다. 이 화면을 떠나기 전에 복사해 두세요.
         </p>
-        <h2>에이전트 토큰</h2>
+        <h2 className="section-title">에이전트 토큰</h2>
         <Copyable text={agentToken} />
-        <h2>설치 명령어</h2>
+        <h2 className="section-title">설치 명령어</h2>
         <p>서버 터미널에서 실행하고, 토큰을 물으면 위 토큰을 붙여 넣으세요. 설치가 중간에 실패해도 토큰은 그대로 쓸 수 있습니다.</p>
         <Copyable text={installCommand} />
-        <Link to={`/servers/${server.id}`} className="button button-primary">
+        <Link to={`/servers/${server.id}`} className="btn btn-go">
           서버 화면으로 이동
         </Link>
       </div>
-    </>
+    </Panel>
   );
 }
 
@@ -134,7 +128,7 @@ function Copyable({ text }: { text: string }) {
       <pre translate="no">
         <code>{text}</code>
       </pre>
-      <button type="button" className="button" onClick={copy}>
+      <button type="button" className="btn" onClick={copy}>
         {copied ? "복사됨" : "복사"}
       </button>
     </div>

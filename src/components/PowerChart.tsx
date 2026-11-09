@@ -116,16 +116,11 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
               {(showDays ? day : time).format(tick)}
             </text>
           ))}
-          <g key={showDays ? "days" : `${metrics.length > 400 ? "day" : "hour"}`} className="chart-sweep">
           {runs.map((run) =>
             run.points.length === 1 ? (
               <circle key={run.points[0].ts} className="chart-point" r={3} cx={x(Date.parse(run.points[0].ts))} cy={y(run.points[0].watts)} />
             ) : (
               <g key={run.points[0].ts}>
-                <polygon
-                  className="chart-area"
-                  points={`${x(Date.parse(run.points[0].ts))},${y(0)} ${run.points.map((m) => `${x(Date.parse(m.ts))},${y(m.watts)}`).join(" ")} ${x(Date.parse(run.points.at(-1)!.ts))},${y(0)}`}
-                />
                 <polyline
                   className={run.estimated ? "chart-line chart-line-estimated" : "chart-line"}
                   points={run.points.map((m) => `${x(Date.parse(m.ts))},${y(m.watts)}`).join(" ")}
@@ -133,7 +128,6 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
               </g>
             ),
           )}
-          </g>
           <text
             className="chart-peak"
             x={Math.max(MARGIN.left + 4, Math.min(peakX, width - MARGIN.right - 4))}
@@ -143,8 +137,6 @@ export function PowerChart({ metrics, showDays, windowMs }: { metrics: Metric[];
             최고 {formatNumber(peak.watts)}W
           </text>
           {picked !== null && <line className="chart-cursor" x1={x(times[index])} x2={x(times[index])} y1={MARGIN.top} y2={MARGIN.top + plotHeight} />}
-          {/* Keyed by sample, so the ring fires once per reading the agent sends. */}
-          {picked === null && <circle key={active.ts} className="chart-ping" r={4} cx={x(times[index])} cy={y(active.watts)} />}
           <circle className="chart-marker" r={4} cx={x(times[index])} cy={y(active.watts)} />
         </svg>
       </div>
