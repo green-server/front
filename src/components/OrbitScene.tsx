@@ -226,6 +226,12 @@ export function OrbitScene() {
     const markDirty = () => void (dirty = true);
     let width = 1;
     let height = 1;
+    // Left edge of the open panel in CSS px, read when the layout can change rather than per frame.
+    let panelLeft: number | null = null;
+    const measurePanel = () => {
+      const node = document.querySelector<HTMLElement>(".panel");
+      panelLeft = node ? node.offsetLeft : null;
+    };
     const resize = () => {
       width = el.clientWidth;
       height = el.clientHeight;
@@ -236,6 +242,7 @@ export function OrbitScene() {
       camera.position.z = narrow ? 8 : 6.2;
       planet.position.y = narrow ? 0.9 : 0;
       showRing();
+      measurePanel();
       camera.updateProjectionMatrix();
       dirty = true;
     };
@@ -249,13 +256,19 @@ export function OrbitScene() {
     const target = () => {
       const { panel, auth } = getOrbit();
       if (narrow) return { x: 0, scale: 1 };
-      if (panel) return { x: -1.6, scale: 0.8 };
+      // A panel open: the planet centres in the space left of it, sized to fit, so page zoom
+      // and window width move it with the panel.
+      if (panel) {
+        const free = panelLeft ?? width * 0.4;
+        return { x: (free / 2 - width / 2) * unitsPerPx(), scale: Math.min(0.8, free * 0.36 * unitsPerPx()) };
+      }
       // Sign-in: the planet centres in the left half (auth.css centres the card in the right),
       // shrinking on narrow windows so it stays inside its half.
       if (auth) return { x: -(width / 4) * unitsPerPx(), scale: Math.min(1, width * 0.2 * unitsPerPx()) };
       return { x: 0, scale: 1 };
     };
     const onOrbit = () => {
+      measurePanel();
       placeSatellites();
       placePin();
       markDirty();
