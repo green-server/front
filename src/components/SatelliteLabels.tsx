@@ -1,7 +1,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { Link } from "react-router";
 import { Power } from "@/components/Power";
-import { getLabelPositions, getOrbit, subscribeFrame, subscribeOrbit } from "@/lib/orbit";
+import { getLabelPositions, getOrbit, setOrbit, subscribeFrame, subscribeOrbit } from "@/lib/orbit";
 import "@/styles/scene.css";
 
 /**
@@ -30,6 +30,9 @@ export function SatelliteLabels() {
     return subscribeFrame(place);
   }, [panel, satellites]);
 
+  // Leaving the home view mid-hover must not leave the place blinking.
+  useEffect(() => () => setOrbit({ hover: null }), []);
+
   if (panel) return null;
   const hiddenCount = satellites.filter((s) => !s.labelled).length;
   return (
@@ -42,6 +45,10 @@ export function SatelliteLabels() {
             to={`/servers/${s.id}`}
             className={`sat-label${s.online ? "" : " is-offline"}`}
             hidden
+            onPointerEnter={() => s.location && setOrbit({ hover: s.location })}
+            onPointerLeave={() => setOrbit({ hover: null })}
+            onFocus={() => s.location && setOrbit({ hover: s.location })}
+            onBlur={() => setOrbit({ hover: null })}
             ref={(el) => {
               if (el) labels.current.set(s.id, el);
               else labels.current.delete(s.id);

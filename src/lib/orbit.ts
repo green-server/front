@@ -25,6 +25,7 @@ export type Satellite = {
   angle: number;
   size: number;
   labelled: boolean;
+  location: Pin | null;
 };
 
 export const MAX_LABELS = 8;
@@ -46,6 +47,7 @@ export function layoutSatellites(servers: ServerSummary[]): Satellite[] {
     angle: (i / sorted.length) * 2 * Math.PI,
     size: s.online ? Math.min(1.6, 0.6 + (s.latestWatts ?? 0) / max) : 0.6,
     labelled: top.has(s.id),
+    location: s.location && { lat: s.location.lat, lon: s.location.lon },
   }));
 }
 
@@ -71,9 +73,10 @@ export function planetBlight(activity: ActivityReport | undefined): number {
 // Read every frame by the scene; React writes it.
 // `auth`: the sign-in card takes the right half, so the planet centres in the left.
 // `pin`: the open server's place; the planet stops and turns it to face the viewer.
+// `hover`: a satellite under the pointer; its place takes over the pin and blinks.
 export type Pin = { lat: number; lon: number };
-export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; auth: boolean; pin: Pin | null };
-let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, auth: false, pin: null };
+export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; auth: boolean; pin: Pin | null; hover: Pin | null };
+let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, auth: false, pin: null, hover: null };
 const listeners = new Set<() => void>();
 export const getOrbit = () => state;
 export function setOrbit(patch: Partial<OrbitState>) {

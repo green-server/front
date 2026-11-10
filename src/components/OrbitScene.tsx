@@ -12,6 +12,8 @@ const NARROW = 760;
 // Live global cloud cover, a geostationary satellite composite refreshed about every 3 hours.
 const LIVE_CLOUDS = "https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg";
 const CLOUD_REFRESH = 3 * 3600_000;
+const PIN_DIM = new THREE.Color(0x166534);
+const PIN_BRIGHT = new THREE.Color(0x86efac);
 
 /**
  * The one scene behind every page: the planet, whose seas, forests and air follow the fleet's
@@ -133,8 +135,11 @@ export function OrbitScene() {
     pin.visible = false;
     surface.add(pin);
     let pinned: OrbitState["pin"] = null;
+    let blinking = false;
     const placePin = () => {
-      const next = getOrbit().pin;
+      const { pin: open, hover } = getOrbit();
+      blinking = hover !== null;
+      const next = hover ?? open;
       if (next === pinned) return;
       pinned = next;
       pin.visible = next !== null;
@@ -251,7 +256,6 @@ export function OrbitScene() {
       return { x: 0, scale: 1 };
     };
     const onOrbit = () => {
-      el.classList.toggle("is-dim", getOrbit().panel);
       placeSatellites();
       placePin();
       markDirty();
@@ -305,6 +309,10 @@ export function OrbitScene() {
       }
       // Clouds are pinned to the map they were photographed on, so they turn with the ground.
       clouds.rotation.y = surface.rotation.y;
+      // A hovered satellite's place blinks; reduced motion shows it steady.
+      const pulse = blinking && !still.matches ? 0.5 + 0.5 * Math.sin(clock.elapsedTime * 9) : 1;
+      pinDot.scale.setScalar(0.028 * (0.8 + 0.6 * pulse));
+      pinMaterial.color.lerpColors(PIN_DIM, PIN_BRIGHT, pulse);
       if (!still.matches) {
         stars.rotation.y += dt * 0.002;
         spin.rotation.y += dt * 0.02;
