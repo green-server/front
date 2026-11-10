@@ -81,6 +81,9 @@
 .home-figures dd {
   margin: 0;
 }
+.home-figures .is-more .power-value {
+  color: var(--warn);
+}
 .home-figures > div:last-child {
   text-align: right;
 }

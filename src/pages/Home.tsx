@@ -74,7 +74,8 @@ export default function Home() {
         <dl className="home-figures">
           <div>
             <dt>지금 전체 전력</dt>
-            <dd>
+            {/* Amber once the fleet draws more than its 7-day average, like the line above. */}
+            <dd className={change !== null && change > 0 ? "is-more" : undefined}>
               {/* Nothing online means no reading, not a measured zero. */}
               {reading.length > 0 ? (
                 <Power value={watts} estimated={reading.some(isServerEstimated)} size="xl" />
