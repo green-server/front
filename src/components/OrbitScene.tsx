@@ -283,6 +283,51 @@ export function OrbitScene() {
     const centre = new THREE.Vector3();
     const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * width, ((1 - v.y) / 2) * height, 0);
     const clock = new THREE.Clock();
+
+    // Mouse drag turns the planet: the point under the cursor follows it. Window listeners, since
+    // the page sits above the scene; drags that start on a control or a panel are left alone.
+    const ray = new THREE.Raycaster();
+    const ball = new THREE.Sphere();
+    const ndc = new THREE.Vector2();
+    const overPlanet = (e: PointerEvent) => {
+      const box = el.getBoundingClientRect();
+      ndc.set(((e.clientX - box.left) / width) * 2 - 1, -((e.clientY - box.top) / height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      planet.getWorldPosition(ball.center);
+      ball.radius = world.scale.x;
+      return ray.ray.intersectsSphere(ball);
+    };
+    const onControl = (e: PointerEvent) =>
+      e.target instanceof Element && !!e.target.closest("a, button, input, textarea, select, label, .panel, .home-notice");
+    let drag: { x: number; y: number } | null = null;
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch" || e.button !== 0 || narrow || onControl(e) || !overPlanet(e)) return;
+      drag = { x: e.clientX, y: e.clientY };
+      document.documentElement.style.cursor = "grabbing";
+      e.preventDefault();
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!drag) {
+        if (e.pointerType !== "touch" && !narrow) {
+          document.documentElement.style.cursor = !onControl(e) && overPlanet(e) ? "grab" : "";
+        }
+        return;
+      }
+      const k = unitsPerPx() / world.scale.x; // arc length over radius
+      surface.rotation.y += (e.clientX - drag.x) * k;
+      globe.rotation.x = THREE.MathUtils.clamp(globe.rotation.x + (e.clientY - drag.y) * k, -1.2, 1.2);
+      drag = { x: e.clientX, y: e.clientY };
+      markDirty();
+    };
+    const onUp = () => {
+      if (!drag) return;
+      drag = null;
+      document.documentElement.style.cursor = "";
+    };
+    window.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     // Reduced motion draws only when something moved; a phone sheet covers the scene, so it draws nothing.
     // Off to the side the planet's visible centre faces the camera, not straight ahead: turn that much further.
     const pinGoal = (lon: number) => facing(lon) + Math.atan2(-target().x, camera.position.z);
@@ -310,11 +355,13 @@ export function OrbitScene() {
       const k = still.matches ? 1 : Math.min(1, dt * 7);
       world.position.x += (goal.x - world.position.x) * k;
       world.scale.setScalar(world.scale.x + (goal.scale - world.scale.x) * k);
-      const ease = still.matches ? 1 : Math.min(1, dt * 3);
+      const ease = drag ? 0 : still.matches ? 1 : Math.min(1, dt * 3);
       const tilt = tiltGoal();
       globe.rotation.x += (tilt.x - globe.rotation.x) * ease;
       globe.rotation.z += (tilt.z - globe.rotation.z) * ease;
-      if (pinned) {
+      if (drag) {
+        // The hand holds the planet.
+      } else if (pinned) {
         // A server is open: the planet stops and turns its place to the front.
         surface.rotation.y += turn(surface.rotation.y, pinGoal(pinned.lon)) * ease;
       } else if (!still.matches) {
@@ -368,6 +415,11 @@ export function OrbitScene() {
       liveMap?.dispose();
       unsubscribe();
       observer.disconnect();
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      document.documentElement.style.cursor = "";
       positions.clear();
       publishFrame();
       [sphere, starGeometry, ringGeometry, dot, pinGeometry].forEach((g) => g.dispose());
