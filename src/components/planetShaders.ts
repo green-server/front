@@ -1,7 +1,7 @@
 // Earth from NASA Blue Marble-based maps (three.js example textures, public/earth/).
 // The real planet is the 7-day-average look; above the average its land dries toward desert,
 // its seas turn murky and its air hazes orange. Unfixed waste (open recommendations) blights it:
-// ashen dead land, black seas and a grey smog.
+// ashen dead land, black seas and dirty clouds.
 
 export const VERTEX = /* glsl */ `
 varying vec2 vUv;
@@ -76,8 +76,7 @@ void main() {
   vec4 map = texture2D(cloudMap, vUv);
   float c = mix(map.a, smoothstep(0.45, 0.95, map.r), liveClouds);
   float alpha = c * mix(0.95, 0.45, dryness());
-  // Smog: a thin brown-grey veil everywhere, clouds turned dirty.
-  alpha = max(alpha, blight * 0.35);
+  // Blight turns the clouds dirty; no veil over the whole planet, which read as blur.
   vec3 tint = mix(vec3(1.0), vec3(0.55, 0.5, 0.42), blight);
   float lit = smoothstep(-0.1, 0.4, dot(normalize(vNormal), sun));
   gl_FragColor = vec4(tint * max(lit, 0.28), alpha * (0.45 + 0.55 * lit));
