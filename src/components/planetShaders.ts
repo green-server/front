@@ -57,7 +57,7 @@ void main() {
   vec3 air = mix(mix(vec3(0.4, 0.7, 1.0), vec3(1.0, 0.6, 0.3), dry), vec3(0.45, 0.42, 0.36), blight);
 
   // Night side keeps a faint bluish moonlight so the continents still read.
-  vec3 moon = vec3(0.16, 0.19, 0.26) * (1.0 - lit);
+  vec3 moon = vec3(0.26, 0.3, 0.4) * (1.0 - lit);
   vec3 outColor = color * (lit + moon) + glint + night * 1.2 + air * rim * lit * 0.45;
   gl_FragColor = vec4(outColor, 1.0);
 }
@@ -80,7 +80,7 @@ void main() {
   alpha = max(alpha, blight * 0.35);
   vec3 tint = mix(vec3(1.0), vec3(0.55, 0.5, 0.42), blight);
   float lit = smoothstep(-0.1, 0.4, dot(normalize(vNormal), sun));
-  gl_FragColor = vec4(tint * max(lit, 0.18), alpha * (0.35 + 0.65 * lit));
+  gl_FragColor = vec4(tint * max(lit, 0.28), alpha * (0.45 + 0.55 * lit));
 }
 `;
 
