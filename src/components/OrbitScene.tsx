@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { getLabelPositions, getOrbit, publishFrame, subscribeOrbit, type Satellite } from "@/lib/orbit";
+import { getLabelPositions, getOrbit, publishFrame, subscribeOrbit, type OrbitState, type Satellite } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
 import { CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
@@ -53,12 +53,17 @@ export function OrbitScene() {
 
     // The real sun: its overhead point in the globe's own frame, turned into the scene each frame.
     const sunLocal = new THREE.Vector3();
-    const placeSun = () => {
-      const { lat, lon } = subsolar(new Date());
+    // A place in the globe's own frame. Matches SphereGeometry's UVs: longitude L sits at (cos L, 0, -sin L).
+    const toLocal = (lat: number, lon: number, v: THREE.Vector3) => {
       const b = THREE.MathUtils.degToRad(lat);
       const l = THREE.MathUtils.degToRad(lon);
-      // Matches SphereGeometry's UVs: longitude L sits at (cos L, 0, -sin L).
-      sunLocal.set(Math.cos(b) * Math.cos(l), Math.sin(b), -Math.cos(b) * Math.sin(l));
+      return v.set(Math.cos(b) * Math.cos(l), Math.sin(b), -Math.cos(b) * Math.sin(l));
+    };
+    // Surface turn that brings longitude `lon` to face the camera.
+    const facing = (lon: number) => Math.PI / 2 - Math.PI * 2 * (0.5 + lon / 360);
+    const placeSun = () => {
+      const { lat, lon } = subsolar(new Date());
+      toLocal(lat, lon, sunLocal);
     };
     placeSun();
     const sun = new THREE.Vector3();
@@ -103,7 +108,8 @@ export function OrbitScene() {
     const sphere = new THREE.SphereGeometry(1, 128, 96);
 
     const globe = new THREE.Group();
-    globe.rotation.z = 0.41; // Earth's axial tilt.
+    const TILT = 0.41; // Earth's axial tilt, for show; a pinned place straightens it.
+    globe.rotation.z = TILT;
     const surface = new THREE.Mesh(sphere, new THREE.ShaderMaterial({ uniforms, vertexShader: VERTEX, fragmentShader: SURFACE }));
     const clouds = new THREE.Mesh(
       sphere,
@@ -111,8 +117,34 @@ export function OrbitScene() {
     );
     clouds.scale.setScalar(1.012);
     // Start with Korea (127°E) facing the viewer.
-    surface.rotation.y = clouds.rotation.y = Math.PI / 2 - Math.PI * 2 * (0.5 + 127 / 360);
+    surface.rotation.y = clouds.rotation.y = facing(127);
     globe.add(surface, clouds);
+
+    // The open server's place: a green dot on a dark rim, riding the surface.
+    const pinGeometry = new THREE.SphereGeometry(1, 16, 12);
+    const pinMaterial = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
+    const pinRimMaterial = new THREE.MeshBasicMaterial({ color: 0x05080d });
+    const pin = new THREE.Group();
+    const pinDot = new THREE.Mesh(pinGeometry, pinMaterial);
+    pinDot.scale.setScalar(0.028);
+    const pinRim = new THREE.Mesh(pinGeometry, pinRimMaterial);
+    pinRim.scale.setScalar(0.04);
+    pin.add(pinRim, pinDot);
+    pin.visible = false;
+    surface.add(pin);
+    let pinned: OrbitState["pin"] = null;
+    const placePin = () => {
+      const next = getOrbit().pin;
+      if (next === pinned) return;
+      pinned = next;
+      pin.visible = next !== null;
+      if (!next) return;
+      toLocal(next.lat, next.lon, pin.position).multiplyScalar(1.02);
+      // The dot sits a little further out than its rim, so the rim reads as an outline.
+      pinDot.position.copy(pin.position).normalize().multiplyScalar(0.02);
+    };
+    // Shortest signed turn from `from` to `to`.
+    const turn = (from: number, to: number) => ((((to - from + Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI;
 
     const halo = new THREE.Mesh(
       sphere,
@@ -221,6 +253,7 @@ export function OrbitScene() {
     const onOrbit = () => {
       el.classList.toggle("is-dim", getOrbit().panel);
       placeSatellites();
+      placePin();
       markDirty();
     };
     onOrbit();
@@ -234,6 +267,10 @@ export function OrbitScene() {
     const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * width, ((1 - v.y) / 2) * height, 0);
     const clock = new THREE.Clock();
     // Reduced motion draws only when something moved; a phone sheet covers the scene, so it draws nothing.
+    // Off to the side the planet's visible centre faces the camera, not straight ahead: turn that much further.
+    const pinGoal = (lon: number) => facing(lon) + Math.atan2(-target().x, camera.position.z);
+    // Pinned: no axial tilt, and the place's latitude tipped toward the viewer.
+    const tiltGoal = () => (pinned ? { x: THREE.MathUtils.degToRad(pinned.lat), z: 0 } : { x: 0, z: TILT });
     const frame = () => {
       const covered = narrow && getOrbit().panel;
       if (covered) return;
@@ -241,7 +278,10 @@ export function OrbitScene() {
         Math.abs(getOrbit().health - uniforms.health.value) > 1e-3 ||
         Math.abs(getOrbit().blight - uniforms.blight.value) > 1e-3 ||
         Math.abs(target().x - world.position.x) > 1e-3 ||
-        Math.abs(target().scale - world.scale.x) > 1e-3;
+        Math.abs(target().scale - world.scale.x) > 1e-3 ||
+        (pinned !== null && Math.abs(turn(surface.rotation.y, pinGoal(pinned.lon))) > 1e-3) ||
+        Math.abs(tiltGoal().x - globe.rotation.x) > 1e-3 ||
+        Math.abs(tiltGoal().z - globe.rotation.z) > 1e-3;
       if (still.matches && !dirty && !settling) return;
       dirty = false;
       const dt = Math.min(clock.getDelta(), 0.1);
@@ -253,10 +293,19 @@ export function OrbitScene() {
       const k = still.matches ? 1 : Math.min(1, dt * 7);
       world.position.x += (goal.x - world.position.x) * k;
       world.scale.setScalar(world.scale.x + (goal.scale - world.scale.x) * k);
-      if (!still.matches) {
-        // Clouds are pinned to the map they were photographed on, so they turn with the ground.
+      const ease = still.matches ? 1 : Math.min(1, dt * 3);
+      const tilt = tiltGoal();
+      globe.rotation.x += (tilt.x - globe.rotation.x) * ease;
+      globe.rotation.z += (tilt.z - globe.rotation.z) * ease;
+      if (pinned) {
+        // A server is open: the planet stops and turns its place to the front.
+        surface.rotation.y += turn(surface.rotation.y, pinGoal(pinned.lon)) * ease;
+      } else if (!still.matches) {
         surface.rotation.y += dt * 0.035;
-        clouds.rotation.y = surface.rotation.y;
+      }
+      // Clouds are pinned to the map they were photographed on, so they turn with the ground.
+      clouds.rotation.y = surface.rotation.y;
+      if (!still.matches) {
         stars.rotation.y += dt * 0.002;
         spin.rotation.y += dt * 0.02;
       }
@@ -300,9 +349,9 @@ export function OrbitScene() {
       observer.disconnect();
       positions.clear();
       publishFrame();
-      [sphere, starGeometry, ringGeometry, dot].forEach((g) => g.dispose());
+      [sphere, starGeometry, ringGeometry, dot, pinGeometry].forEach((g) => g.dispose());
       [surface, clouds, halo, stars].forEach((o) => (o.material as THREE.Material).dispose());
-      [ringMaterial, onlineMaterial, offlineMaterial].forEach((m) => m.dispose());
+      [ringMaterial, onlineMaterial, offlineMaterial, pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       renderer.dispose();
       renderer.domElement.remove();

@@ -5,7 +5,7 @@ import type { ServerSummary } from "./types.ts";
 
 const server = (id: number, watts: number | null, over: Partial<ServerSummary> = {}): ServerSummary => ({
   id, name: `s${id}`, kind: "baremetal", ratePlan: "home_tiered", householdKwh: 300, powerSource: "measured",
-  lastSeenAt: null, createdAt: "", online: true, latestWatts: watts, weekWatts: 100, isEstimated: false,
+  lastSeenAt: null, location: null, createdAt: "", online: true, latestWatts: watts, weekWatts: 100, isEstimated: false,
   monthlyKwh: 0, monthlyKrw: 0, monthlyCo2Kg: 0, ...over,
 });
 

@@ -12,6 +12,8 @@ export type Server = ServerInput & {
   id: number;
   powerSource: "measured" | "estimated";
   lastSeenAt: string | null;
+  /** City-level guess from the agent's public IP; null for private networks or a failed lookup. */
+  location: { lat: number; lon: number; label: string } | null;
   createdAt: string;
 };
 export type ServerSummary = Server & {

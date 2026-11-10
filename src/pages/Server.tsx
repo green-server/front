@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useNavigate, useParams } from "react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Panel } from "@/components/Panel";
 import { PowerChart } from "@/components/PowerChart";
 import { Power } from "@/components/Power";
@@ -21,6 +21,7 @@ import {
   upsertById,
 } from "@/lib/format";
 import { useLive } from "@/lib/live";
+import { setOrbit } from "@/lib/orbit";
 import "@/styles/server.css";
 import type { Consultation, Metric, ProcessSample, Recommendation, ServerSummary } from "@/lib/types";
 
@@ -49,6 +50,15 @@ function ServerPageBody() {
     }
   });
 
+  // Mark the server's place on the planet while its page is open.
+  const lat = server?.location?.lat;
+  const lon = server?.location?.lon;
+  useEffect(() => {
+    if (lat === undefined || lon === undefined) return;
+    setOrbit({ pin: { lat, lon } });
+    return () => setOrbit({ pin: null });
+  }, [lat, lon]);
+
   if (error)
     return (
       <Panel title="서버" back={{ to: "/servers", label: "서버" }}>
@@ -70,6 +80,7 @@ function ServerPageBody() {
       <p className="server-state">
         {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
         {!server.online && server.lastSeenAt && <span className="muted"> · 마지막 연결 {formatDateTime(server.lastSeenAt)}</span>}
+        {server.location && <span className="muted"> · {server.location.label || "위치"} (IP 추정)</span>}
       </p>
       {server.online ? <Power value={server.latestWatts} estimated={estimated} size="xl" /> : <span className="figure-lg muted">꺼짐</span>}
       {!estimated && <p className="muted note">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</p>}
