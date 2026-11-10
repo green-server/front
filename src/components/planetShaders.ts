@@ -56,7 +56,9 @@ void main() {
   float rim = pow(1.0 - max(dot(n, vView), 0.0), 3.0);
   vec3 air = mix(mix(vec3(0.4, 0.7, 1.0), vec3(1.0, 0.6, 0.3), dry), vec3(0.45, 0.42, 0.36), blight);
 
-  vec3 outColor = color * (0.02 + 0.98 * lit) + glint + night + air * rim * lit * 0.45;
+  // Night side keeps a faint bluish moonlight so the continents still read.
+  vec3 moon = vec3(0.16, 0.19, 0.26) * (1.0 - lit);
+  vec3 outColor = color * (lit + moon) + glint + night * 1.2 + air * rim * lit * 0.45;
   gl_FragColor = vec4(outColor, 1.0);
 }
 `;
@@ -78,7 +80,7 @@ void main() {
   alpha = max(alpha, blight * 0.35);
   vec3 tint = mix(vec3(1.0), vec3(0.55, 0.5, 0.42), blight);
   float lit = smoothstep(-0.1, 0.4, dot(normalize(vNormal), sun));
-  gl_FragColor = vec4(tint * lit, alpha * (0.1 + 0.9 * lit));
+  gl_FragColor = vec4(tint * max(lit, 0.18), alpha * (0.35 + 0.65 * lit));
 }
 `;
 
