@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
-import { setOrbit } from "@/lib/orbit";
+import { setScene } from "@/lib/scene";
 
 export function Panel({
   title,
@@ -17,8 +17,8 @@ export function Panel({
   const navigate = useNavigate();
 
   useEffect(() => {
-    setOrbit({ panel: true });
-    return () => setOrbit({ panel: false });
+    setScene({ panel: true });
+    return () => setScene({ panel: false });
   }, []);
 
   useEffect(() => {

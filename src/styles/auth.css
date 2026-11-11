@@ -11,7 +11,7 @@
 }
 .auth-card {
   top: 50%;
-  /* Centred in the right half; the planet centres in the left. */
+  /* Centred in the right half; the tree stands in the left. */
   left: 75%;
   width: 340px;
   transform: translate(-50%, -50%);
@@ -43,12 +43,12 @@
 }
 
 @media (max-width: 759.98px) {
-  /* In flow below the planet, so the page scrolls when the keyboard opens. */
+  /* In flow below the tree, so the page scrolls when the keyboard opens. */
   .auth-card {
     position: relative;
     inset: auto;
     width: auto;
-    margin: 52vh 16px 16px;
+    margin: calc(var(--bar-h) + 40vh) 16px 16px;
     transform: none;
   }
 }

@@ -33,7 +33,7 @@
   min-height: 32px;
 }
 .report-filter [aria-pressed="true"] {
-  background: rgb(255 255 255 / 0.1);
+  background: rgb(38 48 31 / 0.1);
 }
 .call-group {
   padding: 12px 0;

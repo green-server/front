@@ -7,20 +7,18 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/format.test.ts src/lib/orbit.test.ts src/lib/sun.test.ts"
+    "test": "node --test --experimental-strip-types src/lib/format.test.ts src/lib/scene.test.ts src/lib/tree.test.ts"
   },
   "dependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router": "^7.18.5",
-    "three": "^0.181.2"
+    "react-router": "^7.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/three": "^0.181.0",
     "@vitejs/plugin-react": "^5.2.0",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^7.1.1",

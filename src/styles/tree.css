@@ -1,0 +1,176 @@
+/* The tree behind every page; see components/TreeStage.tsx. Placed by CSS alone, so window
+   size and browser zoom move it with the panel. */
+.tree-stage {
+  position: fixed;
+  inset: calc(var(--bar-h) + var(--notice-h)) 0 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transition: right 0.5s ease;
+}
+/* A panel takes the right side; the tree stands in what is left. */
+.tree-stage.is-panel {
+  right: calc(min(60vw, 880px) + 32px);
+}
+/* Sign-in: the card takes the right half. */
+.tree-stage.is-auth {
+  inset: 0 50% 0 0;
+}
+
+.tree-box {
+  position: relative;
+  width: min(66vh, 92%);
+  aspect-ratio: 1;
+}
+.tree-stage.is-panel .tree-box {
+  width: min(58vh, 92%);
+}
+
+.tree {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.tree-crown {
+  transform-origin: 200px 374px;
+  animation: tree-sway 6s ease-in-out infinite alternate;
+}
+@keyframes tree-sway {
+  from {
+    transform: rotate(-1deg);
+  }
+  to {
+    transform: rotate(1deg);
+  }
+}
+.tree-leaf {
+  transition: fill 1s ease;
+}
+.tree-fade {
+  animation: tree-fade-in 1s ease;
+}
+@keyframes tree-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.tree-falling {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tree-fall 6.6s ease-in infinite;
+  opacity: 0;
+}
+@keyframes tree-fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(24px, 210px) rotate(220deg);
+  }
+}
+
+/* Fruits are links laid over the drawing at their slot. */
+.fruit {
+  position: absolute;
+  translate: -50% -50%;
+  border: 2px solid #9a6a17;
+  border-radius: 50%;
+  background: #e8b43a;
+  pointer-events: auto;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.fruit.is-offline {
+  border-color: #8d877a;
+  background: #c9c3b6;
+}
+.fruit:hover,
+.fruit:focus-visible {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink);
+  z-index: 2;
+}
+.fruit-label {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface);
+  translate: -50% 0;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.fruit:hover .fruit-label,
+.fruit:focus-visible .fruit-label {
+  transform: scale(0.8);
+  transform-origin: top center;
+}
+.fruit-name,
+.fruit-off {
+  color: var(--ink-2);
+}
+.fruit-more {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  translate: -50% 0;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+/* Phones: a band under the top bar; content scrolls below it. */
+@media (max-width: 759.98px) {
+  .tree-stage,
+  .tree-stage.is-panel,
+  .tree-stage.is-auth {
+    inset: calc(var(--bar-h) + var(--notice-h)) 0 auto;
+    height: 40vh;
+  }
+  .tree-box,
+  .tree-stage.is-panel .tree-box {
+    width: min(40vh, 92vw);
+  }
+  /* Too small for names; the server list below carries them. */
+  .fruit-label,
+  .fruit-more {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-stage,
+  .tree-leaf,
+  .fruit {
+    transition: none;
+  }
+  .tree-crown,
+  .tree-fade {
+    animation: none;
+  }
+  .tree-falling {
+    display: none;
+  }
+}

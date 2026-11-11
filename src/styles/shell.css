@@ -52,7 +52,7 @@
 }
 .pills a[aria-current="page"],
 .tabbar a[aria-current="page"] {
-  background: rgb(255 255 255 / 0.1);
+  background: rgb(38 48 31 / 0.1);
   color: var(--ink);
 }
 .topbar-end {
@@ -148,7 +148,7 @@ main#main {
 
 @media (max-width: 759.98px) {
   .topbar {
-    background: var(--space);
+    background: var(--paper);
     grid-template-columns: 1fr auto;
   }
   .pills,
@@ -163,7 +163,7 @@ main#main {
     grid-template-columns: repeat(4, 1fr);
     height: var(--tabs-h);
     border-top: 1px solid var(--line);
-    background: var(--space);
+    background: var(--paper);
   }
   .tabbar a {
     display: grid;
@@ -186,7 +186,7 @@ main#main {
     padding-top: calc(var(--bar-h) + 8px + var(--notice-h));
     border: 0;
     border-radius: 0;
-    background: var(--space);
+    background: var(--paper);
     animation-name: sheet-in;
   }
   @keyframes sheet-in {

@@ -1,4 +1,4 @@
-/* Home HUD over the orbit scene. Empty regions ignore the pointer so satellites stay clickable. */
+/* Home HUD over the tree. Empty regions ignore the pointer so fruits stay clickable. */
 .home,
 .home-empty {
   position: fixed;
@@ -105,32 +105,10 @@
 .home .home-list {
   display: none;
 }
-/* Without WebGL there are no satellites, so the servers are a plain list. */
-@media (min-width: 760px) {
-  .no-webgl .home .home-list {
-    position: absolute;
-    top: calc(72px + var(--notice-h));
-    left: 20px;
-    display: grid;
-    width: min(360px, calc(100vw - 40px));
-    padding: 4px 16px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--surface);
-  }
-  .no-webgl .home-list a {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    text-decoration: none;
-  }
-}
-
 @media (max-width: 759px) {
   .home {
     overflow-y: auto;
-    padding: calc(120px + var(--notice-h)) 16px 88px;
+    padding: calc(var(--bar-h) + 40vh + var(--notice-h)) 16px 88px;
     pointer-events: auto;
     display: flex;
     flex-direction: column;
@@ -159,8 +137,9 @@
     background: var(--surface);
   }
   .home-figures .power-value,
+  .home-figures .power-xl .power-value,
   .home-figures .figure-lg {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
   .home-krw {
     font-size: 1.375rem;

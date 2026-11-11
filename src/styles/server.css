@@ -178,7 +178,7 @@
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--space);
+  background: var(--paper);
   color: var(--ink-2);
   font-size: 0.75rem;
   line-height: 1.5;
@@ -313,7 +313,7 @@ details[open] .entry-title::before {
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: rgb(255 255 255 / 0.04);
+  background: rgb(38 48 31 / 0.04);
   font-size: 0.8125rem;
   white-space: pre-wrap;
   word-break: break-all;
