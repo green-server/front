@@ -110,30 +110,34 @@ void main() {
 }
 `;
 
-// Aurora: curtains of light circling both poles around 67° latitude, on a shell just above the
-// clouds. Rays shimmer along the curtain and the ring wanders; brighter on the night side.
+// Aurora: curtains of light circling both poles around 67° latitude. Each curtain is a stack of
+// shells (`height` 0 at the bottom, 1 at the top), about three times taller than the real thing so
+// it stands clear of the limb: teal at its foot, green through the body, fading violet at the top.
+// The rays line up through every shell, so they read as columns. Brighter on the night side;
 // `strength` fades the whole display in and out, so it only shows now and then.
 export const AURORA = /* glsl */ `
 uniform vec3 sun;
 uniform float time;
 uniform float strength;
+uniform float height;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vView;
 void main() {
   float lat = abs(vUv.y - 0.5) * 180.0;
   float lon = vUv.x * 6.2832;
-  float centre = 67.0 + 3.0 * sin(lon * 3.0 + time * 0.25) + 1.5 * sin(lon * 7.0 - time * 0.4);
-  float band = exp(-pow((lat - centre) / 4.0, 2.0));
-  float rays = 0.55 + 0.45 * sin(lon * 90.0 + time * 1.7 + 4.0 * sin(lon * 11.0 + time * 0.3));
+  // The curtain leans a little poleward as it rises.
+  float centre = 67.0 + 1.5 * height + 3.0 * sin(lon * 3.0 + time * 0.25) + 1.5 * sin(lon * 7.0 - time * 0.4);
+  float band = exp(-pow((lat - centre) / 3.5, 2.0));
+  float rays = 0.45 + 0.55 * sin(lon * 90.0 + time * 1.7 + 4.0 * sin(lon * 11.0 + time * 0.3));
   vec3 n = normalize(vNormal);
   float night = 1.0 - smoothstep(-0.15, 0.3, dot(n, sun));
-  // Seen edge-on at the limb the curtain is deepest, so it glows most there and rises past the edge.
+  // Seen edge-on at the limb the curtain is deepest, so it glows most there.
   float limb = pow(1.0 - abs(dot(n, vView)), 1.5);
-  // Green at the curtain's heart, teal below and a touch of violet at its upper edge.
-  vec3 color = mix(vec3(0.25, 1.0, 0.55), vec3(0.65, 0.35, 1.0), smoothstep(centre, centre + 3.0, lat));
-  color = mix(vec3(0.2, 0.85, 0.95), color, smoothstep(centre - 3.0, centre, lat));
-  float a = clamp(band * rays * strength * mix(0.5, 1.0, night) * (1.2 + 2.5 * limb), 0.0, 1.0);
+  vec3 color = mix(vec3(0.3, 1.0, 0.55), vec3(0.7, 0.35, 1.0), smoothstep(0.4, 1.0, height));
+  color = mix(vec3(0.2, 0.9, 0.95), color, smoothstep(0.0, 0.2, height));
+  float fade = pow(1.0 - height, 0.8);
+  float a = clamp(band * rays * strength * fade * mix(0.5, 1.0, night) * (0.5 + 2.5 * limb), 0.0, 1.0);
   gl_FragColor = vec4(color * a, a);
 }
 `;

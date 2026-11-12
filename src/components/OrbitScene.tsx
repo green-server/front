@@ -149,20 +149,26 @@ export function OrbitScene() {
     surface.add(pin);
 
     // Aurora over both poles, riding the surface; it shows for about 25 s in every 80.
+    // Seven stacked shells from 2% to 16% of the radius above the ground make one standing curtain.
     const auroraUniforms = { sun: uniforms.sun, time: { value: 0 }, strength: { value: 0 } };
-    const aurora = new THREE.Mesh(
-      sphere,
-      new THREE.ShaderMaterial({
-        uniforms: auroraUniforms,
-        vertexShader: VERTEX,
-        fragmentShader: AURORA,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    );
-    aurora.scale.setScalar(1.05);
-    surface.add(aurora);
+    const AURORA_LAYERS = 7;
+    const aurora = Array.from({ length: AURORA_LAYERS }, (_, i) => {
+      const height = i / (AURORA_LAYERS - 1);
+      const layer = new THREE.Mesh(
+        sphere,
+        new THREE.ShaderMaterial({
+          uniforms: { ...auroraUniforms, height: { value: height } },
+          vertexShader: VERTEX,
+          fragmentShader: AURORA,
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        }),
+      );
+      layer.scale.setScalar(1.02 + 0.14 * height);
+      surface.add(layer);
+      return layer;
+    });
     const AURORA_CYCLE = 80;
     // The first display starts about 15 s after load.
     const auroraStrength = (t: number) => {
@@ -453,7 +459,7 @@ export function OrbitScene() {
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
       [sphere, starGeometry, sparkleGeometry, pinGeometry, moonGeometry].forEach((g) => g.dispose());
-      [surface, clouds, halo, aurora, stars, sparkles, moon].forEach((o) => (o.material as THREE.Material).dispose());
+      [surface, clouds, halo, ...aurora, stars, sparkles, moon].forEach((o) => (o.material as THREE.Material).dispose());
       [pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       target3d.dispose();
