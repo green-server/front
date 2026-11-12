@@ -137,7 +137,7 @@ export function OrbitScene() {
 
     // The open server's place: a green dot on a dark rim, riding the surface.
     const pinGeometry = new THREE.SphereGeometry(1, 16, 12);
-    const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const pinMaterial = new THREE.MeshBasicMaterial({ color: 0x5fd7ff });
     const pinRimMaterial = new THREE.MeshBasicMaterial({ color: 0x05080d });
     const pin = new THREE.Group();
     const pinDot = new THREE.Mesh(pinGeometry, pinMaterial);
