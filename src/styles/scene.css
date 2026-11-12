@@ -28,78 +28,8 @@
   }
 }
 
-/* Satellite labels: placed by SatelliteLabels each frame, hanging under their dot. */
-.sat-labels {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.sat-label,
-.sat-more {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: auto;
-  text-decoration: none;
-  color: var(--ink);
-}
-
-.sat-label {
-  display: flex;
-  gap: 1ch;
-  margin: 1lh 0 0;
-  padding: 0 1ch;
-  background: var(--paper);
-  white-space: nowrap;
-  translate: -50% 0;
-  transition: opacity 0.3s;
-}
-
-.sat-label[hidden],
-.sat-more[hidden] {
-  display: none;
-}
-
-.sat-name,
-.sat-off {
-  color: var(--ink-2);
-}
-
-.sat-label:hover,
-.sat-label:focus-visible {
-  outline: 1px solid var(--ink);
-  outline-offset: 0;
-}
-.sat-label:hover .sat-name,
-.sat-label:focus-visible .sat-name {
-  color: var(--ink);
-}
-
-.sat-more {
-  left: 50%;
-  top: calc(50% + 34vh);
-  translate: -50% 0;
-  padding: 0 1ch;
-  background: var(--paper);
-}
-.sat-more::before {
-  content: "[";
-}
-.sat-more::after {
-  content: "]";
-}
-.sat-more:hover,
-.sat-more:focus-visible {
-  background: var(--ink);
-  color: var(--paper);
-  outline: 0;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .scene canvas,
-  .sat-label {
+  .scene canvas {
     transition: none;
   }
 }

@@ -18,46 +18,21 @@ export function planetHealth(servers: ServerSummary[] | undefined): number {
 
 export type Satellite = {
   id: number;
-  name: string;
-  watts: number | null;
-  estimated: boolean;
   online: boolean;
   angle: number;
   size: number;
-  labelled: boolean;
-  location: Pin | null;
 };
-
-export const MAX_LABELS = 8;
 
 /** Even spacing in server id order so positions stay put as readings change. */
 export function layoutSatellites(servers: ServerSummary[]): Satellite[] {
   const sorted = [...servers].sort((a, b) => a.id - b.id);
-  const draw = (s: ServerSummary) => (s.online ? (s.latestWatts ?? 0) : -1);
   const max = Math.max(1, ...sorted.filter((s) => s.online).map((s) => s.latestWatts ?? 0));
-  const top = new Set(
-    [...sorted].sort((a, b) => draw(b) - draw(a) || a.id - b.id).slice(0, MAX_LABELS).map((s) => s.id),
-  );
   return sorted.map((s, i) => ({
     id: s.id,
-    name: s.name,
-    watts: s.latestWatts,
-    estimated: !!s.isEstimated,
     online: s.online,
     angle: (i / sorted.length) * 2 * Math.PI,
     size: s.online ? Math.min(1.6, 0.6 + (s.latestWatts ?? 0) / max) : 0.6,
-    labelled: top.has(s.id),
-    location: s.location && { lat: s.location.lat, lon: s.location.lon },
   }));
-}
-
-/** Fleet draw against the 7-day average, e.g. -12 for 12% below; null without a baseline. */
-export function weekChangePct(servers: ServerSummary[] | undefined): number | null {
-  const tracked = servers?.filter((s) => s.weekWatts !== null && s.weekWatts > 0) ?? [];
-  const week = tracked.reduce((sum, s) => sum + (s.weekWatts ?? 0), 0);
-  if (week === 0 || !tracked.some((s) => s.online)) return null;
-  const now = tracked.reduce((sum, s) => sum + (s.online ? (s.latestWatts ?? 0) : 0), 0);
-  return Math.round((now / week - 1) * 100);
 }
 
 /**
@@ -73,10 +48,9 @@ export function planetBlight(activity: ActivityReport | undefined): number {
 // Read every frame by the scene; React writes it.
 // `auth`: the sign-in card takes the right half, so the planet centres in the left.
 // `pin`: the open server's place; the planet stops and turns it to face the viewer.
-// `hover`: a satellite under the pointer; its place takes over the pin and blinks.
 export type Pin = { lat: number; lon: number };
-export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; auth: boolean; pin: Pin | null; hover: Pin | null };
-let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, auth: false, pin: null, hover: null };
+export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; auth: boolean; pin: Pin | null };
+let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, auth: false, pin: null };
 const listeners = new Set<() => void>();
 export const getOrbit = () => state;
 export function setOrbit(patch: Partial<OrbitState>) {
@@ -87,16 +61,3 @@ export function subscribeOrbit(listener: () => void) {
   listeners.add(listener);
   return () => void listeners.delete(listener);
 }
-
-// Where the scene drew each satellite on its last frame, in CSS pixels. Kept here rather than in
-// OrbitScene so the labels can read it without pulling three.js into the main bundle.
-// Empty when nothing is drawn (no WebGL, narrow screens), which hides the labels.
-export type LabelPosition = { x: number; y: number; behind: boolean };
-const labelPositions = new Map<number, LabelPosition>();
-const frameListeners = new Set<() => void>();
-export const getLabelPositions = () => labelPositions;
-export function subscribeFrame(cb: () => void) {
-  frameListeners.add(cb);
-  return () => void frameListeners.delete(cb);
-}
-export const publishFrame = () => frameListeners.forEach((cb) => cb());

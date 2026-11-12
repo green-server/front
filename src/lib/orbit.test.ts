@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { layoutSatellites, planetBlight, planetHealth, weekChangePct, MAX_LABELS } from "./orbit.ts";
+import { layoutSatellites, planetBlight, planetHealth } from "./orbit.ts";
 import type { ServerSummary } from "./types.ts";
 
 const server = (id: number, watts: number | null, over: Partial<ServerSummary> = {}): ServerSummary => ({
@@ -15,24 +15,10 @@ test("satellites are evenly spaced in id order", () => {
   assert.ok(Math.abs(sats[1].angle - sats[0].angle - Math.PI / 2) < 1e-9);
 });
 
-test("only the highest-draw servers get labels", () => {
-  const list = Array.from({ length: 12 }, (_, i) => server(i + 1, i * 10));
-  const labelled = layoutSatellites(list).filter((s) => s.labelled).map((s) => s.id);
-  assert.equal(labelled.length, MAX_LABELS);
-  assert.deepEqual(labelled, [5, 6, 7, 8, 9, 10, 11, 12]);
-});
-
 test("size grows with draw and offline servers are smallest", () => {
   const [a, b, c] = layoutSatellites([server(1, 10), server(2, 100), server(3, 50, { online: false })]);
   assert.ok(b.size > a.size);
   assert.equal(c.size, 0.6);
-});
-
-test("week change compares online draw with the 7-day average", () => {
-  assert.equal(weekChangePct([server(1, 88), server(2, 88)]), -12);
-  assert.equal(weekChangePct([server(1, 50, { weekWatts: null })]), null);
-  // An all-offline fleet is an outage, not a saving.
-  assert.equal(weekChangePct([server(1, 50, { online: false }), server(2, 50, { online: false })]), null);
 });
 
 test("health is neutral when nothing tracked is online", () => {

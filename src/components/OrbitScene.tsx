@@ -1,19 +1,15 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { getLabelPositions, getOrbit, publishFrame, subscribeOrbit, type OrbitState, type Satellite } from "@/lib/orbit";
+import { getOrbit, subscribeOrbit, type OrbitState, type Satellite } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
 import { ASCII, ASCII_VERTEX, CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
-
-export { getLabelPositions, subscribeFrame } from "@/lib/orbit";
 
 const RING_RADIUS = 1.75;
 const NARROW = 760;
 // Live global cloud cover, a geostationary satellite composite refreshed about every 3 hours.
 const LIVE_CLOUDS = "https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg";
 const CLOUD_REFRESH = 3 * 3600_000;
-const PIN_DIM = new THREE.Color(0x555555);
-const PIN_BRIGHT = new THREE.Color(0xffffff);
 // The scene is shown as text: one glyph per cell of this size (CSS px), darkest to brightest.
 const CELL = { w: 5, h: 9 };
 const RAMP = " .:-=+*#%@";
@@ -50,21 +46,18 @@ export function OrbitScene() {
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
     } catch {
-      // No WebGL: a still of the planet; the labels stay hidden and the pages list the servers.
+      // No WebGL: a still of the planet.
       const img = document.createElement("img");
       img.src = "/planet.png";
       img.className = "scene-fallback";
       img.alt = "";
       el.appendChild(img);
-      // Lets the home page show its server list in place of the satellites.
-      document.documentElement.classList.add("no-webgl");
       const dim = () => el.classList.toggle("is-dim", getOrbit().panel);
       dim();
       const stop = subscribeOrbit(dim);
       return () => {
         stop();
         img.remove();
-        document.documentElement.classList.remove("no-webgl");
       };
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -149,18 +142,15 @@ export function OrbitScene() {
     const pinRimMaterial = new THREE.MeshBasicMaterial({ color: 0x05080d });
     const pin = new THREE.Group();
     const pinDot = new THREE.Mesh(pinGeometry, pinMaterial);
-    pinDot.scale.setScalar(0.028);
+    pinDot.scale.setScalar(0.039);
     const pinRim = new THREE.Mesh(pinGeometry, pinRimMaterial);
     pinRim.scale.setScalar(0.04);
     pin.add(pinRim, pinDot);
     pin.visible = false;
     surface.add(pin);
     let pinned: OrbitState["pin"] = null;
-    let blinking = false;
     const placePin = () => {
-      const { pin: open, hover } = getOrbit();
-      blinking = hover !== null;
-      const next = hover ?? open;
+      const next = getOrbit().pin;
       if (next === pinned) return;
       pinned = next;
       pin.visible = next !== null;
@@ -219,20 +209,17 @@ export function OrbitScene() {
     const showRing = () => {
       ring.visible = !narrow && drawn.length > 0;
     };
-    const dots = new Map<number, THREE.Mesh>();
     const placeSatellites = () => {
       const { satellites } = getOrbit();
       if (satellites === drawn) return;
       drawn = satellites;
       showRing();
       spin.clear();
-      dots.clear();
       for (const s of satellites) {
         const mesh = new THREE.Mesh(dot, s.online ? onlineMaterial : offlineMaterial);
         mesh.scale.setScalar(0.025 * s.size);
         mesh.position.set(Math.cos(s.angle) * RING_RADIUS, 0, Math.sin(s.angle) * RING_RADIUS);
         spin.add(mesh);
-        dots.set(s.id, mesh);
       }
     };
     placeSatellites();
@@ -327,12 +314,6 @@ export function OrbitScene() {
     onOrbit();
     const unsubscribe = subscribeOrbit(onOrbit);
 
-    const positions = getLabelPositions();
-    // Scratch vectors, reused every frame.
-    const world3 = new THREE.Vector3();
-    const edge = new THREE.Vector3();
-    const centre = new THREE.Vector3();
-    const toScreen = (v: THREE.Vector3) => v.project(camera).set(((v.x + 1) / 2) * width, ((1 - v.y) / 2) * height, 0);
     const clock = new THREE.Clock();
 
     // Mouse drag turns the planet: the point under the cursor follows it. Window listeners, since
@@ -349,7 +330,7 @@ export function OrbitScene() {
       return ray.ray.intersectsSphere(ball);
     };
     const onControl = (e: PointerEvent) =>
-      e.target instanceof Element && !!e.target.closest("a, button, input, textarea, select, label, .panel, .home-notice");
+      e.target instanceof Element && !!e.target.closest("a, button, input, textarea, select, label, .panel");
     let drag: { x: number; y: number } | null = null;
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === "touch" || e.button !== 0 || narrow || onControl(e) || !overPlanet(e)) return;
@@ -420,10 +401,6 @@ export function OrbitScene() {
       }
       // Clouds are pinned to the map they were photographed on, so they turn with the ground.
       clouds.rotation.y = surface.rotation.y;
-      // A hovered satellite's place blinks; reduced motion shows it steady.
-      const pulse = blinking && !still.matches ? 0.5 + 0.5 * Math.sin(clock.elapsedTime * 9) : 1;
-      pinDot.scale.setScalar(0.028 * (0.8 + 0.6 * pulse));
-      pinMaterial.color.lerpColors(PIN_DIM, PIN_BRIGHT, pulse);
       if (!still.matches) {
         stars.rotation.y += dt * 0.002;
         spin.rotation.y += dt * 0.02;
@@ -434,31 +411,6 @@ export function OrbitScene() {
       renderer.render(scene, camera);
       renderer.setRenderTarget(null);
       renderer.render(asciiScene, asciiCamera);
-
-      if (ring.visible) {
-        planet.getWorldPosition(centre);
-        edge.copy(centre).addScaledVector(camera.up, world.scale.x);
-        toScreen(centre);
-        const radius = toScreen(edge).distanceTo(centre);
-        for (const [id, mesh] of dots) {
-          mesh.getWorldPosition(world3);
-          const hidden = world3.z < 0;
-          const p = toScreen(world3);
-          const behind = hidden && p.distanceTo(centre) < radius;
-          const entry = positions.get(id);
-          if (entry) {
-            entry.x = p.x;
-            entry.y = p.y;
-            entry.behind = behind;
-          } else {
-            positions.set(id, { x: p.x, y: p.y, behind });
-          }
-        }
-        for (const id of positions.keys()) if (!dots.has(id)) positions.delete(id);
-      } else {
-        positions.clear();
-      }
-      publishFrame();
     };
     renderer.setAnimationLoop(frame);
 
@@ -474,8 +426,6 @@ export function OrbitScene() {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
-      positions.clear();
-      publishFrame();
       [sphere, starGeometry, ringGeometry, dot, pinGeometry].forEach((g) => g.dispose());
       [surface, clouds, halo, stars].forEach((o) => (o.material as THREE.Material).dispose());
       [ringMaterial, onlineMaterial, offlineMaterial, pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
