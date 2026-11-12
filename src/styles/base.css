@@ -15,13 +15,14 @@
 
 :root {
   color-scheme: dark;
-  --paper: #0c0f0a;
-  --surface: #0c0f0a;
-  --line: #56684f;
-  --ink: #cfe3c4;
-  --ink-2: #8fa385;
-  --go: #7ee07a;
-  --on-go: #0c0f0a;
+  /* Monochrome: colour is left to the planet and to risk (--warn, --bad). */
+  --paper: #0b0b0b;
+  --surface: #0b0b0b;
+  --line: #646464;
+  --ink: #e8e8e8;
+  --ink-2: #9a9a9a;
+  --go: #ffffff;
+  --on-go: #0b0b0b;
   --warn: #e0a640;
   --bad: #ff6b5e;
   --sans: "D2Coding", ui-monospace, "SFMono-Regular", Menlo, monospace;

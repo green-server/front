@@ -12,8 +12,8 @@ const NARROW = 760;
 // Live global cloud cover, a geostationary satellite composite refreshed about every 3 hours.
 const LIVE_CLOUDS = "https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg";
 const CLOUD_REFRESH = 3 * 3600_000;
-const PIN_DIM = new THREE.Color(0x166534);
-const PIN_BRIGHT = new THREE.Color(0x86efac);
+const PIN_DIM = new THREE.Color(0x555555);
+const PIN_BRIGHT = new THREE.Color(0xffffff);
 // The scene is shown as text: one glyph per cell of this size (CSS px), darkest to brightest.
 const CELL = { w: 5, h: 9 };
 const RAMP = " .:-=+*#%@";
@@ -145,7 +145,7 @@ export function OrbitScene() {
 
     // The open server's place: a green dot on a dark rim, riding the surface.
     const pinGeometry = new THREE.SphereGeometry(1, 16, 12);
-    const pinMaterial = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
+    const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const pinRimMaterial = new THREE.MeshBasicMaterial({ color: 0x05080d });
     const pin = new THREE.Group();
     const pinDot = new THREE.Mesh(pinGeometry, pinMaterial);
