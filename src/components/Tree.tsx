@@ -1,43 +1,73 @@
-import { DEAD_BRANCHES, LEAF_CLUSTERS, LITTER, type TreeState } from "@/lib/tree";
+import type { ReactNode } from "react";
+import { TREE_ART, TREE_MASK, cellPart, type TreeState } from "@/lib/tree";
 
-const GREENS = ["#5f9e54", "#6fae62", "#548f4a", "#79b86b"];
-const AUTUMN = ["#c9a443", "#d6b04c", "#b98f37", "#c2903a"];
-// Falling leaves start at the crown's rim, left to right.
-const FALL_FROM = [110, 300, 150, 260, 200, 128];
+const GREENS = ["#5fcf5a", "#7ee07a", "#4fb84b", "#96e88e"];
+const AUTUMN = ["#e0a640", "#ecb85a", "#c98a2e", "#e6c05c"];
+const BARK = "#b08a5a";
+const DEAD = "#8a7a66";
+const LITTER = ["#b0905e", "#9c7d50"];
+// Falling leaves start under the crown's rim, left to right.
+const FALL_FROM = [16, 31, 19, 28, 23, 15];
+const FALL_ROW = 15;
 
 function mix(a: string, b: string, t: number) {
   const ch = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
   return `rgb(${[0, 1, 2].map((i) => Math.round(ch(a, i) + (ch(b, i) - ch(a, i)) * t)).join(" ")})`;
 }
 
-/** The flat tree: trunk, crown, bare branches and litter, all from `state`. */
+/** The colour a cell is drawn in, or null when its part is hidden for this state. */
+function cellColor(tag: string, state: TreeState): string | null {
+  const part = cellPart(tag);
+  if (!part) return null;
+  if (part.kind === "trunk") return BARK;
+  if (part.kind === "leaf") return part.n < state.leaves ? mix(GREENS[part.n % 4], AUTUMN[part.n % 4], state.autumn) : null;
+  if (part.kind === "dead") return part.n < state.deadBranches ? DEAD : null;
+  return part.n < state.litter ? LITTER[part.n % 2] : null;
+}
+
+/** One line of the drawing, with runs of one colour joined into one span. */
+function Line({ row, state }: { row: number; state: TreeState }) {
+  const out: ReactNode[] = [];
+  let run = "";
+  let color: string | null = null;
+  const flush = () => {
+    if (run) out.push(color ? <span key={out.length} style={{ color }}>{run}</span> : run);
+    run = "";
+  };
+  [...TREE_ART[row]].forEach((ch, col) => {
+    const c = cellColor(TREE_MASK[row][col], state);
+    if (c !== color && c !== null) {
+      flush();
+      color = c;
+    }
+    run += c === null ? " " : ch;
+  });
+  flush();
+  return out;
+}
+
+/** The ASCII tree: trunk, crown, bare branches and litter, all from `state`. */
 export function Tree({ state }: { state: TreeState }) {
   const falling = Math.round(FALL_FROM.length * state.falling);
   return (
-    <svg className="tree" viewBox="0 0 400 400" aria-hidden="true">
-      <ellipse cx="200" cy="374" rx="150" ry="9" fill="#e2d8bf" />
-      {LITTER.slice(0, state.litter).map(([cx, rx], i) => (
-        <ellipse key={i} className="tree-fade" cx={cx} cy="371" rx={rx} ry="4.5" fill={i % 2 ? "#a8875a" : "#9c7d50"} />
-      ))}
-      <g className="tree-crown">
-        <path d="M188 374 C188 320 182 270 192 212 L208 212 C218 270 212 320 212 374 Z" fill="#8a6440" />
-        <path d="M196 262 C176 238 150 224 122 214 M204 248 C226 226 252 214 282 204 M198 228 C192 196 186 170 178 140 M202 226 C212 194 224 168 236 138" stroke="#8a6440" strokeWidth="9" strokeLinecap="round" fill="none" />
-        {LEAF_CLUSTERS.slice(0, state.leaves).map(([cx, cy, r], i) => (
-          <circle key={i} className="tree-leaf" cx={cx} cy={cy} r={r} fill={mix(GREENS[i % 4], AUTUMN[i % 4], state.autumn)} />
+    <>
+      <pre className="tree" aria-hidden="true">
+        {TREE_ART.map((_, row) => (
+          <div key={row}>
+            <Line row={row} state={state} />
+          </div>
         ))}
-        {DEAD_BRANCHES.slice(0, state.deadBranches).map((d, i) => (
-          <path key={i} className="tree-fade" d={d} stroke="#6e5a44" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        ))}
-      </g>
-      {FALL_FROM.slice(0, falling).map((x, i) => (
-        <path
+      </pre>
+      {FALL_FROM.slice(0, falling).map((col, i) => (
+        <span
           key={i}
           className="tree-falling"
-          style={{ animationDelay: `${i * 1.1}s` }}
-          d={`M${x} 150 q-7 -9 0 -16 q7 7 0 16 Z`}
-          fill={AUTUMN[i % 4]}
-        />
+          aria-hidden="true"
+          style={{ left: `${col}ch`, top: `${FALL_ROW}lh`, color: AUTUMN[i % 4], animationDelay: `${i * 1.1}s` }}
+        >
+          '
+        </span>
       ))}
-    </svg>
+    </>
   );
 }

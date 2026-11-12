@@ -1,13 +1,14 @@
 /* The tree behind every page; see components/TreeStage.tsx. Placed by CSS alone, so window
-   size and browser zoom move it with the panel. */
+   size and browser zoom move it with the panel. The stage is a size container: the tree's font
+   size, and so its whole grid, follows the room it has. */
 .tree-stage {
   position: fixed;
   inset: calc(var(--bar-h) + var(--notice-h)) 0 0;
   z-index: 0;
   display: grid;
   place-items: center;
+  container-type: size;
   pointer-events: none;
-  transition: right 0.5s ease;
 }
 /* A panel takes the right side; the tree stands in what is left. */
 .tree-stage.is-panel {
@@ -18,109 +19,89 @@
   inset: 0 50% 0 0;
 }
 
+/* 48 columns × 24 rows; room is kept on both sides for labels (about 40 columns of width). */
 .tree-box {
   position: relative;
-  width: min(66vh, 92%);
-  aspect-ratio: 1;
+  font-size: min(calc(72cqh / 28.8), calc(96cqw / 40), 22px);
+  line-height: 1.2;
 }
-.tree-stage.is-panel .tree-box {
-  width: min(58vh, 92%);
+.tree-stage.is-panel .tree-box,
+.tree-stage.is-auth .tree-box {
+  font-size: min(calc(80cqh / 28.8), calc(92cqw / 24), 22px);
 }
 
 .tree {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.tree-crown {
-  transform-origin: 200px 374px;
-  animation: tree-sway 6s ease-in-out infinite alternate;
-}
-@keyframes tree-sway {
-  from {
-    transform: rotate(-1deg);
-  }
-  to {
-    transform: rotate(1deg);
-  }
-}
-.tree-leaf {
-  transition: fill 1s ease;
-}
-.tree-fade {
-  animation: tree-fade-in 1s ease;
-}
-@keyframes tree-fade-in {
-  from {
-    opacity: 0;
-  }
+  font: inherit;
+  line-height: inherit;
+  white-space: pre;
+  user-select: none;
 }
 .tree-falling {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: tree-fall 6.6s ease-in infinite;
+  position: absolute;
+  animation: tree-fall 6.6s steps(7, jump-none) infinite;
   opacity: 0;
 }
 @keyframes tree-fall {
   0% {
     opacity: 0;
-    transform: translate(0, 0) rotate(0);
+    transform: translateY(0);
   }
-  10% {
-    opacity: 1;
-  }
+  10%,
   85% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translate(24px, 210px) rotate(220deg);
+    transform: translateY(7lh);
   }
 }
 
-/* Fruits are links laid over the drawing at their slot. */
+/* Fruits are links on their cell; a label sits beside them on the crown's outer side. */
 .fruit {
   position: absolute;
-  translate: -50% -50%;
-  border: 2px solid #9a6a17;
-  border-radius: 50%;
-  background: #e8b43a;
-  pointer-events: auto;
+  width: 1ch;
+  height: 1lh;
+  /* Gold, so a fruit never reads as one of the crown's own characters. */
+  color: #ffd75e;
+  font-weight: 700;
   text-decoration: none;
-  color: var(--ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  pointer-events: auto;
 }
 .fruit.is-offline {
-  border-color: #8d877a;
-  background: #c9c3b6;
+  color: var(--ink-2);
 }
-.fruit:hover,
+.fruit-char {
+  display: block;
+  background: var(--paper);
+}
+.fruit:hover .fruit-char,
+.fruit:focus-visible .fruit-char {
+  background: var(--ink);
+  color: var(--paper);
+}
 .fruit:focus-visible {
-  transform: scale(1.25);
-  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink);
-  z-index: 2;
+  outline: 0;
 }
 .fruit-label {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
+  top: 0;
+  left: 2ch;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: var(--surface);
-  translate: -50% 0;
+  gap: 1ch;
+  padding: 0 1ch;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 400;
   white-space: nowrap;
-  font-size: 12px;
-  line-height: 1.25;
+}
+.fruit.is-left .fruit-label {
+  left: auto;
+  right: 2ch;
 }
 .fruit:hover .fruit-label,
 .fruit:focus-visible .fruit-label {
-  transform: scale(0.8);
-  transform-origin: top center;
+  z-index: 1;
+  outline: 1px solid var(--ink);
 }
 .fruit-name,
 .fruit-off {
@@ -128,17 +109,18 @@
 }
 .fruit-more {
   position: absolute;
+  top: 100%;
   left: 50%;
-  bottom: -8px;
   translate: -50% 0;
-  padding: 3px 10px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
   color: var(--ink);
-  font-size: 13px;
   text-decoration: none;
   pointer-events: auto;
+}
+.fruit-more:hover,
+.fruit-more:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: 0;
 }
 
 /* Phones: a band under the top bar; content scrolls below it. */
@@ -150,8 +132,9 @@
     height: 40vh;
   }
   .tree-box,
-  .tree-stage.is-panel .tree-box {
-    width: min(40vh, 92vw);
+  .tree-stage.is-panel .tree-box,
+  .tree-stage.is-auth .tree-box {
+    font-size: min(calc(92cqh / 28.8), calc(92cqw / 24));
   }
   /* Too small for names; the server list below carries them. */
   .fruit-label,
@@ -161,15 +144,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tree-stage,
-  .tree-leaf,
-  .fruit {
-    transition: none;
-  }
-  .tree-crown,
-  .tree-fade {
-    animation: none;
-  }
   .tree-falling {
     display: none;
   }

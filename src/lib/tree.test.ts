@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DEAD_BRANCHES, FRUIT_SLOTS, LEAF_CLUSTERS, LITTER, MAX_LABELS, layoutFruits, treeState } from "./tree.ts";
+import { DEAD_COUNT, FRUIT_SLOTS, LEAF_COUNT, LITTER_COUNT, MAX_LABELS, TREE_ART, TREE_MASK, cellPart, layoutFruits, treeState } from "./tree.ts";
 import type { ServerSummary } from "./types.ts";
 
 const server = (id: number, watts: number | null, over: Partial<ServerSummary> = {}): ServerSummary => ({
@@ -10,7 +10,7 @@ const server = (id: number, watts: number | null, over: Partial<ServerSummary> =
 });
 
 test("a clear fleet grows a full green tree", () => {
-  assert.deepEqual(treeState(1, 0), { leaves: LEAF_CLUSTERS.length, autumn: 0, falling: 0, deadBranches: 0, litter: 0 });
+  assert.deepEqual(treeState(1, 0), { leaves: LEAF_COUNT, autumn: 0, falling: 0, deadBranches: 0, litter: 0 });
   // At the average the leaves are still green.
   assert.equal(treeState(0.5, 0).autumn, 0);
 });
@@ -19,21 +19,21 @@ test("drawing more than the average turns and drops leaves", () => {
   const warm = treeState(0.25, 0);
   assert.equal(warm.autumn, 0.5);
   assert.equal(warm.falling, 0.5);
-  assert.ok(warm.leaves < LEAF_CLUSTERS.length);
-  assert.equal(treeState(0, 0).leaves, Math.round(LEAF_CLUSTERS.length * 0.34));
+  assert.ok(warm.leaves < LEAF_COUNT);
+  assert.equal(treeState(0, 0).leaves, Math.round(LEAF_COUNT * 0.34));
 });
 
 test("open recommendations bare branches and litter the ground", () => {
   const some = treeState(1, 0.5);
-  assert.equal(some.deadBranches, Math.round(DEAD_BRANCHES.length / 2));
-  assert.equal(some.litter, LITTER.length / 2);
+  assert.equal(some.deadBranches, Math.round(DEAD_COUNT / 2));
+  assert.equal(some.litter, LITTER_COUNT / 2);
   assert.ok(treeState(1, 0.9).deadBranches > some.deadBranches);
 });
 
 test("the worst case is nearly bare, never dead", () => {
   const worst = treeState(0, 1);
   assert.ok(worst.leaves >= 3 && worst.leaves <= 5);
-  assert.equal(worst.deadBranches, DEAD_BRANCHES.length);
+  assert.equal(worst.deadBranches, DEAD_COUNT);
 });
 
 test("fruits take slots in id order and grow with draw", () => {
@@ -52,4 +52,26 @@ test("only the highest-draw fruits are labelled and the rest are counted", () =>
   assert.equal(labelled.length, MAX_LABELS);
   assert.deepEqual(labelled, [5, 6, 7, 8, 9, 10, 11, 12]);
   assert.equal(more, 15 - MAX_LABELS);
+});
+
+test("the drawing and its mask line up cell for cell", () => {
+  assert.equal(TREE_ART.length, 24);
+  assert.equal(TREE_MASK.length, 24);
+  TREE_ART.forEach((line, row) => {
+    assert.equal(line.length, 48, `art row ${row}`);
+    assert.equal(TREE_MASK[row].length, 48, `mask row ${row}`);
+    [...line].forEach((ch, col) => assert.equal(ch === " ", TREE_MASK[row][col] === " ", `cell ${col},${row}`));
+  });
+});
+
+test("every leaf cluster, dead branch and litter patch is drawn somewhere", () => {
+  const seen = new Set(TREE_MASK.flatMap((line) => [...line].map(cellPart).filter((p) => p !== null).map((p) => `${p.kind}${p.n}`)));
+  for (let n = 0; n < LEAF_COUNT; n++) assert.ok(seen.has(`leaf${n}`), `leaf ${n}`);
+  for (let n = 0; n < DEAD_COUNT; n++) assert.ok(seen.has(`dead${n}`), `dead ${n}`);
+  for (let n = 0; n < LITTER_COUNT; n++) assert.ok(seen.has(`litter${n}`), `litter ${n}`);
+  assert.ok(seen.has("trunk0"));
+});
+
+test("fruits hang on leaves", () => {
+  for (const [col, row] of FRUIT_SLOTS) assert.equal(cellPart(TREE_MASK[row][col])?.kind, "leaf", `slot ${col},${row}`);
 });

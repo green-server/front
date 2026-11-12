@@ -6,11 +6,13 @@ import { getScene, subscribeScene } from "@/lib/scene";
 import { FRUIT_SLOTS, treeState } from "@/lib/tree";
 import "@/styles/tree.css";
 
-const pct = (v: number) => `${(v / 400) * 100}%`;
+/** Heavier draw, bigger fruit; offline servers are a grey dot. */
+const fruitChar = (f: { online: boolean; radius: number }) => (!f.online ? "·" : f.radius <= 9 ? "o" : f.radius <= 12 ? "O" : "@");
 
 /**
  * The tree behind the pages, placed by CSS: centred, beside an open panel, or in the left half
- * on sign-in. Servers hang on it as fruits; on the home view they carry their name and draw.
+ * on sign-in. Servers hang on it as fruits, one character each; on the home view they carry their
+ * name and draw on the outer side of the crown.
  */
 export function TreeStage({ labels = false }: { labels?: boolean }) {
   const { fruits, more, health, blight, panel, auth } = useSyncExternalStore(subscribeScene, getScene);
@@ -20,16 +22,20 @@ export function TreeStage({ labels = false }: { labels?: boolean }) {
       <div className="tree-box">
         <Tree state={treeState(health, blight)} />
         {fruits.map((f) => {
-          const [x, y] = FRUIT_SLOTS[f.slot];
+          const [col, row] = FRUIT_SLOTS[f.slot];
+          const left = col < 24;
           return (
             <Link
               key={f.id}
               to={`/servers/${f.id}`}
-              className={`fruit${f.online ? "" : " is-offline"}`}
-              style={{ left: pct(x), top: pct(y), width: pct(f.radius * 2), height: pct(f.radius * 2) }}
+              className={`fruit${f.online ? "" : " is-offline"}${left ? " is-left" : ""}`}
+              style={{ left: `${col}ch`, top: `${row}lh` }}
               aria-label={`${f.name}${f.online ? "" : " (꺼짐)"}`}
               tabIndex={showLabels ? 0 : -1}
             >
+              <span className="fruit-char" aria-hidden="true">
+                {fruitChar(f)}
+              </span>
               {showLabels && f.labelled && (
                 <span className="fruit-label">
                   <span className="fruit-name">{f.name}</span>

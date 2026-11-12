@@ -1,34 +1,85 @@
 // The tree behind every page, as data: which parts to draw for the fleet's state.
-// Coordinates are in the SVG's 400 × 400 viewBox; the ground line is at y = 372.
+// The drawing is a 48 × 24 character grid; TREE_MASK tags each cell of TREE_ART with its part:
+// space = nothing, T = trunk and ground (always drawn), 0-9a-l = leaf cluster 0-21,
+// A-F = dead branch 0-5, s-z = litter patch 0-7. Inner clusters have low numbers, so a thinning
+// crown drops from the rim.
 import type { ServerSummary } from "./types";
 
-/** Leaf clusters, cx/cy/r. Inner ones first: a thinning crown drops from the end. */
-export const LEAF_CLUSTERS: [number, number, number][] = [
-  [200, 140, 62], [160, 170, 48], [245, 165, 50], [200, 95, 46], [150, 120, 42], [252, 115, 44],
-  [118, 165, 36], [285, 160, 38], [175, 70, 34], [230, 68, 34], [120, 125, 30], [285, 112, 30],
-  [200, 200, 34], [140, 205, 28], [262, 205, 28], [95, 150, 24], [308, 140, 24], [150, 80, 24],
-  [255, 82, 24], [200, 48, 24], [100, 190, 20], [305, 185, 20],
+export const TREE_ART = [
+  "                                                ",
+  "                   \\        /                   ",
+  "                    \\      /                    ",
+  "                     \\ ', /                     ",
+  "            \\      '*,%#&&'@&.      /           ",
+  "             \\   '%#%#%#@%%&*%%.   /            ",
+  "              \\**@&@%@%@&#&##*%%% /             ",
+  "              ,:%%@&&@&%#&%%%%%%%%&%*           ",
+  "           '*%&&@%%%%&#&%&**%&&&#%%*#'          ",
+  "           &%#%%&&#%&#%#%&#@*@@*%%%@%%'         ",
+  "         %@%%@%%%&%%&%%@#&%&%%&@%*@@&%%:        ",
+  "         &@@*%@@%#*&%%%#&@#@&%#%&@%&%@:         ",
+  "       \\  ,@%@%%&@&*@%%%%*%**%&#&%&##%:/        ",
+  "        \\ %@%%&%%&%#@%%&%*#@%&%@%#:*%@/         ",
+  "         \\_*':@@@%#%:%@%%%*',##&@%.__/          ",
+  "              .%%@, \\.:&%,,/ '&&%*              ",
+  "                     \\|  |/                     ",
+  "                      |  |                      ",
+  "                      |  |                      ",
+  "                      |  |                      ",
+  "                      |  |                      ",
+  "                      |  |                      ",
+  "         .,' ',. ,.,.,|  |,..,' ,., ',.         ",
+  "        _____________/    \\_____________        ",
 ];
 
-/** Bare branches that poke out of the crown, one per step of blight. */
-export const DEAD_BRANCHES = [
-  "M168 212 L102 188 L76 170",
-  "M232 206 L300 186 L328 166",
-  "M190 180 L132 128 L108 92",
-  "M212 176 L270 122 L300 88",
-  "M196 150 L184 76 L170 30",
-  "M206 150 L228 70 L244 28",
+export const TREE_MASK = [
+  "                                                ",
+  "                   E        F                   ",
+  "                    E      F                    ",
+  "                     E jj F                     ",
+  "            C      888jjjj9999      D           ",
+  "             C   h88888jj9999999   D            ",
+  "              Chhhh8888333999iiii D             ",
+  "              44hhhh3333333355ii5bbbb           ",
+  "           aaaa444444333333555555bbbbb          ",
+  "           aaaaa44444000000055555bbbggg         ",
+  "         ffffaaa4441000000002222777ggggg        ",
+  "         fff66661111100000022222777777g         ",
+  "       A  66666611111110002222227777lllB        ",
+  "        A kkkk6ddd1111ccccc222eeee7lllB         ",
+  "         AAkkdddddd11ccccccc2eeeeeeBBB          ",
+  "              ddddd TccccccT eeeee              ",
+  "                     TT  TT                     ",
+  "                      T  T                      ",
+  "                      T  T                      ",
+  "                      T  T                      ",
+  "                      T  T                      ",
+  "                      T  T                      ",
+  "         yyy uuu ssswwT  Txxttt vvv zzz         ",
+  "        TTTTTTTTTTTTTT    TTTTTTTTTTTTTT        ",
 ];
 
-/** Patches of dry leaves on the ground, cx/rx. */
-export const LITTER: [number, number][] = [
-  [150, 16], [252, 14], [120, 12], [282, 13], [186, 12], [222, 15], [96, 10], [306, 11],
-];
+export const LEAF_COUNT = 22;
+export const DEAD_COUNT = 6;
+export const LITTER_COUNT = 8;
 
-/** Where fruits hang, cx/cy, in the order servers fill them. */
+const LEAF_TAGS = "0123456789abcdefghijkl";
+
+export type TreePart = { kind: "trunk" | "leaf" | "dead" | "litter"; n: number };
+
+/** What a mask character stands for; null for an empty cell. */
+export function cellPart(tag: string): TreePart | null {
+  if (tag === "T") return { kind: "trunk", n: 0 };
+  if (LEAF_TAGS.includes(tag)) return { kind: "leaf", n: LEAF_TAGS.indexOf(tag) };
+  if (tag >= "A" && tag <= "F") return { kind: "dead", n: tag.charCodeAt(0) - 65 };
+  if (tag >= "s" && tag <= "z") return { kind: "litter", n: tag.charCodeAt(0) - 115 };
+  return null;
+}
+
+/** Where fruits hang, [col, row], in the order servers fill them. Left of centre labels go left. */
 export const FRUIT_SLOTS: [number, number][] = [
-  [200, 150], [130, 120], [270, 120], [150, 195], [250, 195], [200, 85],
-  [90, 180], [310, 172], [200, 228], [150, 68], [250, 68], [112, 232],
+  [24, 10], [17, 8], [31, 8], [19, 13], [30, 13], [22, 6],
+  [12, 11], [36, 11], [27, 6], [15, 10], [34, 9], [15, 12],
 ];
 
 export const MAX_LABELS = 8;
@@ -42,11 +93,11 @@ export type TreeState = { leaves: number; autumn: number; falling: number; deadB
 export function treeState(health: number, blight: number): TreeState {
   const autumn = Math.min(1, Math.max(0, (0.5 - health) / 0.5));
   return {
-    leaves: Math.max(3, Math.round(LEAF_CLUSTERS.length * (1 - 0.66 * autumn) * (1 - 0.5 * blight))),
+    leaves: Math.max(3, Math.round(LEAF_COUNT * (1 - 0.66 * autumn) * (1 - 0.5 * blight))),
     autumn,
     falling: autumn,
-    deadBranches: Math.round(DEAD_BRANCHES.length * blight),
-    litter: Math.round(LITTER.length * blight),
+    deadBranches: Math.round(DEAD_COUNT * blight),
+    litter: Math.round(LITTER_COUNT * blight),
   };
 }
 
