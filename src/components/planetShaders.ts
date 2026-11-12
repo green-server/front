@@ -128,6 +128,8 @@ void main() {
   vec2 inCell = (gl_FragCoord.xy - origin) / cell;
   float ink = texture2D(glyphs, vec2((index + inCell.x) / count, inCell.y)).r;
   vec3 hue = s.rgb / max(peak, 1e-4);
+  // A little extra saturation: thin glyphs on black read paler than the solid surface did.
+  hue = clamp(mix(vec3(dot(hue, vec3(0.3, 0.59, 0.11))), hue, 1.35), 0.0, 1.0);
   vec3 color = hue * (0.5 + 0.5 * level);
   gl_FragColor = vec4(color * ink, ink);
 }

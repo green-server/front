@@ -15,7 +15,7 @@ const CLOUD_REFRESH = 3 * 3600_000;
 const PIN_DIM = new THREE.Color(0x166534);
 const PIN_BRIGHT = new THREE.Color(0x86efac);
 // The scene is shown as text: one glyph per cell of this size (CSS px), darkest to brightest.
-const CELL = { w: 7, h: 12 };
+const CELL = { w: 5, h: 9 };
 const RAMP = " .:-=+*#%@";
 
 /** The ramp's glyphs side by side, white on black, one cell each, as a texture. */

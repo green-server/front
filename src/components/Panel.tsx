@@ -33,22 +33,26 @@ export function Panel({
     return () => window.removeEventListener("keydown", onKey);
   }, [navigate, escape]);
 
+  // The frame stays put; only the body scrolls, so the box lines never scroll away.
   return (
-    <section className="panel" aria-label={title}>
+    <section className="panel frame" aria-label={title}>
       <div className="panel-head">
-        <div>
+        <span className="panel-title">
           {back && (
-            <Link to={back.to} className="crumb">
-              ← {back.label}
-            </Link>
+            <>
+              <Link to={back.to} className="crumb">
+                ← {back.label}
+              </Link>
+              {" › "}
+            </>
           )}
           <h1>{title}</h1>
-        </div>
+        </span>
         <Link to="/" className="panel-close" aria-label="닫기">
-          ✕
+          [x]
         </Link>
       </div>
-      {children}
+      <div className="panel-body">{children}</div>
     </section>
   );
 }
