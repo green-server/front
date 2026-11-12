@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router";
-import { Logo } from "@/components/Logo";
 
 export const NAV = [
   { href: "/", label: "홈" },
@@ -25,7 +24,9 @@ export function TopBar({ online, total, onLogout }: { online: number; total: num
     <>
       <header className="topbar">
         <Link to="/" className="topbar-brand">
-          <Logo />
+          <span className="topbar-mark" aria-hidden="true">
+            ❦
+          </span>
           Green Server
         </Link>
         <nav className="pills" aria-label="주 메뉴">

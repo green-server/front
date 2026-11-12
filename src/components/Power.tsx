@@ -14,17 +14,14 @@ type Props = {
 export function Power({ value, estimated, unit = "W", size = "sm" }: Props) {
   if (value === null) return <span className="no-reading">측정값 없음</span>;
   const text = formatNumber(value);
-  const [whole, fraction] = text.split(".");
   const tag = estimated ? "추정" : "실측";
   return (
     <span className={`power power-${size} ${estimated ? "is-estimated" : "is-measured"}`}>
-      {/* Per-digit spans make screen readers spell the number out, so they get it whole. */}
+      {/* Read whole, with the tag, instead of value then tag as separate pieces. */}
       <span className="sr-only">{`${text}${unit} ${tag}`}</span>
       <span className="power-value" aria-hidden="true">
-        <Digits text={whole} rolling={size !== "sm"} />
-        {fraction && "."}
-        {fraction && <Digits text={fraction} rolling={size !== "sm"} />}
-        <span className="power-unit">{unit}</span>
+        {text}
+        {unit}
       </span>
       <span className="power-tag" aria-hidden="true">
         {tag}
@@ -33,24 +30,7 @@ export function Power({ value, estimated, unit = "W", size = "sm" }: Props) {
   );
 }
 
-/** A digit remounts when it changes, so only the wheels that moved turn, like a meter's register. */
-function Digits({ text, rolling }: { text: string; rolling: boolean }) {
-  if (!rolling) return text;
-  return [...text].map((digit, index) => (
-    <span key={`${text.length - index}-${digit}`} className="digit">
-      {digit}
-    </span>
-  ));
-}
-
 /** A won amount at display size. */
 export function Krw({ value }: { value: number }) {
-  return (
-    <span className="figure">
-      <span className="sr-only">{formatKrw(value)}</span>
-      <span aria-hidden="true">
-        <Digits text={formatKrw(value)} rolling />
-      </span>
-    </span>
-  );
+  return <span className="figure">{formatKrw(value)}</span>;
 }

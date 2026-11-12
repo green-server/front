@@ -1,44 +1,31 @@
-/* Paperlogy, OFL: see fonts/Paperlogy-OFL.md. */
+/* D2Coding, OFL: see fonts/D2Coding-OFL.md. One monospace face for everything: Latin is half a
+   cell (1ch = 0.5em) and Hangul a whole one, so text, frames and drawings share one grid. */
 @font-face {
-  font-family: "Paperlogy";
-  src: url("../fonts/Paperlogy-4Regular.woff2") format("woff2");
+  font-family: "D2Coding";
+  src: url("../fonts/D2Coding-Regular.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
-  font-family: "Paperlogy";
-  src: url("../fonts/Paperlogy-6SemiBold.woff2") format("woff2");
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Paperlogy";
-  src: url("../fonts/Paperlogy-7Bold.woff2") format("woff2");
+  font-family: "D2Coding";
+  src: url("../fonts/D2Coding-Bold.woff2") format("woff2");
   font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Paperlogy";
-  src: url("../fonts/Paperlogy-8ExtraBold.woff2") format("woff2");
-  font-weight: 800;
   font-display: swap;
 }
 
 :root {
-  color-scheme: light;
-  --paper: #f4efe3;
-  --surface: rgb(255 253 247 / 0.94);
-  --line: rgb(60 50 30 / 0.14);
-  --ink: #26301f;
-  --ink-2: #5c5a4c;
-  --go: #2f7d3a;
-  --on-go: #ffffff;
-  --warn: #a15c00;
-  --bad: #b4372b;
-  --sans: "Paperlogy", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  /* IBM Plex Mono loads from Google Fonts in index.html; until it does, any mono face.
-     Paperlogy only fills in Hangul, which the mono faces lack. */
-  --code: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, "Paperlogy", monospace;
+  color-scheme: dark;
+  --paper: #0c0f0a;
+  --surface: #0c0f0a;
+  --line: #4a5a44;
+  --ink: #cfe3c4;
+  --ink-2: #8fa385;
+  --go: #7ee07a;
+  --on-go: #0c0f0a;
+  --warn: #e0a640;
+  --bad: #ff6b5e;
+  --sans: "D2Coding", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --code: var(--sans);
 }
 
 *,
@@ -53,7 +40,7 @@ body {
   color: var(--ink);
   font-family: var(--sans);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-text-size-adjust: 100%;
   font-variant-numeric: tabular-nums;
   word-break: keep-all;
@@ -92,25 +79,19 @@ h1,
 h2,
 h3 {
   margin: 0;
-  line-height: 1.25;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: inherit;
   text-wrap: balance;
 }
 h3 {
-  margin-bottom: 8px;
+  margin-bottom: 0.5lh;
   color: var(--ink-2);
-  font-size: 0.9375rem;
-}
-h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-h2 {
-  font-size: 1.0625rem;
-  font-weight: 700;
 }
 
 a {
   color: inherit;
+  text-underline-offset: 3px;
 }
 code,
 pre,
@@ -119,7 +100,7 @@ kbd {
 }
 
 :focus-visible {
-  outline: 2px solid var(--go);
+  outline: 1px solid var(--go);
   outline-offset: 2px;
 }
 
@@ -139,61 +120,106 @@ kbd {
   white-space: nowrap;
 }
 
-/* Buttons */
+/* Frames: the 1px rectangle runs through the middle of the edge cells, where box-drawing glyphs
+   draw their strokes, so titles and ├┤ rules on the edge line meet it exactly at any width. */
+.frame {
+  position: relative;
+  padding: 1lh 2ch;
+}
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 0.5lh 0.5ch;
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
+.frame-title {
+  position: absolute;
+  top: 0;
+  left: 2ch;
+  z-index: 1;
+  max-width: calc(100% - 4ch);
+  padding: 0 1ch;
+  overflow: hidden;
+  background: var(--paper);
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* ├──┤ across a frame: the line at mid-line, reaching both sides of the frame. */
+.rule {
+  position: relative;
+  height: 1lh;
+  margin: 0 -1.5ch;
+}
+.rule::before {
+  content: "";
+  position: absolute;
+  inset: calc(0.5lh - 0.5px) 0 auto;
+  border-top: 1px solid var(--line);
+}
+
+/* Buttons: [ 승인 ]. Hover and focus reverse them, like a selected terminal item. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  padding: 0;
+  border: 0;
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: inherit;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
-.btn:hover {
-  border-color: var(--ink-2);
+.btn::before {
+  content: "[ ";
+  white-space: pre;
+}
+.btn::after {
+  content: " ]";
+  white-space: pre;
+}
+.btn:hover,
+.btn:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: 0;
 }
 .btn-go {
-  border-color: var(--go);
   background: var(--go);
   color: var(--on-go);
 }
-.btn-go:hover {
-  border-color: var(--go);
-  filter: brightness(1.08);
+.btn-go:hover,
+.btn-go:focus-visible {
+  background: var(--ink);
 }
 .btn-quiet {
-  border-color: transparent;
   color: var(--ink-2);
-}
-.btn-quiet:hover {
-  border-color: transparent;
-  color: var(--ink);
+  font-weight: 400;
 }
 .btn-danger {
-  border-color: var(--bad);
   color: var(--bad);
 }
-.btn-danger:hover {
-  border-color: var(--bad);
+.btn-danger:hover,
+.btn-danger:focus-visible {
+  background: var(--bad);
+  color: var(--paper);
 }
 .btn:disabled {
-  opacity: 0.5;
+  background: transparent;
+  color: var(--ink-2);
   cursor: not-allowed;
 }
 
-/* Form fields */
+/* Form fields: the label above, the value on a ──── line. */
 .field {
   display: grid;
-  gap: 6px;
   width: 100%;
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: var(--ink-2);
 }
 .field input,
 .field select,
@@ -201,39 +227,52 @@ kbd {
 input.field,
 select.field,
 textarea.field {
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: rgb(38 48 31 / 0.04);
   width: 100%;
+  min-height: 1lh;
+  padding: 0 1ch;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 1rem;
+  line-height: inherit;
+  caret-color: var(--go);
+}
+.field select,
+select.field {
+  appearance: none;
+  padding-right: 3ch;
+  /* ▾ at the end of the line. */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M1 2h6L4 6z' fill='%238fa385'/%3E%3C/svg%3E") no-repeat right 1ch center / 1ch;
 }
 .field input:focus-visible,
 .field select:focus-visible,
 .field textarea:focus-visible {
-  border-color: var(--go);
+  outline: 0;
+  border-bottom-color: var(--go);
+}
+.field input::placeholder {
+  color: var(--ink-2);
 }
 
-/* Provenance and source tags */
+/* Provenance and source tags: <AI 추천> */
 .tag {
-  display: inline-block;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
   color: var(--ink-2);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.6;
+  white-space: nowrap;
+}
+.tag::before {
+  content: "<";
+}
+.tag::after {
+  content: ">";
 }
 
 /* Page building blocks */
 .section {
   display: grid;
-  gap: 12px;
-  margin-top: 32px;
+  gap: 0.5lh;
+  margin-top: 1lh;
 }
 .rows {
   display: grid;
@@ -242,112 +281,73 @@ textarea.field {
   list-style: none;
 }
 .rows > * {
-  padding: 12px 0;
-  border-top: 1px solid var(--line);
+  padding: 0.5lh 0;
+  border-top: 1px dashed var(--line);
 }
 .rows > :first-child {
   border-top: 0;
 }
 .figure-lg {
-  font-size: 2.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* Power: solid rule under the digits is 실측, dashed is 추정. */
+/* Power: a solid rule under the digits is 실측, a dashed rule and a leading ~ are 추정. */
 .power {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.5em;
+  gap: 1ch;
   white-space: nowrap;
 }
 .power-value {
-  font-variant-numeric: tabular-nums;
-  border-bottom: 1px solid currentcolor;
+  text-decoration: underline solid 1px;
+  text-underline-offset: 4px;
 }
 .is-estimated .power-value {
-  border-bottom-style: dashed;
+  text-decoration-style: dashed;
 }
-.power-unit {
-  margin-left: 0.15em;
-  font-size: 0.72em;
+.is-estimated .power-value::before {
+  content: "~";
 }
 .power-tag {
   color: var(--ink-2);
-  font-size: 0.8125rem;
-  font-weight: 500;
-}
-.power-xl {
-  gap: 10px;
 }
 .power-xl .power-value {
   color: var(--go);
-  font-size: clamp(3.75rem, 5.6vw, 5.25rem);
-  font-weight: 800;
-  line-height: 1;
-  border-bottom-width: 3px;
-}
-.power-xl .power-unit {
-  font-size: 0.5em;
-}
-.power-xl .power-tag {
-  font-size: 1rem;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
 }
 .no-reading {
   color: var(--ink-2);
-}
-/* A digit that changed rolls in, like a meter's register. */
-.digit {
-  display: inline-block;
-  animation: roll 260ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes roll {
-  from {
-    opacity: 0.2;
-    transform: translateY(0.28em);
-  }
-}
-.figure {
-  font-variant-numeric: tabular-nums;
 }
 
 /* Status: components/Status.tsx */
 .skeleton {
   display: grid;
-  gap: 8px;
+  color: var(--line);
 }
-.skeleton-line {
-  height: 14px;
-  border-radius: 6px;
-  background: var(--line);
+.skeleton .muted {
+  color: var(--ink-2);
 }
 .failure {
   display: grid;
   justify-items: start;
-  gap: 12px;
+  gap: 0.5lh;
   color: var(--bad);
 }
 .failure p {
   margin: 0;
 }
 .online-state {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8125rem;
-}
-.online-state .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ink-2);
+  color: var(--ink-2);
+  white-space: nowrap;
 }
 .online-state.is-online {
   color: var(--go);
-}
-.online-state.is-online .dot {
-  background: var(--go);
 }
 
 @media (prefers-reduced-motion: reduce) {
