@@ -16,25 +16,6 @@ export function planetHealth(servers: ServerSummary[] | undefined): number {
   return Math.min(1, Math.max(0, 0.5 + (1 - now / week) * 1.5));
 }
 
-export type Satellite = {
-  id: number;
-  online: boolean;
-  angle: number;
-  size: number;
-};
-
-/** Even spacing in server id order so positions stay put as readings change. */
-export function layoutSatellites(servers: ServerSummary[]): Satellite[] {
-  const sorted = [...servers].sort((a, b) => a.id - b.id);
-  const max = Math.max(1, ...sorted.filter((s) => s.online).map((s) => s.latestWatts ?? 0));
-  return sorted.map((s, i) => ({
-    id: s.id,
-    online: s.online,
-    angle: (i / sorted.length) * 2 * Math.PI,
-    size: s.online ? Math.min(1.6, 0.6 + (s.latestWatts ?? 0) / max) : 0.6,
-  }));
-}
-
 /**
  * How ravaged the planet is, 0 (untouched) toward 1: waste the rules or the AI found and nobody
  * has fixed yet. Eight open recommendations take it about two thirds of the way; it never quite
@@ -49,8 +30,8 @@ export function planetBlight(activity: ActivityReport | undefined): number {
 // `auth`: the sign-in card takes the right half, so the planet centres in the left.
 // `pin`: the open server's place; the planet stops and turns it to face the viewer.
 export type Pin = { lat: number; lon: number };
-export type OrbitState = { satellites: Satellite[]; health: number; blight: number; panel: boolean; auth: boolean; pin: Pin | null };
-let state: OrbitState = { satellites: [], health: 1, blight: 0, panel: false, auth: false, pin: null };
+export type OrbitState = { health: number; blight: number; panel: boolean; auth: boolean; pin: Pin | null };
+let state: OrbitState = { health: 1, blight: 0, panel: false, auth: false, pin: null };
 const listeners = new Set<() => void>();
 export const getOrbit = () => state;
 export function setOrbit(patch: Partial<OrbitState>) {

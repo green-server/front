@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { NAV, TopBar } from "@/components/TopBar";
 import { api, clearApiCache, useApi } from "@/lib/api";
 import { LiveProvider, useLive, useLiveDropped } from "@/lib/live";
-import { layoutSatellites, planetBlight, planetHealth, setOrbit } from "@/lib/orbit";
+import { planetBlight, planetHealth, setOrbit } from "@/lib/orbit";
 import type { ActivityReport, ServerSummary } from "@/lib/types";
 
 type ServersContext = { servers: ServerSummary[] | undefined; error: ReturnType<typeof useApi>["error"]; reload: () => void };
@@ -48,10 +48,10 @@ function Shell() {
 
   useEffect(() => {
     const list = data ?? [];
-    setOrbit({ satellites: layoutSatellites(list), health: planetHealth(list) });
+    setOrbit({ health: planetHealth(list) });
   }, [data]);
   useEffect(() => setOrbit({ blight: planetBlight(activity.data) }), [activity.data]);
-  useEffect(() => () => setOrbit({ health: 1, blight: 0, satellites: [] }), []);
+  useEffect(() => () => setOrbit({ health: 1, blight: 0 }), []);
 
   const logout = () =>
     api("/api/auth/logout", { method: "POST" })

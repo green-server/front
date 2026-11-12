@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { getOrbit, subscribeOrbit, type OrbitState, type Satellite } from "@/lib/orbit";
+import { getOrbit, subscribeOrbit, type OrbitState } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
 import { ASCII, ASCII_VERTEX, CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
-const RING_RADIUS = 1.75;
 const NARROW = 760;
 // Live global cloud cover, a geostationary satellite composite refreshed about every 3 hours.
 const LIVE_CLOUDS = "https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg";
@@ -34,7 +33,7 @@ function glyphAtlas(w: number, h: number) {
 
 /**
  * The one scene behind every page: the planet, whose seas, forests and air follow the fleet's
- * draw (`lib/orbit.ts`), and a ring carrying each server as a satellite. Never unmounts.
+ * draw (`lib/orbit.ts`). Never unmounts.
  */
 export function OrbitScene() {
   const host = useRef<HTMLDivElement>(null);
@@ -188,46 +187,12 @@ export function OrbitScene() {
       new THREE.PointsMaterial({ size: 1.3, sizeAttenuation: false, color: 0xffffff, transparent: true, opacity: 0.55 }),
     );
 
-    // The ring lies in the planet's equatorial-ish plane, tipped so its near half crosses the lower planet.
-    const ring = new THREE.Group();
-    ring.rotation.x = 0.35;
-    const ringPoints = Array.from({ length: 128 }, (_, i) => {
-      const a = (i / 128) * Math.PI * 2;
-      return new THREE.Vector3(Math.cos(a) * RING_RADIUS, 0, Math.sin(a) * RING_RADIUS);
-    });
-    const ringGeometry = new THREE.BufferGeometry().setFromPoints(ringPoints);
-    const ringMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, depthWrite: false });
-    const spin = new THREE.Group();
-    ring.add(new THREE.LineLoop(ringGeometry, ringMaterial), spin);
-
-    const dot = new THREE.SphereGeometry(1, 16, 12);
-    const onlineMaterial = new THREE.MeshBasicMaterial({ color: 0xeef2f6 });
-    const offlineMaterial = new THREE.MeshBasicMaterial({ color: 0x5b6675 });
-    let drawn: Satellite[] = [];
     let narrow = false;
-    // No servers (or signed out): no ring to hang them on. Phones never show it.
-    const showRing = () => {
-      ring.visible = !narrow && drawn.length > 0;
-    };
-    const placeSatellites = () => {
-      const { satellites } = getOrbit();
-      if (satellites === drawn) return;
-      drawn = satellites;
-      showRing();
-      spin.clear();
-      for (const s of satellites) {
-        const mesh = new THREE.Mesh(dot, s.online ? onlineMaterial : offlineMaterial);
-        mesh.scale.setScalar(0.025 * s.size);
-        mesh.position.set(Math.cos(s.angle) * RING_RADIUS, 0, Math.sin(s.angle) * RING_RADIUS);
-        spin.add(mesh);
-      }
-    };
-    placeSatellites();
 
     const planet = new THREE.Group();
     planet.add(globe, halo);
     const world = new THREE.Group();
-    world.add(planet, ring);
+    world.add(planet);
     scene.add(stars, world);
 
     // The scene draws into an offscreen target; a full-screen pass turns that into glyphs.
@@ -276,10 +241,9 @@ export function OrbitScene() {
       sizeAscii();
       camera.aspect = width / height;
       narrow = window.innerWidth < NARROW;
-      // Phones: the planet sits above the content, smaller, with no ring.
+      // Phones: the planet sits above the content, smaller.
       camera.position.z = narrow ? 8 : 6.2;
       planet.position.y = narrow ? 0.9 : 0;
-      showRing();
       measurePanel();
       camera.updateProjectionMatrix();
       dirty = true;
@@ -307,7 +271,6 @@ export function OrbitScene() {
     };
     const onOrbit = () => {
       measurePanel();
-      placeSatellites();
       placePin();
       markDirty();
     };
@@ -403,7 +366,6 @@ export function OrbitScene() {
       clouds.rotation.y = surface.rotation.y;
       if (!still.matches) {
         stars.rotation.y += dt * 0.002;
-        spin.rotation.y += dt * 0.02;
       }
       world.updateMatrixWorld();
       sun.copy(sunLocal).transformDirection(surface.matrixWorld);
@@ -426,9 +388,9 @@ export function OrbitScene() {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
-      [sphere, starGeometry, ringGeometry, dot, pinGeometry].forEach((g) => g.dispose());
+      [sphere, starGeometry, pinGeometry].forEach((g) => g.dispose());
       [surface, clouds, halo, stars].forEach((o) => (o.material as THREE.Material).dispose());
-      [ringMaterial, onlineMaterial, offlineMaterial, pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
+      [pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       target3d.dispose();
       asciiQuad.geometry.dispose();
