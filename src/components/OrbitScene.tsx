@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { getOrbit, subscribeOrbit, type OrbitState } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
-import { ASCII, ASCII_VERTEX, AURORA, CLOUDS, HALO, MOON, SPARKLE, SPARKLE_VERTEX, SURFACE, VERTEX } from "./planetShaders";
+import { ASCII, ASCII_VERTEX, AURORA, CLOUDS, HALO, METEOR, METEOR_VERTEX, MOON, SPARKLE, SPARKLE_VERTEX, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
 const NARROW = 760;
@@ -256,7 +256,33 @@ export function OrbitScene() {
     );
     stars.add(sparkles);
 
-    scene.add(stars, world);
+    // A shooting star now and then, far behind the planet, crossing the sky on a downward slant.
+    const METEOR_DEPTH = -15;
+    const METEOR_LENGTH = 3;
+    const METEOR_SPEED = 18; // world units per second at that depth
+    const METEOR_LIFE = 0.9;
+    const meteorGeometry = new THREE.PlaneGeometry(1, 1);
+    const meteorUniforms = { life: { value: 0 } };
+    const meteor = new THREE.Mesh(
+      meteorGeometry,
+      new THREE.ShaderMaterial({
+        uniforms: meteorUniforms,
+        vertexShader: METEOR_VERTEX,
+        fragmentShader: METEOR,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    // About two text rows thick, so the ASCII pass always catches it.
+    meteor.scale.set(METEOR_LENGTH, 0.22, 1);
+    meteor.visible = false;
+    const meteorFrom = new THREE.Vector3();
+    const meteorDir = new THREE.Vector3();
+    let meteorAge = -1;
+    let meteorWait = 3 + Math.random() * 4;
+
+    scene.add(stars, world, meteor);
 
     // The scene draws into an offscreen target; a full-screen pass turns that into glyphs.
     const target3d = new THREE.WebGLRenderTarget(1, 1);
@@ -319,6 +345,33 @@ export function OrbitScene() {
     const still = window.matchMedia("(prefers-reduced-motion: reduce)");
     // A flare is motion; a still sky has none, rather than a few stars frozen mid-flare.
     sparkles.visible = !still.matches;
+    const updateMeteor = (dt: number) => {
+      if (meteorAge < 0) {
+        meteorWait -= dt;
+        if (meteorWait > 0) return;
+        // Start somewhere in the upper sky and head down-left or down-right at 20-50°.
+        const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.position.z - METEOR_DEPTH);
+        const halfW = halfH * camera.aspect;
+        const side = Math.random() < 0.5 ? -1 : 1;
+        const slant = THREE.MathUtils.degToRad(20 + Math.random() * 30);
+        meteorDir.set(side * Math.cos(slant), -Math.sin(slant), 0);
+        meteorFrom.set((Math.random() * 1.4 - 0.7) * halfW - side * halfW * 0.2, (0.3 + Math.random() * 0.6) * halfH, METEOR_DEPTH);
+        meteor.rotation.z = Math.atan2(meteorDir.y, meteorDir.x);
+        meteor.visible = true;
+        meteorAge = 0;
+      }
+      meteorAge += dt;
+      const t = meteorAge / METEOR_LIFE;
+      if (t >= 1) {
+        meteor.visible = false;
+        meteorAge = -1;
+        meteorWait = 4 + Math.random() * 8;
+        return;
+      }
+      meteorUniforms.life.value = Math.sin(Math.PI * t);
+      // The head runs ahead; the mesh's centre trails it by half a length.
+      meteor.position.copy(meteorFrom).addScaledVector(meteorDir, METEOR_SPEED * meteorAge - METEOR_LENGTH / 2);
+    };
     // World units per CSS pixel at the planet's depth.
     const unitsPerPx = () => (2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / height;
     const target = () => {
@@ -435,6 +488,7 @@ export function OrbitScene() {
         sparkleUniforms.time.value += dt;
         auroraUniforms.time.value += dt;
         auroraUniforms.strength.value = auroraStrength(auroraUniforms.time.value);
+        updateMeteor(dt);
         moonOrbit.rotation.y += dt * 0.06;
       }
       world.updateMatrixWorld();
@@ -458,8 +512,8 @@ export function OrbitScene() {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
-      [sphere, starGeometry, sparkleGeometry, pinGeometry, moonGeometry].forEach((g) => g.dispose());
-      [surface, clouds, halo, ...aurora, stars, sparkles, moon].forEach((o) => (o.material as THREE.Material).dispose());
+      [sphere, starGeometry, sparkleGeometry, pinGeometry, moonGeometry, meteorGeometry].forEach((g) => g.dispose());
+      [surface, clouds, halo, ...aurora, stars, sparkles, moon, meteor].forEach((o) => (o.material as THREE.Material).dispose());
       [pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       target3d.dispose();

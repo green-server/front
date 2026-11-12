@@ -149,6 +149,25 @@ void main() {
 }
 `;
 
+// A shooting star: a streak whose head (uv.x = 1) is bright and whose tail fades to nothing;
+// life rises and falls over its short flight.
+export const METEOR_VERTEX = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+export const METEOR = /* glsl */ `
+uniform float life;
+varying vec2 vUv;
+void main() {
+  float a = pow(vUv.x, 2.5) * (1.0 - abs(vUv.y - 0.5) * 2.0) * life;
+  gl_FragColor = vec4(vec3(0.85, 0.93, 1.0) * a, a);
+}
+`;
+
 // A few stars that now and then flare into a four-pointed sparkle. Each has its own slow phase,
 // and only the tip of a sharpened sine shows, so a given star flares for a moment every so often.
 export const SPARKLE_VERTEX = /* glsl */ `
