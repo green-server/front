@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { getOrbit, subscribeOrbit, type OrbitState } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
-import { ASCII, ASCII_VERTEX, CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
+import { ASCII, ASCII_VERTEX, CLOUDS, HALO, MOON, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
 const NARROW = 760;
@@ -190,7 +190,16 @@ export function OrbitScene() {
     let narrow = false;
 
     const planet = new THREE.Group();
-    planet.add(globe, halo);
+    // A small moon on a tilted orbit, passing behind the planet and lit by the same sun.
+    const moonGeometry = new THREE.SphereGeometry(1, 48, 32);
+    const moon = new THREE.Mesh(moonGeometry, new THREE.ShaderMaterial({ uniforms, vertexShader: VERTEX, fragmentShader: MOON }));
+    moon.scale.setScalar(0.2);
+    moon.position.set(1.95, 0, 0);
+    const moonOrbit = new THREE.Group();
+    moonOrbit.rotation.set(0.32, 0.9, -0.12);
+    moonOrbit.add(moon);
+
+    planet.add(globe, halo, moonOrbit);
     const world = new THREE.Group();
     world.add(planet);
     scene.add(stars, world);
@@ -366,6 +375,7 @@ export function OrbitScene() {
       clouds.rotation.y = surface.rotation.y;
       if (!still.matches) {
         stars.rotation.y += dt * 0.002;
+        moonOrbit.rotation.y += dt * 0.06;
       }
       world.updateMatrixWorld();
       sun.copy(sunLocal).transformDirection(surface.matrixWorld);
@@ -388,8 +398,8 @@ export function OrbitScene() {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
-      [sphere, starGeometry, pinGeometry].forEach((g) => g.dispose());
-      [surface, clouds, halo, stars].forEach((o) => (o.material as THREE.Material).dispose());
+      [sphere, starGeometry, pinGeometry, moonGeometry].forEach((g) => g.dispose());
+      [surface, clouds, halo, stars, moon].forEach((o) => (o.material as THREE.Material).dispose());
       [pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       target3d.dispose();

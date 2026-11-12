@@ -96,6 +96,20 @@ void main() {
 }
 `;
 
+// The moon: grey regolith with darker maria, lit by the same sun as the Earth, so it shows phases.
+export const MOON = /* glsl */ `
+uniform vec3 sun;
+varying vec2 vUv;
+varying vec3 vNormal;
+void main() {
+  // A few broad dark patches, like the maria seen from Earth.
+  float maria = smoothstep(0.35, 0.8, sin(vUv.x * 18.0 + sin(vUv.y * 9.0) * 1.7) * sin(vUv.y * 11.0 + 0.6));
+  vec3 rock = mix(vec3(0.82, 0.8, 0.76), vec3(0.45, 0.44, 0.42), maria);
+  float lit = smoothstep(-0.05, 0.25, dot(normalize(vNormal), sun));
+  gl_FragColor = vec4(rock * (0.06 + 0.94 * lit), 1.0);
+}
+`;
+
 // The whole scene, re-drawn as text: the frame is cut into character cells, and each cell
 // becomes the glyph whose ink matches its brightness, in the cell's own colour.
 // The scene texture is premultiplied (rendered over transparent black), so the brightest channel
