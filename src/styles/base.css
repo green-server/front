@@ -23,6 +23,8 @@
   --ink-2: #9a9a9a;
   --go: #5fd7ff;
   --on-go: #0b0b0b;
+  /* A server that is connected; the one status colour outside the accent. */
+  --online: #5fd75f;
   --warn: #e0a640;
   --bad: #ff6b5e;
   --sans: "D2Coding", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -348,7 +350,7 @@ select.field {
   white-space: nowrap;
 }
 .online-state.is-online {
-  color: var(--go);
+  color: var(--online);
 }
 
 @media (prefers-reduced-motion: reduce) {

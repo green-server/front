@@ -94,7 +94,7 @@
   color: var(--ink-2);
 }
 .account-servers .state.is-online {
-  color: var(--go);
+  color: var(--online);
 }
 .confirm-actions {
   display: flex;
