@@ -140,10 +140,11 @@ void main() {
   float night = 1.0 - smoothstep(-0.15, 0.3, dot(n, sun));
   // Seen edge-on at the limb the curtain is deepest, so it glows most there.
   float limb = pow(1.0 - abs(dot(n, vView)), 1.5);
-  vec3 color = mix(vec3(0.3, 1.0, 0.55), vec3(0.7, 0.35, 1.0), smoothstep(0.4, 1.0, height));
-  color = mix(vec3(0.2, 0.9, 0.95), color, smoothstep(0.0, 0.2, height));
+  // Pure, deep hues: they are added over the planet, so anything paler washes out to grey.
+  vec3 color = mix(vec3(0.05, 1.0, 0.3), vec3(0.6, 0.1, 1.0), smoothstep(0.4, 1.0, height));
+  color = mix(vec3(0.0, 0.85, 0.85), color, smoothstep(0.0, 0.2, height));
   float fade = pow(1.0 - height, 0.8);
-  float a = clamp(band * strength * fade * mix(0.5, 1.0, night) * (0.5 + 2.5 * limb), 0.0, 1.0);
+  float a = clamp(band * strength * fade * mix(0.5, 1.0, night) * (0.8 + 3.0 * limb), 0.0, 1.0);
   gl_FragColor = vec4(color * a, a);
 }
 `;
