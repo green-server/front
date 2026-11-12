@@ -90,12 +90,6 @@
   gap: 0 2ch;
   text-decoration: none;
 }
-.account-servers .state {
-  color: var(--ink-2);
-}
-.account-servers .state.is-online {
-  color: var(--online);
-}
 .confirm-actions {
   display: flex;
   gap: 2ch;

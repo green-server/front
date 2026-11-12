@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useRef, useState, type FormEvent } from "react";
 import { Power } from "@/components/Power";
 import { Panel } from "@/components/Panel";
-import { Failure, Loading } from "@/components/Status";
+import { Failure, Loading, OnlineState } from "@/components/Status";
 import "@/styles/reports.css";
 import { api, useApi, useSubmit, clearApiCache } from "@/lib/api";
 import { formatDate, isServerEstimated } from "@/lib/format";
@@ -53,9 +53,7 @@ function MyServers({ servers }: { servers: ServerSummary[] }) {
           <li key={server.id}>
             <Link to={`/servers/${server.id}`}>
               <strong>{server.name}</strong>
-              <span className={server.online ? "state is-online" : "state"}>
-                {server.online ? "연결됨" : "끊김"}
-              </span>
+              <OnlineState online={server.online} />
               <Power
                 value={server.latestWatts}
                 estimated={isServerEstimated(server)}
