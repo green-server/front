@@ -258,8 +258,8 @@ export function OrbitScene() {
 
     // A shooting star now and then, far behind the planet, crossing the sky on a downward slant.
     const METEOR_DEPTH = -15;
-    const METEOR_LENGTH = 3;
-    const METEOR_SPEED = 18; // world units per second at that depth
+    const METEOR_LENGTH = 5.5;
+    const METEOR_SPEED = 24; // world units per second at that depth
     const METEOR_LIFE = 0.9;
     const meteorGeometry = new THREE.PlaneGeometry(1, 1);
     const meteorUniforms = { life: { value: 0 } };
@@ -274,13 +274,13 @@ export function OrbitScene() {
         blending: THREE.AdditiveBlending,
       }),
     );
-    // About two text rows thick, so the ASCII pass always catches it.
-    meteor.scale.set(METEOR_LENGTH, 0.22, 1);
+    // A few text rows thick at the head, so it reads as a bold streak of glyphs.
+    meteor.scale.set(METEOR_LENGTH, 0.4, 1);
     meteor.visible = false;
     const meteorFrom = new THREE.Vector3();
     const meteorDir = new THREE.Vector3();
     let meteorAge = -1;
-    let meteorWait = 3 + Math.random() * 4;
+    let meteorWait = 1 + Math.random() * 2;
 
     scene.add(stars, world, meteor);
 
@@ -365,7 +365,7 @@ export function OrbitScene() {
       if (t >= 1) {
         meteor.visible = false;
         meteorAge = -1;
-        meteorWait = 4 + Math.random() * 8;
+        meteorWait = 1.5 + Math.random() * 3;
         return;
       }
       meteorUniforms.life.value = Math.sin(Math.PI * t);
