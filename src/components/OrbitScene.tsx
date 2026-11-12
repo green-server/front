@@ -262,9 +262,7 @@ export function OrbitScene() {
     const METEOR_SPEED = 24; // world units per second at that depth
     const METEOR_LIFE = 0.9;
     const meteorGeometry = new THREE.PlaneGeometry(1, 1);
-    // Each shooting star burns in one of these: the greens, blues, golds and pinks real meteors show.
-    const METEOR_TINTS = [0x3dff8a, 0x4fc3ff, 0xffc04a, 0xff5fa8, 0xb07cff, 0xff7a3d].map((hex) => new THREE.Color(hex));
-    const meteorUniforms = { life: { value: 0 }, tint: { value: new THREE.Color() } };
+    const meteorUniforms = { life: { value: 0 } };
     const meteor = new THREE.Mesh(
       meteorGeometry,
       new THREE.ShaderMaterial({
@@ -359,7 +357,6 @@ export function OrbitScene() {
         meteorDir.set(side * Math.cos(slant), -Math.sin(slant), 0);
         meteorFrom.set((Math.random() * 1.4 - 0.7) * halfW - side * halfW * 0.2, (0.3 + Math.random() * 0.6) * halfH, METEOR_DEPTH);
         meteor.rotation.z = Math.atan2(meteorDir.y, meteorDir.x);
-        meteorUniforms.tint.value.copy(METEOR_TINTS[Math.floor(Math.random() * METEOR_TINTS.length)]);
         meteor.visible = true;
         meteorAge = 0;
       }

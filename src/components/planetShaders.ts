@@ -149,8 +149,8 @@ void main() {
 }
 `;
 
-// A shooting star: a streak whose head (uv.x = 1) burns near white and whose tail trails off in
-// its own colour; life rises and falls over its short flight.
+// A shooting star: a white streak whose head (uv.x = 1) is brightest and whose tail fades to
+// nothing; life rises and falls over its short flight.
 export const METEOR_VERTEX = /* glsl */ `
 varying vec2 vUv;
 void main() {
@@ -161,13 +161,11 @@ void main() {
 
 export const METEOR = /* glsl */ `
 uniform float life;
-uniform vec3 tint;
 varying vec2 vUv;
 void main() {
   // A gentle falloff, so most of the long tail still shows before it fades out.
   float a = pow(vUv.x, 1.6) * (1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0)) * life;
-  vec3 color = mix(tint, vec3(1.0), pow(vUv.x, 14.0));
-  gl_FragColor = vec4(color * a, a);
+  gl_FragColor = vec4(vec3(a), a);
 }
 `;
 
