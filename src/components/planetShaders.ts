@@ -110,6 +110,32 @@ void main() {
 }
 `;
 
+// A few stars that now and then flare into a four-pointed sparkle. Each has its own slow phase,
+// and only the tip of a sharpened sine shows, so a given star flares for a moment every so often.
+export const SPARKLE_VERTEX = /* glsl */ `
+attribute float phase;
+attribute float speed;
+uniform float time;
+uniform float pixelRatio;
+varying float flare;
+void main() {
+  flare = pow(max(sin(time * speed + phase), 0.0), 40.0);
+  gl_PointSize = (2.0 + flare * 52.0) * pixelRatio;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+export const SPARKLE = /* glsl */ `
+varying float flare;
+void main() {
+  vec2 d = abs(gl_PointCoord - 0.5) * 2.0;
+  float core = smoothstep(0.35, 0.0, length(d));
+  float rays = max(smoothstep(0.16, 0.0, d.x) * (1.0 - d.y), smoothstep(0.16, 0.0, d.y) * (1.0 - d.x));
+  float a = max(core, rays * flare);
+  gl_FragColor = vec4(vec3(1.0, 0.97, 0.9) * a * (0.45 + 1.2 * flare), a);
+}
+`;
+
 // The whole scene, re-drawn as text: the frame is cut into character cells, and each cell
 // becomes the glyph whose ink matches its brightness, in the cell's own colour.
 // The scene texture is premultiplied (rendered over transparent black), so the brightest channel

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { getOrbit, subscribeOrbit, type OrbitState } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
-import { ASCII, ASCII_VERTEX, CLOUDS, HALO, MOON, SURFACE, VERTEX } from "./planetShaders";
+import { ASCII, ASCII_VERTEX, CLOUDS, HALO, MOON, SPARKLE, SPARKLE_VERTEX, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
 const NARROW = 760;
@@ -202,6 +202,32 @@ export function OrbitScene() {
     planet.add(globe, halo, moonOrbit);
     const world = new THREE.Group();
     world.add(planet);
+    // Sparkling stars ride with the rest of the sky; see SPARKLE in planetShaders.
+    // The camera sees about 1/25 of the sky, so 600 leaves a couple dozen in view, about one flaring at a time.
+    const SPARKLES = 600;
+    const sparkleGeometry = new THREE.BufferGeometry();
+    const sparklePositions = new Float32Array(SPARKLES * 3);
+    for (let i = 0; i < sparklePositions.length; i += 3) {
+      const v = new THREE.Vector3().randomDirection().multiplyScalar(40);
+      sparklePositions.set([v.x, v.y, v.z], i);
+    }
+    sparkleGeometry.setAttribute("position", new THREE.BufferAttribute(sparklePositions, 3));
+    sparkleGeometry.setAttribute("phase", new THREE.BufferAttribute(Float32Array.from({ length: SPARKLES }, () => Math.random() * Math.PI * 2), 1));
+    sparkleGeometry.setAttribute("speed", new THREE.BufferAttribute(Float32Array.from({ length: SPARKLES }, () => 0.1 + Math.random() * 0.2), 1));
+    const sparkleUniforms = { time: { value: 0 }, pixelRatio: { value: 1 } };
+    const sparkles = new THREE.Points(
+      sparkleGeometry,
+      new THREE.ShaderMaterial({
+        uniforms: sparkleUniforms,
+        vertexShader: SPARKLE_VERTEX,
+        fragmentShader: SPARKLE,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    stars.add(sparkles);
+
     scene.add(stars, world);
 
     // The scene draws into an offscreen target; a full-screen pass turns that into glyphs.
@@ -224,6 +250,7 @@ export function OrbitScene() {
       target3d.setSize(size.x, size.y);
       asciiUniforms.resolution.value.copy(size);
       const ratio = renderer.getPixelRatio();
+      sparkleUniforms.pixelRatio.value = ratio;
       const w = Math.round(CELL.w * ratio);
       const h = Math.round(CELL.h * ratio);
       if (asciiUniforms.cell.value.x !== w || asciiUniforms.cell.value.y !== h || !asciiUniforms.glyphs.value) {
@@ -262,6 +289,8 @@ export function OrbitScene() {
     observer.observe(el);
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // A flare is motion; a still sky has none, rather than a few stars frozen mid-flare.
+    sparkles.visible = !still.matches;
     // World units per CSS pixel at the planet's depth.
     const unitsPerPx = () => (2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / height;
     const target = () => {
@@ -375,6 +404,7 @@ export function OrbitScene() {
       clouds.rotation.y = surface.rotation.y;
       if (!still.matches) {
         stars.rotation.y += dt * 0.002;
+        sparkleUniforms.time.value += dt;
         moonOrbit.rotation.y += dt * 0.06;
       }
       world.updateMatrixWorld();
@@ -398,8 +428,8 @@ export function OrbitScene() {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
-      [sphere, starGeometry, pinGeometry, moonGeometry].forEach((g) => g.dispose());
-      [surface, clouds, halo, stars, moon].forEach((o) => (o.material as THREE.Material).dispose());
+      [sphere, starGeometry, sparkleGeometry, pinGeometry, moonGeometry].forEach((g) => g.dispose());
+      [surface, clouds, halo, stars, sparkles, moon].forEach((o) => (o.material as THREE.Material).dispose());
       [pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       target3d.dispose();
