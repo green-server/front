@@ -34,6 +34,15 @@
   margin: 0;
   font-weight: 700;
 }
+.home-pending {
+  color: var(--warn);
+}
+.home-pending:hover,
+.home-pending:focus-visible {
+  background: var(--warn);
+  color: var(--paper);
+  outline: 0;
+}
 
 @media (max-width: 759.98px) {
   .home-info {

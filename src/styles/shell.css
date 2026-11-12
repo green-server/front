@@ -19,12 +19,16 @@
   padding: 0 2ch;
 }
 .topbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 1ch;
   justify-self: start;
   font-weight: 700;
   text-decoration: none;
 }
 .topbar-mark {
-  color: var(--go);
+  width: 1lh;
+  height: 1lh;
 }
 /* A menu bar: items in a row, the current one reversed. */
 .pills {

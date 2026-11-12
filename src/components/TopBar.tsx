@@ -24,9 +24,8 @@ export function TopBar({ online, total, onLogout }: { online: number; total: num
     <>
       <header className="topbar">
         <Link to="/" className="topbar-brand">
-          <span className="topbar-mark" aria-hidden="true">
-            ❦
-          </span>{" "}
+          {/* The page icon itself, so the bar and the browser tab show the same mark. */}
+          <img className="topbar-mark" src="/icon.svg" alt="" />
           Green Server
         </Link>
         <nav className="pills" aria-label="주 메뉴">
