@@ -53,7 +53,7 @@ function MyServers({ servers }: { servers: ServerSummary[] }) {
           <li key={server.id}>
             <Link to={`/servers/${server.id}`}>
               <strong>{server.name}</strong>
-              <OnlineState online={server.online} />
+              <OnlineState online={server.online} dot />
               <Power
                 value={server.latestWatts}
                 estimated={isServerEstimated(server)}

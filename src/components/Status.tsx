@@ -19,11 +19,13 @@ export function Failure({ error, retry }: { error: Error; retry: () => void }) {
   );
 }
 
-export function OnlineState({ online }: { online: boolean }) {
+/** ● 연결됨 / ○ 끊김; `dot` keeps only the mark on screen, the word stays for screen readers and hover. */
+export function OnlineState({ online, dot = false }: { online: boolean; dot?: boolean }) {
+  const word = online ? "연결됨" : "끊김";
   return (
-    <span className={online ? "online-state is-online" : "online-state"}>
-      <span aria-hidden="true">{online ? "● " : "○ "}</span>
-      {online ? "연결됨" : "끊김"}
+    <span className={online ? "online-state is-online" : "online-state"} title={dot ? word : undefined}>
+      <span aria-hidden="true">{online ? "●" : "○"}</span>
+      {dot ? <span className="sr-only">{word}</span> : ` ${word}`}
     </span>
   );
 }
