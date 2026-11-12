@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { getOrbit, subscribeOrbit, type OrbitState } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
-import { ASCII, ASCII_VERTEX, CLOUDS, HALO, MOON, SPARKLE, SPARKLE_VERTEX, SURFACE, VERTEX } from "./planetShaders";
+import { ASCII, ASCII_VERTEX, AURORA, CLOUDS, HALO, MOON, SPARKLE, SPARKLE_VERTEX, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
 const NARROW = 760;
@@ -147,6 +147,28 @@ export function OrbitScene() {
     pin.add(pinRim, pinDot);
     pin.visible = false;
     surface.add(pin);
+
+    // Aurora over both poles, riding the surface; it shows for about 25 s in every 80.
+    const auroraUniforms = { sun: uniforms.sun, time: { value: 0 }, strength: { value: 0 } };
+    const aurora = new THREE.Mesh(
+      sphere,
+      new THREE.ShaderMaterial({
+        uniforms: auroraUniforms,
+        vertexShader: VERTEX,
+        fragmentShader: AURORA,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    aurora.scale.setScalar(1.05);
+    surface.add(aurora);
+    const AURORA_CYCLE = 80;
+    // The first display starts about 15 s after load.
+    const auroraStrength = (t: number) => {
+      const phase = ((t + AURORA_CYCLE - 15) % AURORA_CYCLE) / AURORA_CYCLE;
+      return THREE.MathUtils.smoothstep(phase, 0, 0.06) * (1 - THREE.MathUtils.smoothstep(phase, 0.25, 0.32));
+    };
     let pinned: OrbitState["pin"] = null;
     const placePin = () => {
       const next = getOrbit().pin;
@@ -405,6 +427,8 @@ export function OrbitScene() {
       if (!still.matches) {
         stars.rotation.y += dt * 0.002;
         sparkleUniforms.time.value += dt;
+        auroraUniforms.time.value += dt;
+        auroraUniforms.strength.value = auroraStrength(auroraUniforms.time.value);
         moonOrbit.rotation.y += dt * 0.06;
       }
       world.updateMatrixWorld();
@@ -429,7 +453,7 @@ export function OrbitScene() {
       window.removeEventListener("pointercancel", onUp);
       document.documentElement.style.cursor = "";
       [sphere, starGeometry, sparkleGeometry, pinGeometry, moonGeometry].forEach((g) => g.dispose());
-      [surface, clouds, halo, stars, sparkles, moon].forEach((o) => (o.material as THREE.Material).dispose());
+      [surface, clouds, halo, aurora, stars, sparkles, moon].forEach((o) => (o.material as THREE.Material).dispose());
       [pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
       target3d.dispose();
