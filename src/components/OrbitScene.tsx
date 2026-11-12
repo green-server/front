@@ -277,7 +277,7 @@ export function OrbitScene() {
       }),
     );
     // A few text rows thick at the head, so it reads as a bold streak of glyphs.
-    meteor.scale.set(METEOR_LENGTH, 0.4, 1);
+    meteor.scale.set(METEOR_LENGTH, 0.75, 1);
     meteor.visible = false;
     const meteorFrom = new THREE.Vector3();
     const meteorDir = new THREE.Vector3();
