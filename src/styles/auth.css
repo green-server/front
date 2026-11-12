@@ -3,32 +3,39 @@
   position: fixed;
   z-index: 10;
   display: grid;
-  gap: 16px;
-  padding: 24px;
+  gap: 1lh;
+  padding: 1lh 3ch;
+  background: var(--paper);
+}
+.auth-card::before,
+.notice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0.5lh 0.5ch;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  pointer-events: none;
 }
 .auth-card {
   top: 50%;
   /* Centred in the right half; the tree stands in the left. */
   left: 75%;
-  width: 340px;
+  width: 44ch;
   transform: translate(-50%, -50%);
 }
 .notice-card {
   top: 50%;
   left: 50%;
-  width: min(360px, calc(100vw - 32px));
+  width: min(48ch, calc(100vw - 2ch));
   transform: translate(-50%, -50%);
   justify-items: start;
 }
-.notice-card h1 {
-  font-size: 1.25rem;
-}
+
 .auth-form {
   display: grid;
-  gap: 12px;
+  gap: 1lh;
+}
+.auth-form .btn {
+  justify-self: start;
 }
 .auth-error {
   margin: 0;
@@ -48,7 +55,7 @@
     position: relative;
     inset: auto;
     width: auto;
-    margin: calc(var(--bar-h) + 40vh) 16px 16px;
+    margin: calc(var(--bar-h) + 40vh) 1ch 1lh;
     transform: none;
   }
 }
