@@ -1,7 +1,6 @@
 import { Link } from "react-router";
 import { useServers } from "@/AppLayout";
 import { Power } from "@/components/Power";
-import { LiveLog } from "@/components/LiveLog";
 import { Failure } from "@/components/Status";
 import { useApi } from "@/lib/api";
 import { formatKrw, isServerEstimated } from "@/lib/format";
@@ -11,7 +10,7 @@ import "@/styles/home.css";
 
 /**
  * Home is the planet with one line under it: the fleet's draw now, this month's bill and the
- * commands waiting for the owner's approval; live events scroll past faintly at the side.
+ * commands waiting for the owner's approval.
  */
 export default function Home() {
   const { servers, error, reload } = useServers();
@@ -50,46 +49,40 @@ export default function Home() {
   const pending =
     activity.data?.calls.filter((c) => c.decision === "pending") ?? [];
   return (
-    <>
-      <LiveLog servers={servers} />
-      <dl className="home-info">
+    <dl className="home-info">
+      <div>
+        <dt>지금 전체</dt>
+        {/* Nothing online means no reading, not a measured zero. */}
+        <dd>
+          {reading.length > 0 ? (
+            <Power value={watts} estimated={reading.some(isServerEstimated)} />
+          ) : (
+            <span className="muted">측정값 없음</span>
+          )}
+        </dd>
+      </div>
+      <div>
+        <dt>이번 달 예상</dt>
+        <dd>{formatKrw(krw)}</dd>
+      </div>
+      {activity.data && (
         <div>
-          <dt>지금 전체</dt>
-          {/* Nothing online means no reading, not a measured zero. */}
+          <dt>승인 대기</dt>
           <dd>
-            {reading.length > 0 ? (
-              <Power
-                value={watts}
-                estimated={reading.some(isServerEstimated)}
-              />
+            {/* Waiting commands lead to the oldest one; nothing waiting is just a count. */}
+            {pending.length > 0 ? (
+              <Link
+                to={`/consultations/${pending.at(-1)!.consultationId}`}
+                className="home-pending"
+              >
+                {pending.length}건
+              </Link>
             ) : (
-              <span className="muted">측정값 없음</span>
+              "0건"
             )}
           </dd>
         </div>
-        <div>
-          <dt>이번 달 예상</dt>
-          <dd>{formatKrw(krw)}</dd>
-        </div>
-        {activity.data && (
-          <div>
-            <dt>승인 대기</dt>
-            <dd>
-              {/* Waiting commands lead to the oldest one; nothing waiting is just a count. */}
-              {pending.length > 0 ? (
-                <Link
-                  to={`/consultations/${pending.at(-1)!.consultationId}`}
-                  className="home-pending"
-                >
-                  {pending.length}건
-                </Link>
-              ) : (
-                "0건"
-              )}
-            </dd>
-          </div>
-        )}
-      </dl>
-    </>
+      )}
+    </dl>
   );
 }
