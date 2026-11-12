@@ -10,3 +10,36 @@
 .home-empty > * {
   pointer-events: auto;
 }
+
+/* One line under the planet: label, value; label, value. */
+.home-info {
+  position: fixed;
+  bottom: calc(1lh + env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 4ch;
+  margin: 0;
+  translate: -50% 0;
+  white-space: nowrap;
+}
+.home-info > div {
+  display: flex;
+  gap: 1ch;
+}
+.home-info dt {
+  color: var(--ink-2);
+}
+.home-info dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (max-width: 759.98px) {
+  .home-info {
+    bottom: calc(var(--tabs-h) + 1lh);
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+}
