@@ -95,3 +95,40 @@ void main() {
   gl_FragColor = vec4(air * glow * 2.4, 1.0);
 }
 `;
+
+// The whole scene, re-drawn as text: the frame is cut into character cells, and each cell
+// becomes the glyph whose ink matches its brightness, in the cell's own colour.
+// The scene texture is premultiplied (rendered over transparent black), so the brightest channel
+// is both how lit and how covered the cell is.
+export const ASCII_VERTEX = /* glsl */ `
+void main() {
+  gl_Position = vec4(position.xy, 0.0, 1.0);
+}
+`;
+
+export const ASCII = /* glsl */ `
+uniform sampler2D scene;
+uniform sampler2D glyphs;
+uniform vec2 resolution;
+uniform vec2 cell;
+uniform float count;
+void main() {
+  vec2 origin = floor(gl_FragCoord.xy / cell) * cell;
+  // Four taps inside the cell, so thin things (the ring, stars) are not missed between centres.
+  vec4 s = (
+    texture2D(scene, (origin + cell * vec2(0.25, 0.25)) / resolution) +
+    texture2D(scene, (origin + cell * vec2(0.75, 0.25)) / resolution) +
+    texture2D(scene, (origin + cell * vec2(0.25, 0.75)) / resolution) +
+    texture2D(scene, (origin + cell * vec2(0.75, 0.75)) / resolution)
+  ) * 0.25;
+  float peak = max(max(s.r, s.g), s.b);
+  // A gentle curve, so the dim night side and seas still get glyphs.
+  float level = clamp(pow(peak, 0.75) * 1.25, 0.0, 1.0);
+  float index = floor(level * (count - 1.0) + 0.5);
+  vec2 inCell = (gl_FragCoord.xy - origin) / cell;
+  float ink = texture2D(glyphs, vec2((index + inCell.x) / count, inCell.y)).r;
+  vec3 hue = s.rgb / max(peak, 1e-4);
+  vec3 color = hue * (0.5 + 0.5 * level);
+  gl_FragColor = vec4(color * ink, ink);
+}
+`;

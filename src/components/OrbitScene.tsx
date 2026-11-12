@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { getLabelPositions, getOrbit, publishFrame, subscribeOrbit, type OrbitState, type Satellite } from "@/lib/orbit";
 import { subsolar } from "@/lib/sun";
-import { CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
+import { ASCII, ASCII_VERTEX, CLOUDS, HALO, SURFACE, VERTEX } from "./planetShaders";
 import "@/styles/scene.css";
 
 export { getLabelPositions, subscribeFrame } from "@/lib/orbit";
@@ -14,6 +14,27 @@ const LIVE_CLOUDS = "https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg"
 const CLOUD_REFRESH = 3 * 3600_000;
 const PIN_DIM = new THREE.Color(0x166534);
 const PIN_BRIGHT = new THREE.Color(0x86efac);
+// The scene is shown as text: one glyph per cell of this size (CSS px), darkest to brightest.
+const CELL = { w: 7, h: 12 };
+const RAMP = " .:-=+*#%@";
+
+/** The ramp's glyphs side by side, white on black, one cell each, as a texture. */
+function glyphAtlas(w: number, h: number) {
+  const canvas = document.createElement("canvas");
+  canvas.width = w * RAMP.length;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${Math.round(h * 0.82)}px ui-monospace, Menlo, monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  [...RAMP].forEach((glyph, i) => ctx.fillText(glyph, (i + 0.5) * w, h / 2));
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = texture.magFilter = THREE.NearestFilter;
+  return texture;
+}
 
 /**
  * The one scene behind every page: the planet, whose seas, forests and air follow the fleet's
@@ -222,6 +243,35 @@ export function OrbitScene() {
     world.add(planet, ring);
     scene.add(stars, world);
 
+    // The scene draws into an offscreen target; a full-screen pass turns that into glyphs.
+    const target3d = new THREE.WebGLRenderTarget(1, 1);
+    const asciiUniforms = {
+      scene: { value: target3d.texture },
+      glyphs: { value: null as THREE.Texture | null },
+      resolution: { value: new THREE.Vector2(1, 1) },
+      cell: { value: new THREE.Vector2(CELL.w, CELL.h) },
+      count: { value: RAMP.length },
+    };
+    const asciiQuad = new THREE.Mesh(
+      new THREE.PlaneGeometry(2, 2),
+      new THREE.ShaderMaterial({ uniforms: asciiUniforms, vertexShader: ASCII_VERTEX, fragmentShader: ASCII, blending: THREE.NoBlending, depthTest: false }),
+    );
+    const asciiScene = new THREE.Scene().add(asciiQuad);
+    const asciiCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const sizeAscii = () => {
+      const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+      target3d.setSize(size.x, size.y);
+      asciiUniforms.resolution.value.copy(size);
+      const ratio = renderer.getPixelRatio();
+      const w = Math.round(CELL.w * ratio);
+      const h = Math.round(CELL.h * ratio);
+      if (asciiUniforms.cell.value.x !== w || asciiUniforms.cell.value.y !== h || !asciiUniforms.glyphs.value) {
+        asciiUniforms.glyphs.value?.dispose();
+        asciiUniforms.glyphs.value = glyphAtlas(w, h);
+        asciiUniforms.cell.value.set(w, h);
+      }
+    };
+
     let dirty = true;
     const markDirty = () => void (dirty = true);
     let width = 1;
@@ -236,6 +286,7 @@ export function OrbitScene() {
       width = el.clientWidth;
       height = el.clientHeight;
       renderer.setSize(width, height, false);
+      sizeAscii();
       camera.aspect = width / height;
       narrow = window.innerWidth < NARROW;
       // Phones: the planet sits above the content, smaller, with no ring.
@@ -379,7 +430,10 @@ export function OrbitScene() {
       }
       world.updateMatrixWorld();
       sun.copy(sunLocal).transformDirection(surface.matrixWorld);
+      renderer.setRenderTarget(target3d);
       renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      renderer.render(asciiScene, asciiCamera);
 
       if (ring.visible) {
         planet.getWorldPosition(centre);
@@ -426,6 +480,10 @@ export function OrbitScene() {
       [surface, clouds, halo, stars].forEach((o) => (o.material as THREE.Material).dispose());
       [ringMaterial, onlineMaterial, offlineMaterial, pinMaterial, pinRimMaterial].forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
+      target3d.dispose();
+      asciiQuad.geometry.dispose();
+      asciiQuad.material.dispose();
+      asciiUniforms.glyphs.value?.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
