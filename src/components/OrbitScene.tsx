@@ -148,7 +148,7 @@ export function OrbitScene() {
     pin.visible = false;
     surface.add(pin);
 
-    // Aurora over both poles, riding the surface; it shows for about 25 s in every 80.
+    // Aurora over both poles, riding the surface; it shows for about 25 s in every 40.
     // Seven stacked shells from 2% to 16% of the radius above the ground make one standing curtain.
     const auroraUniforms = { sun: uniforms.sun, time: { value: 0 }, strength: { value: 0 } };
     const AURORA_LAYERS = 7;
@@ -169,11 +169,11 @@ export function OrbitScene() {
       surface.add(layer);
       return layer;
     });
-    const AURORA_CYCLE = 80;
-    // The first display starts about 15 s after load.
+    const AURORA_CYCLE = 40;
+    // The first display starts a few seconds after load.
     const auroraStrength = (t: number) => {
-      const phase = ((t + AURORA_CYCLE - 15) % AURORA_CYCLE) / AURORA_CYCLE;
-      return THREE.MathUtils.smoothstep(phase, 0, 0.06) * (1 - THREE.MathUtils.smoothstep(phase, 0.25, 0.32));
+      const phase = ((t + AURORA_CYCLE - 3) % AURORA_CYCLE) / AURORA_CYCLE;
+      return THREE.MathUtils.smoothstep(phase, 0, 0.08) * (1 - THREE.MathUtils.smoothstep(phase, 0.55, 0.65));
     };
     let pinned: OrbitState["pin"] = null;
     const placePin = () => {

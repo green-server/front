@@ -123,13 +123,19 @@ uniform float height;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vView;
+// One curtain around the base latitude; the seed gives each its own wander, rays and slow pulse.
+float curtain(float lat, float lon, float base, float seed) {
+  float centre = base + 1.5 * height + 2.5 * sin(lon * 3.0 + time * 0.25 + seed) + 1.2 * sin(lon * 7.0 - time * 0.4 + seed * 2.0);
+  float band = exp(-pow((lat - centre) / 2.2, 2.0));
+  float rays = 0.4 + 0.6 * sin(lon * 90.0 + time * 1.7 + seed * 5.0 + 4.0 * sin(lon * 11.0 + time * 0.3 + seed));
+  float pulse = 0.55 + 0.45 * sin(time * 0.35 + seed * 3.0);
+  return band * rays * pulse;
+}
 void main() {
   float lat = abs(vUv.y - 0.5) * 180.0;
   float lon = vUv.x * 6.2832;
-  // The curtain leans a little poleward as it rises.
-  float centre = 67.0 + 1.5 * height + 3.0 * sin(lon * 3.0 + time * 0.25) + 1.5 * sin(lon * 7.0 - time * 0.4);
-  float band = exp(-pow((lat - centre) / 3.5, 2.0));
-  float rays = 0.45 + 0.55 * sin(lon * 90.0 + time * 1.7 + 4.0 * sin(lon * 11.0 + time * 0.3));
+  // Three curtains, one behind another, each wandering on its own.
+  float band = curtain(lat, lon, 62.5, 0.0) * 0.75 + curtain(lat, lon, 67.0, 2.1) + curtain(lat, lon, 71.5, 4.3) * 0.85;
   vec3 n = normalize(vNormal);
   float night = 1.0 - smoothstep(-0.15, 0.3, dot(n, sun));
   // Seen edge-on at the limb the curtain is deepest, so it glows most there.
@@ -137,7 +143,7 @@ void main() {
   vec3 color = mix(vec3(0.3, 1.0, 0.55), vec3(0.7, 0.35, 1.0), smoothstep(0.4, 1.0, height));
   color = mix(vec3(0.2, 0.9, 0.95), color, smoothstep(0.0, 0.2, height));
   float fade = pow(1.0 - height, 0.8);
-  float a = clamp(band * rays * strength * fade * mix(0.5, 1.0, night) * (0.5 + 2.5 * limb), 0.0, 1.0);
+  float a = clamp(band * strength * fade * mix(0.5, 1.0, night) * (0.5 + 2.5 * limb), 0.0, 1.0);
   gl_FragColor = vec4(color * a, a);
 }
 `;
