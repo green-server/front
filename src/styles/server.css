@@ -3,169 +3,191 @@
 .list-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 0.5lh;
+  margin-bottom: 8px;
 }
 .panel .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2ch;
+  gap: 16px;
 }
 .row-main {
   display: grid;
   min-width: 0;
+  font-size: 0.9375rem;
 }
 .row-main strong,
 .row-main code {
   overflow: hidden;
   white-space: nowrap;
+  font-size: 1rem;
   text-overflow: ellipsis;
 }
 .server-row {
   color: inherit;
   text-decoration: none;
 }
-.server-row:hover .row-main strong,
-.server-row:focus-visible .row-main strong {
-  background: var(--ink);
-  color: var(--paper);
+.server-row:hover .row-main strong {
+  text-decoration: underline;
 }
 .server-row .row-main {
   flex: 1;
 }
 .row-krw {
-  min-width: 12ch;
+  min-width: 7.5rem;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Detail */
 .server-state {
-  margin: 0 0 0.5lh;
+  margin: 0 0 12px;
   color: var(--ink-2);
 }
 .note {
-  max-width: 64ch;
-  margin: 0.5lh 0 0;
+  max-width: 34rem;
+  margin: 8px 0 0;
+  font-size: 0.9375rem;
 }
 .panel .power-xl .power-value {
   color: var(--ink);
+  font-size: clamp(3rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1;
+  border-bottom-width: 3px;
 }
 .panel .figures {
   display: grid;
   grid-template-columns: repeat(3, auto);
   justify-content: start;
-  gap: 0 4ch;
-  margin: 1lh 0 0;
+  gap: 8px 40px;
+  margin: 24px 0 0;
 }
 .panel .figures dt {
   color: var(--ink-2);
+  font-size: 0.875rem;
 }
 .panel .figures dd {
   margin: 0;
+  font-size: 1.375rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 .section-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 2ch;
+  gap: 12px;
 }
 .chart-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0 2ch;
+  gap: 8px 16px;
 }
 .chart-slot {
   min-width: 0;
-  min-height: 15lh;
+  min-height: 260px;
 }
-/* Range picker: [1시간] [24시간] [7일], the chosen one reversed. */
 .panel .segmented {
   display: inline-flex;
-  gap: 1ch;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
 }
 .panel .segmented button {
-  padding: 0;
+  min-height: 36px;
+  padding: 0 14px;
   border: 0;
   background: transparent;
   color: var(--ink-2);
   font: inherit;
-  line-height: inherit;
   cursor: pointer;
-}
-.panel .segmented button::before {
-  content: "[";
-}
-.panel .segmented button::after {
-  content: "]";
-}
-.panel .segmented button:hover,
-.panel .segmented button:focus-visible {
-  color: var(--ink);
-  outline: 0;
 }
 .panel .segmented button[aria-pressed="true"] {
   background: var(--go);
   color: var(--on-go);
   font-weight: 700;
 }
-
-/* Chart: components/PowerChart.tsx */
-.chart {
+.panel .chart {
   margin: 0;
 }
-.chart .chart-head {
-  gap: 0 2ch;
+.panel .chart-legend {
+  display: inline-flex;
+  gap: 16px;
   color: var(--ink-2);
+  font-size: 0.8125rem;
 }
-.chart-box {
+.panel .chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel .chart-box {
   position: relative;
-  min-width: 0;
 }
-.chart-probe {
+.panel .chart-head {
+  margin: 8px 0;
+}
+.chart svg {
+  display: block;
+  max-width: 100%;
+}
+.panel .chart-grid {
+  stroke: var(--line);
+  stroke-dasharray: 1 5;
+}
+.panel .chart-label {
+  fill: var(--ink-2);
+  font: 400 11px var(--sans);
+}
+.panel .chart-line {
+  fill: none;
+  filter: none;
+  stroke: var(--go);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.panel .chart-line-estimated {
+  stroke: var(--ink-2);
+  stroke-dasharray: 6 5;
+}
+.panel .chart-point,
+.panel .chart-marker {
+  fill: var(--go);
+  stroke: none;
+}
+.panel .chart-point.is-estimated,
+.panel .chart-marker.is-estimated {
+  fill: var(--ink-2);
+}
+.panel .chart-peak {
+  fill: var(--ink);
+  font: 500 11px var(--sans);
+}
+.panel .chart-cursor {
+  stroke: var(--ink-2);
+}
+.panel .chart-tip {
   position: absolute;
-  visibility: hidden;
-  white-space: pre;
-}
-/* D2Coding's full block is 0.847em tall: at a hair under it stacked █ cells meet without a seam. */
-.chart-grid {
-  overflow: hidden;
-  line-height: 0.84;
-  white-space: pre;
-  cursor: crosshair;
-  user-select: none;
-}
-.chart-grid:focus-visible {
-  outline-offset: 4px;
-}
-.chart-axis {
+  top: 8px;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--space);
   color: var(--ink-2);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
 }
-.chart .is-measured {
-  color: var(--go);
-}
-.chart .is-estimated {
-  color: var(--ink-2);
-}
-.chart-grid .is-picked {
-  background: var(--line);
-}
-.chart-status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1ch;
-  margin-top: 0.5lh;
-  color: var(--ink-2);
-}
-.chart-status .is-measured,
-.chart-status .is-estimated {
-  font-weight: 700;
-}
-.chart-peak {
-  margin-left: auto;
+.panel .chart-tip strong {
   color: var(--ink);
+  font-size: 1rem;
 }
 
 /* Recommendations and history */
@@ -173,109 +195,82 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 2ch;
+  gap: 12px;
   list-style: none;
   cursor: pointer;
 }
 .entry summary::-webkit-details-marker {
   display: none;
 }
+/* A drawn caret, turned when the row opens. */
 .entry-title {
+  position: relative;
   display: grid;
-  padding-left: 2ch;
-  font-weight: 700;
+  padding-left: 16px;
+  font-weight: 600;
 }
 .entry-title::before {
-  content: "▸";
+  content: "";
   position: absolute;
-  margin-left: -2ch;
-  color: var(--ink-2);
+  top: 0.55em;
+  left: 2px;
+  border-block: 4px solid transparent;
+  border-left: 6px solid var(--ink-2);
+  transition: transform 120ms;
 }
 details[open] .entry-title::before {
-  content: "▾";
-}
-.entry summary:hover .entry-title > :first-child,
-.entry summary:focus-visible .entry-title > :first-child {
-  background: var(--ink);
-  color: var(--paper);
-}
-.entry summary:focus-visible {
-  outline: 0;
+  transform: rotate(90deg);
 }
 .entry-title .muted {
+  font-size: 0.875rem;
   font-weight: 400;
 }
 .entry-saving {
   color: var(--go);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 .entry.is-closed .entry-title {
   color: var(--ink-2);
 }
 .entry-detail {
-  margin: 0.5lh 0 0;
+  margin: 8px 0 0;
 }
 .entry-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 2ch;
-  margin-top: 0.5lh;
+  gap: 8px;
+  margin-top: 12px;
 }
 .history-link {
   display: grid;
   color: inherit;
   text-decoration: none;
 }
-.history-link:hover > span:first-child,
-.history-link:focus-visible > span:first-child {
-  background: var(--ink);
-  color: var(--paper);
+.history-link:hover > span:first-child {
+  text-decoration: underline;
 }
 .history-summary {
   color: var(--ink-2);
+  font-size: 0.9375rem;
 }
 .consult-start {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.5lh 2ch;
+  gap: 16px;
 }
-/* Radio choices: ( ) 구독  (•) API 키 */
 .consult-start .choice {
   display: flex;
-  gap: 2ch;
+  gap: 16px;
   margin: 0;
   padding: 0;
   border: 0;
 }
 .consult-start legend {
   padding: 0;
-  color: var(--ink-2);
-}
-.consult-start .choice label {
-  display: inline-flex;
-  gap: 1ch;
-  cursor: pointer;
-}
-.consult-start .choice input {
-  appearance: none;
-  margin: 0;
-  font: inherit;
-  cursor: pointer;
-}
-.consult-start .choice input::before {
-  content: "( )";
-  color: var(--ink-2);
-}
-.consult-start .choice input:checked::before {
-  content: "(•)";
-  color: var(--go);
-}
-.consult-start .choice label:has(input:checked) {
-  font-weight: 700;
-}
-.consult-start .choice input:focus-visible {
-  outline: 1px solid var(--go);
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 .consult-start .error {
   flex-basis: 100%;
@@ -284,21 +279,21 @@ details[open] .entry-title::before {
 /* New server */
 .panel .form {
   display: grid;
-  gap: 1lh;
-  max-width: 48ch;
+  gap: 16px;
+  max-width: 28rem;
 }
 .panel .steps {
   list-style: decimal;
   margin: 0;
-  padding-left: 3ch;
+  padding-left: 1.25rem;
   color: var(--ink-2);
 }
 .panel .section-title {
-  margin-top: 1lh;
+  margin-top: 20px;
 }
 .panel .token {
   display: grid;
-  gap: 0.5lh;
+  gap: 12px;
 }
 .panel .token p {
   margin: 0;
@@ -308,29 +303,26 @@ details[open] .entry-title::before {
 }
 .panel .copyable {
   display: grid;
-  gap: 0.5lh;
+  gap: 8px;
   justify-items: start;
 }
 .panel .copyable pre {
-  position: relative;
   width: 100%;
   margin: 0;
-  padding: 1lh 2ch;
+  padding: 12px 14px;
   overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.04);
+  font-size: 0.8125rem;
   white-space: pre-wrap;
   word-break: break-all;
-}
-.panel .copyable pre::before {
-  content: "";
-  position: absolute;
-  inset: 0.5lh 0.5ch;
-  border: 1px solid var(--line);
-  pointer-events: none;
 }
 
 @media (max-width: 759.98px) {
   .panel .figures {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   .panel .server-row {
     flex-wrap: wrap;
@@ -338,4 +330,38 @@ details[open] .entry-title::before {
   .row-krw {
     min-width: 0;
   }
+}
+
+.consult-start .choice label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.consult-start .choice label:has(input:checked) {
+  border-color: var(--go);
+  background: var(--go);
+  color: var(--on-go);
+  font-weight: 700;
+}
+.consult-start .choice label:has(input:focus-visible) {
+  outline: 2px solid var(--go);
+  outline-offset: 2px;
+}
+.consult-start .choice input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  appearance: none;
+  cursor: pointer;
+}
+.consult-start .choice input:focus-visible {
+  outline: none;
 }

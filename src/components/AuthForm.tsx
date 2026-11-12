@@ -2,8 +2,7 @@ import { Link } from "react-router";
 import { useNavigate } from "react-router";
 import { useEffect, type FormEvent } from "react";
 import { api, clearApiCache, useSubmit } from "@/lib/api";
-import { TreeStage } from "@/components/TreeStage";
-import { setScene } from "@/lib/scene";
+import { setOrbit } from "@/lib/orbit";
 import type { User } from "@/lib/types";
 import "@/styles/auth.css";
 
@@ -13,8 +12,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const signup = mode === "signup";
 
   useEffect(() => {
-    setScene({ auth: true });
-    return () => setScene({ auth: false });
+    setOrbit({ auth: true });
+    return () => setOrbit({ auth: false });
   }, []);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -41,7 +40,6 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   return (
     <main>
       <title>{`${signup ? "회원가입" : "로그인"} · Green Server`}</title>
-      <TreeStage />
       <div className="auth-card">
         <h1 className="sr-only">{signup ? "회원가입" : "로그인"}</h1>
         <form className="auth-form" onSubmit={submit}>

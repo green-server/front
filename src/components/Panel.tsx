@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
-import { setScene } from "@/lib/scene";
+import { setOrbit } from "@/lib/orbit";
 
 export function Panel({
   title,
@@ -17,8 +17,8 @@ export function Panel({
   const navigate = useNavigate();
 
   useEffect(() => {
-    setScene({ panel: true });
-    return () => setScene({ panel: false });
+    setOrbit({ panel: true });
+    return () => setOrbit({ panel: false });
   }, []);
 
   useEffect(() => {
@@ -33,26 +33,22 @@ export function Panel({
     return () => window.removeEventListener("keydown", onKey);
   }, [navigate, escape]);
 
-  // The frame stays put; only the body scrolls, so the box lines never scroll away.
   return (
-    <section className="panel frame" aria-label={title}>
+    <section className="panel" aria-label={title}>
       <div className="panel-head">
-        <span className="panel-title">
+        <div>
           {back && (
-            <>
-              <Link to={back.to} className="crumb">
-                ← {back.label}
-              </Link>
-              {" › "}
-            </>
+            <Link to={back.to} className="crumb">
+              ← {back.label}
+            </Link>
           )}
           <h1>{title}</h1>
-        </span>
+        </div>
         <Link to="/" className="panel-close" aria-label="닫기">
-          [x]
+          ✕
         </Link>
       </div>
-      <div className="panel-body">{children}</div>
+      {children}
     </section>
   );
 }

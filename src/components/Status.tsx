@@ -2,8 +2,9 @@ export function Loading() {
   return (
     <div className="skeleton" role="status">
       <p className="muted">불러오는 중…</p>
-      <span aria-hidden="true">░░░░░░░░░░░░░░░░░░░░░░░░</span>
-      <span aria-hidden="true">░░░░░░░░░░░░░░░░</span>
+      <span className="skeleton-line" aria-hidden="true" />
+      <span className="skeleton-line" aria-hidden="true" />
+      <span className="skeleton-line" aria-hidden="true" />
     </div>
   );
 }
@@ -22,7 +23,7 @@ export function Failure({ error, retry }: { error: Error; retry: () => void }) {
 export function OnlineState({ online }: { online: boolean }) {
   return (
     <span className={online ? "online-state is-online" : "online-state"}>
-      <span aria-hidden="true">{online ? "● " : "○ "}</span>
+      <span className="dot" aria-hidden="true" />
       {online ? "연결됨" : "끊김"}
     </span>
   );

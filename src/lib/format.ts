@@ -151,6 +151,32 @@ export function undoState(call: ToolCall, calls: ToolCall[]): UndoState {
   return last.exitCode === 0 ? "done" : "failed";
 }
 
+/**
+ * Consecutive points sharing a provenance form one run, so the chart can draw 실측 and 추정
+ * differently. A silence longer than five normal intervals breaks the line: an outage must
+ * not look like a steady reading.
+ */
+export function splitRuns(metrics: Metric[]): { estimated: boolean; points: Metric[] }[] {
+  const times = metrics.map((m) => Date.parse(m.ts));
+  const steps = times.slice(1).map((t, i) => t - times[i]).sort((a, b) => a - b);
+  const maxGap = (steps[Math.floor(steps.length / 2)] ?? 0) * 5;
+
+  const runs: { estimated: boolean; points: Metric[] }[] = [];
+  metrics.forEach((metric, i) => {
+    const run = runs.at(-1);
+    const gap = i > 0 ? times[i] - times[i - 1] : 0;
+    if (!run || gap > maxGap) {
+      runs.push({ estimated: metric.isEstimated, points: [metric] });
+    } else if (run.estimated !== metric.isEstimated) {
+      // Share the boundary point so the line stays continuous across the change.
+      runs.push({ estimated: metric.isEstimated, points: [metrics[i - 1], metric] });
+    } else {
+      run.points.push(metric);
+    }
+  });
+  return runs;
+}
+
 /** Round axis maximum and its ticks, with zero as the baseline. */
 export function axisTicks(max: number, count = 4) {
   if (max <= 0) return [0, 1];

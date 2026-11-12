@@ -1,67 +1,61 @@
 .report-total {
   display: grid;
+  gap: 4px;
   margin: 0;
 }
 .report-co2 {
   color: var(--ink-2);
+  font-size: 1.0625rem;
+  font-variant-numeric: tabular-nums;
 }
 .report-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: baseline;
-  gap: 0 2ch;
+  gap: 8px 20px;
 }
 .report-change {
   display: inline-flex;
   align-items: baseline;
-  gap: 1ch;
+  gap: 8px;
 }
 .report-money {
-  min-width: 12ch;
+  min-width: 7em;
   font-weight: 700;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .report-filter {
   display: flex;
-  gap: 1ch;
+  gap: 4px;
+}
+.report-filter .btn {
+  min-height: 32px;
 }
 .report-filter [aria-pressed="true"] {
-  background: var(--go);
-  color: var(--on-go);
+  background: rgb(255 255 255 / 0.1);
 }
 .call-group {
-  padding: 0.5lh 0;
-  border-top: 1px dashed var(--line);
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
 }
 .call-group summary {
-  list-style: none;
   cursor: pointer;
-}
-.call-group summary::-webkit-details-marker {
-  display: none;
-}
-.call-group summary::before {
-  content: "▸ ";
-  color: var(--ink-2);
-}
-.call-group[open] summary::before {
-  content: "▾ ";
 }
 .call-list {
   display: grid;
-  margin: 0.5lh 0;
+  gap: 6px;
+  margin: 8px 0;
   padding: 0;
   list-style: none;
 }
 .call-list li {
   display: grid;
+  gap: 2px;
 }
 .call-list code {
   overflow-wrap: anywhere;
-}
-.call-list code::before {
-  content: "$ ";
-  color: var(--ink-2);
+  font-size: 0.875rem;
 }
 .call-problem code {
   color: var(--bad);
@@ -73,8 +67,8 @@
 }
 .form {
   display: grid;
-  gap: 1lh;
-  max-width: 48ch;
+  gap: 12px;
+  max-width: 360px;
 }
 .form .btn {
   justify-self: start;
@@ -87,18 +81,19 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 0 2ch;
+  gap: 8px 16px;
   text-decoration: none;
 }
 .account-servers .state {
   color: var(--ink-2);
+  font-size: 0.875rem;
 }
 .account-servers .state.is-online {
   color: var(--go);
 }
 .confirm-actions {
   display: flex;
-  gap: 2ch;
+  gap: 8px;
 }
 
 @media (max-width: 759.98px) {

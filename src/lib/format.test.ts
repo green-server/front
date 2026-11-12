@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { appendStream, callHasProblem, groupCalls, powerChange, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, undoState } from "./format.ts";
+import { appendStream, callHasProblem, groupCalls, powerChange, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, splitRuns, undoState } from "./format.ts";
 import type { Metric, SavingsReport, ToolCall } from "./types.ts";
 
 const metric = (seconds: number, isEstimated = false): Metric => ({
@@ -62,6 +62,16 @@ test("undo tracks the latest attempt, and a failed one can be retried", () => {
   assert.equal(undoState(call({}), [undo(0)]), "done");
   assert.equal(undoState(call({}), [undo(1)]), "failed");
   assert.equal(undoState(call({}), [undo(1), undo(0, 3)]), "done");
+});
+
+test("splitRuns separates provenance and shares the boundary point", () => {
+  const runs = splitRuns([metric(0), metric(10), metric(20, true), metric(30, true)]);
+  assert.deepEqual(runs.map((r) => [r.estimated, r.points.length]), [[false, 2], [true, 3]]);
+});
+
+test("splitRuns breaks the line across an outage", () => {
+  const runs = splitRuns([metric(0), metric(10), metric(20), metric(30), metric(500), metric(510)]);
+  assert.deepEqual(runs.map((r) => r.points.length), [4, 2]);
 });
 
 test("appendMetric drops duplicates and points outside the window", () => {

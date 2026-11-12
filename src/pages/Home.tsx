@@ -5,7 +5,7 @@ import { Failure } from "@/components/Status";
 import { useApi } from "@/lib/api";
 import { formatKrw, isServerEstimated } from "@/lib/format";
 import { useLive } from "@/lib/live";
-import { weekChangePct } from "@/lib/scene";
+import { weekChangePct } from "@/lib/orbit";
 import type { ActivityReport } from "@/lib/types";
 import "@/styles/home.css";
 

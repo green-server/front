@@ -3,39 +3,32 @@
   position: fixed;
   z-index: 10;
   display: grid;
-  gap: 1lh;
-  padding: 1lh 3ch;
-  background: var(--paper);
-}
-.auth-card::before,
-.notice-card::before {
-  content: "";
-  position: absolute;
-  inset: 0.5lh 0.5ch;
+  gap: 16px;
+  padding: 24px;
   border: 1px solid var(--line);
-  pointer-events: none;
+  border-radius: 16px;
+  background: var(--surface);
 }
 .auth-card {
   top: 50%;
-  /* Centred in the right half; the tree stands in the left. */
+  /* Centred in the right half; the planet centres in the left. */
   left: 75%;
-  width: 44ch;
+  width: 340px;
   transform: translate(-50%, -50%);
 }
 .notice-card {
   top: 50%;
   left: 50%;
-  width: min(48ch, calc(100vw - 2ch));
+  width: min(360px, calc(100vw - 32px));
   transform: translate(-50%, -50%);
   justify-items: start;
 }
-
+.notice-card h1 {
+  font-size: 1.25rem;
+}
 .auth-form {
   display: grid;
-  gap: 1lh;
-}
-.auth-form .btn {
-  justify-self: start;
+  gap: 12px;
 }
 .auth-error {
   margin: 0;
@@ -50,12 +43,12 @@
 }
 
 @media (max-width: 759.98px) {
-  /* In flow below the tree, so the page scrolls when the keyboard opens. */
+  /* In flow below the planet, so the page scrolls when the keyboard opens. */
   .auth-card {
     position: relative;
     inset: auto;
     width: auto;
-    margin: calc(var(--bar-h) + 40vh) 1ch 1lh;
+    margin: 52vh 16px 16px;
     transform: none;
   }
 }
