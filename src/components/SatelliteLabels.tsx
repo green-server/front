@@ -19,10 +19,9 @@ export function SatelliteLabels() {
       const positions = getLabelPositions();
       for (const [id, el] of labels.current) {
         const p = positions.get(id);
-        el.hidden = !p;
-        if (!p) continue;
-        el.style.transform = `translate(${p.x}px, ${p.y}px)`;
-        el.style.opacity = p.behind ? "0.25" : "";
+        // Behind the planet the label would sit over it; the server list still has it.
+        el.hidden = !p || p.behind;
+        if (p && !p.behind) el.style.transform = `translate(${p.x}px, ${p.y}px)`;
       }
       if (more.current) more.current.hidden = positions.size === 0;
     };
