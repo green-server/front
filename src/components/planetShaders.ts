@@ -164,8 +164,9 @@ uniform float life;
 uniform vec3 tint;
 varying vec2 vUv;
 void main() {
-  float a = pow(vUv.x, 2.5) * (1.0 - abs(vUv.y - 0.5) * 2.0) * life;
-  vec3 color = mix(tint, vec3(1.0), pow(vUv.x, 10.0));
+  // A gentle falloff, so most of the long tail still shows before it fades out.
+  float a = pow(vUv.x, 1.6) * (1.0 - abs(vUv.y - 0.5) * 2.0) * life;
+  vec3 color = mix(tint, vec3(1.0), pow(vUv.x, 14.0));
   gl_FragColor = vec4(color * a, a);
 }
 `;

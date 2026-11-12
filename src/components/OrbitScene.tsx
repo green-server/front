@@ -258,7 +258,7 @@ export function OrbitScene() {
 
     // A shooting star now and then, far behind the planet, crossing the sky on a downward slant.
     const METEOR_DEPTH = -15;
-    const METEOR_LENGTH = 5.5;
+    const METEOR_LENGTH = 10;
     const METEOR_SPEED = 24; // world units per second at that depth
     const METEOR_LIFE = 0.9;
     const meteorGeometry = new THREE.PlaneGeometry(1, 1);
