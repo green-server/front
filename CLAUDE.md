@@ -2,7 +2,7 @@
 
 Green Server의 웹 관리자 창. 서버별 전력, 예상 요금, 프로세스 순위, 추천, 컨설팅 승인, 절약 리포트를 보여준다.
 
-- 스택: React + Vite + React Router
+- 스택: React + Vite + React Router (react-router-dom), JavaScript, styled-components, axios
 - 화면만 담당한다. 요금 계산, 추천 판단 같은 로직은 `back`에 둔다.
 - 전력 수치에는 실측인지 추정인지 항상 표시한다.
 - 위험한 조치는 웹에서 사용자가 승인한 뒤에만 실행된다. 승인 화면에서 실행될 명령어를 숨기지 않는다.

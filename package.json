@@ -3,30 +3,27 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
+    "build": "vite build",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/format.test.ts src/lib/orbit.test.ts src/lib/sun.test.ts"
+    "preview": "vite preview",
+    "test": "node --test src/lib/format.test.js src/lib/orbit.test.js src/lib/sun.test.js"
   },
   "dependencies": {
+    "axios": "^1.21.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router": "^7.18.5",
+    "react-icons": "^5.7.0",
+    "react-router-dom": "^7.18.5",
+    "styled-components": "^6.6.0",
     "three": "^0.181.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
-    "@types/node": "^26.6.6",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "@types/three": "^0.181.0",
+    "@eslint/js": "^10.0.1",
     "@vitejs/plugin-react": "^5.2.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "globals": "^16.5.0",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.12.0",
     "vite": "^7.3.7"
   },
   "type": "module"
