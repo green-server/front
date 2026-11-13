@@ -10,4 +10,4 @@ One dark scene drawn as text: the fleet's planet in the middle, rendered in colo
 - **Controls:** buttons are `[ 승인 ]`, reversed on hover and focus; the primary is filled `--go`. Menus, range pickers and filters reverse the current item. Radios are `( )` / `(•)`; fields sit on a line; carets are `▸` / `▾`; commands are framed with a `$` prompt.
 - **실측/추정:** every W value goes through `components/Power.tsx`: a solid underline and 실측 when measured, a leading `~`, dashed underline and 추정 when estimated. The power chart (`components/PowerChart.tsx`) is block characters: measured slices `▁…█` green, estimated `░` grey, peak `▲`. No reading is shown as a measured zero.
 - **Motion:** the planet turns, the camera eases when a panel opens. Under `prefers-reduced-motion` none of it moves. No value depends on an animation.
-- **Mark:** `public/icon.svg`, the page icon, shown as-is in the top bar too.
+- **Mark:** the green leaf in `public/icon.svg`, the page icon, shown as-is in the top bar too. It keeps its own colour; the monochrome palette does not apply to it.
