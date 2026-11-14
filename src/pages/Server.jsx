@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { Panel } from "@/components/Panel";
 import { PowerChart } from "@/components/PowerChart";
 import { Power } from "@/components/Power";
 import { Failure, Loading, OnlineState } from "@/components/Status";
-import { api, useApi, useSubmit } from "@/lib/api";
+import { api, clearApiCache, useApi, useSubmit } from "@/lib/api";
+import { useServers } from "@/AppLayout";
 import {
   appendMetric,
   CONSULTATION_STATUS,
@@ -106,6 +108,7 @@ function ServerPageBody() {
       <Recommendations serverId={serverId} />
       <Processes serverId={serverId} />
       <Consultations serverId={serverId} />
+      <DeleteServer serverId={serverId} name={server.name} />
     </Panel>
   );
 }
@@ -595,3 +598,23 @@ const ConsultStart = styled.form`
     flex-basis: 100%;
   }
 `;
+
+/** Removes the server and everything recorded for it, then returns to the list. */
+function DeleteServer({ serverId, name }) {
+  const navigate = useNavigate();
+  const { reload } = useServers();
+  return (
+    <ConfirmDelete
+      id="delete-server"
+      heading="서버 삭제"
+      label="서버 삭제"
+      warning={`${name} 서버와 측정값, 추천, 상담 기록이 모두 지워집니다. 되돌릴 수 없습니다. 정말 삭제할까요?`}
+      onConfirm={async () => {
+        await api(`/api/servers/${serverId}`, { method: "DELETE" });
+        clearApiCache();
+        reload();
+        navigate("/servers", { replace: true });
+      }}
+    />
+  );
+}

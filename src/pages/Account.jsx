@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Power } from "@/components/Power";
+import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { Panel } from "@/components/Panel";
 import { Failure, Loading, OnlineState } from "@/components/Status";
 import styled from "styled-components";
@@ -136,64 +137,18 @@ function PasswordForm() {
 
 function DeleteAccount() {
   const navigate = useNavigate();
-  const { busy, error, run } = useSubmit();
-  const [confirming, setConfirming] = useState(false);
-  const opener = useRef(null);
-
-  const remove = () =>
-    run(async () => {
-      await api("/api/me", { method: "DELETE" });
-      clearApiCache();
-      navigate("/login", { replace: true });
-    });
-
-  const cancel = () => {
-    setConfirming(false);
-    requestAnimationFrame(() => opener.current?.focus());
-  };
-
   return (
-    <section aria-labelledby="delete-heading" className="section">
-      <h2 id="delete-heading">계정 삭제</h2>
-      {!confirming ? (
-        <button
-          ref={opener}
-          type="button"
-          className="btn btn-danger"
-          onClick={() => setConfirming(true)}
-        >
-          계정 삭제
-        </button>
-      ) : (
-        <div role="group" aria-label="계정 삭제 확인">
-          <p>계정을 삭제하면 되돌릴 수 없습니다. 정말 삭제할까요?</p>
-          {error && (
-            <FormError role="alert">
-              {error}
-            </FormError>
-          )}
-          <ConfirmActions>
-            <button
-              type="button"
-              className="btn btn-danger"
-              disabled={busy}
-              onClick={remove}
-              autoFocus
-            >
-              계정 삭제
-            </button>
-            <button
-              type="button"
-              className="btn"
-              disabled={busy}
-              onClick={cancel}
-            >
-              취소
-            </button>
-          </ConfirmActions>
-        </div>
-      )}
-    </section>
+    <ConfirmDelete
+      id="delete-account"
+      heading="계정 삭제"
+      label="계정 삭제"
+      warning="계정을 삭제하면 되돌릴 수 없습니다. 정말 삭제할까요?"
+      onConfirm={async () => {
+        await api("/api/me", { method: "DELETE" });
+        clearApiCache();
+        navigate("/login", { replace: true });
+      }}
+    />
   );
 }
 
@@ -232,9 +187,4 @@ const MyServerList = styled.ul`
     gap: 0 2ch;
     text-decoration: none;
   }
-`;
-
-const ConfirmActions = styled.div`
-  display: flex;
-  gap: 2ch;
 `;
