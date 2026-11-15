@@ -86,9 +86,14 @@ export const ServerRow = styled(Link)`
     flex: 1;
   }
 
+  /* Phones: name and state on one line, W and ₩ together on the next. */
   @media (max-width: 759.98px) {
     .panel & {
       flex-wrap: wrap;
+      gap: 0 2ch;
+    }
+    .panel & ${RowMain} {
+      flex-basis: 100%;
     }
   }
 `;

@@ -99,9 +99,11 @@ export function useApi(path) {
 
   // Data from the previous path must never render under the new one.
   const current = state.path === path ? state : { data: cache.get(path), error: undefined };
+  // `error` replaces the content; `staleError` is a failed refresh over data still on screen.
   return {
     data: current.data,
     error: current.data === undefined ? current.error : undefined,
+    staleError: current.data === undefined ? undefined : current.error,
     reload,
     mutate,
   };

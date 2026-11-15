@@ -1,9 +1,10 @@
 import { useParams } from "react-router-dom";
+import { useServers } from "@/AppLayout";
 import { Panel } from "@/components/Panel";
 import { Session, useConsultation } from "@/components/Session";
-import { Failure, Loading } from "@/components/Status";
-import { api, useApi, useSubmit } from "@/lib/api";
-import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, outcome, SERVER_LEVELS, TIER_LABEL, undoState } from "@/lib/format";
+import { Failure, Loading, Stale } from "@/components/Status";
+import { api, useSubmit } from "@/lib/api";
+import { AUTH_MODE_LABEL, CONSULTATION_STATUS, formatDateTime, outcome, PENDING_LABEL, SERVER_LEVELS, TIER_LABEL, undoState } from "@/lib/format";
 import styled from "styled-components";
 import { AskActions, ConsultList, ConsultSummary } from "@/styles";
 
@@ -13,9 +14,9 @@ export default function ConsultationPage() {
 
 function ConsultationPageBody() {
   const { id } = useParams();
-  const { data, error, reload, putCall } = useConsultation(Number(id));
-  const servers = useApi("/api/servers");
-  const back = { to: data ? `/servers/${data.serverId}` : "/", label: servers.data?.find((s) => s.id === data?.serverId)?.name ?? "서버" };
+  const { data, error, staleError, reload, putCall } = useConsultation(Number(id));
+  const { servers } = useServers();
+  const back = { to: data ? `/servers/${data.serverId}` : "/", label: servers?.find((s) => s.id === data?.serverId)?.name ?? "서버" };
 
   if (error) return <Panel title="AI 컨설팅" back={back}><Failure error={error} retry={reload} /></Panel>;
   if (!data) return <Panel title="AI 컨설팅" back={back}><Loading /></Panel>;
@@ -27,6 +28,7 @@ function ConsultationPageBody() {
   return (
     <Panel title="AI 컨설팅" back={back}>
       <title>AI 컨설팅 · Green Server</title>
+      <Stale error={staleError} retry={reload} />
       <Meta>
         <div>
           <dt>상태</dt>
@@ -94,7 +96,7 @@ function ConsultationPageBody() {
           ) : (
             <ToolLog>
               {log.map((call) => (
-                <LogEntry key={call.id} call={call} calls={data.toolCalls} onChange={putCall} />
+                <LogEntry key={call.id} call={call} calls={data.toolCalls} finished={!active} onChange={putCall} />
               ))}
             </ToolLog>
           )}
@@ -113,7 +115,7 @@ function PendingCall({ call, onChange }) {
   return (
     <Ask>
       <AskLabel>
-        실행할 명령어 <span className="tag">{TIER_LABEL[call.tier]}</span>
+        실행할 명령어 <span className="tag">{PENDING_LABEL}</span>
       </AskLabel>
       <Command text={call.command} />
       <AskLabel>되돌리는 명령어</AskLabel>
@@ -135,7 +137,7 @@ function PendingCall({ call, onChange }) {
   );
 }
 
-function LogEntry({ call, calls, onChange }) {
+function LogEntry({ call, calls, finished, onChange }) {
   const { busy, error, run } = useSubmit();
   const undo = undoState(call, calls);
 
@@ -148,7 +150,7 @@ function LogEntry({ call, calls, onChange }) {
       <ToolState>
         {call.undoOf !== null && <span>되돌리기</span>}
         <span>{TIER_LABEL[call.tier]}</span>
-        <span>{outcome(call)}</span>
+        <span>{outcome(call, finished)}</span>
       </ToolState>
       {call.undoCommand && (
         <ToolUndo>

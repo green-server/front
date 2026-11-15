@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { Panel } from "@/components/Panel";
 import { PowerChart } from "@/components/PowerChart";
-import { Power } from "@/components/Power";
-import { Failure, Loading, OnlineState } from "@/components/Status";
+import { Power, ServerPower } from "@/components/Power";
+import { Failure, Loading, OnlineState, Stale } from "@/components/Status";
 import { api, clearApiCache, useApi, useSubmit } from "@/lib/api";
 import { useServers } from "@/AppLayout";
 import {
@@ -16,6 +16,7 @@ import {
   formatDateTime,
   formatKrw,
   formatNumber,
+  formatSaving,
   KIND_LABEL,
   isServerEstimated,
   recommendationTypeLabel,
@@ -39,7 +40,7 @@ export default function ServerPage() {
 
 function ServerPageBody() {
   const { id } = useParams();
-  const { data: server, error, reload, mutate } = useApi(`/api/servers/${id}`);
+  const { data: server, error, staleError, reload, mutate } = useApi(`/api/servers/${id}`);
   const serverId = Number(id);
 
   useLive((event) => {
@@ -83,10 +84,11 @@ function ServerPageBody() {
       <ServerState>
         {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
         {!server.online && server.lastSeenAt && <span className="muted"> · 마지막 연결 {formatDateTime(server.lastSeenAt)}</span>}
-        {server.location && <span className="muted"> · {server.location.label || "위치"} (IP 추정)</span>}
+        {server.location?.label && <span className="muted"> · {server.location.label} (IP 추정)</span>}
       </ServerState>
-      {server.online ? <Power value={server.latestWatts} estimated={estimated} size="xl" /> : <span className="figure-lg muted">꺼짐</span>}
-      {!estimated && <Note className="muted">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</Note>}
+      <Stale error={staleError} retry={reload} />
+      <ServerPower server={server} size="xl" />
+      {server.online && server.latestWatts !== null && !estimated && <Note className="muted">CPU와 GPU 센서의 합계입니다. 메인보드, 디스크, 전원부 손실은 빠져 있어 벽에서 잰 값보다 낮습니다.</Note>}
       <Figures>
         <div>
           <dt>이번 달 예상 요금</dt>
@@ -115,12 +117,12 @@ function ServerPageBody() {
 
 function Chart({ serverId }) {
   const [range, setRange] = useState(RANGES[1]);
-  const { data, error, reload, mutate } = useApi(`/api/servers/${serverId}/metrics?range=${range.value}`);
+  const { data, error, staleError, reload, mutate } = useApi(`/api/servers/${serverId}/metrics?range=${range.value}`);
 
   useLive((event) => {
     if (event.type === "reconnected") reload();
-    // The 7d series is coarse; one 10-second sample would not belong on it.
-    if (event.type === "metric" && event.serverId === serverId && range.value !== "7d") {
+    // Only the 1h series is raw samples; 24h and 7d are averaged buckets a 10-second sample does not belong in.
+    if (event.type === "metric" && event.serverId === serverId && range.value === "1h") {
       mutate((metrics) => appendMetric(metrics, event.metric, range.ms));
     }
   });
@@ -137,6 +139,7 @@ function Chart({ serverId }) {
         </Segmented>
       </ChartHead>
       <ChartSlot>
+        <Stale error={staleError} retry={reload} />
         {error && <Failure error={error} retry={reload} />}
         {!error && !data && <Loading />}
         {data?.length === 0 && <p className="muted">이 기간에는 측정값이 없습니다.</p>}
@@ -147,7 +150,7 @@ function Chart({ serverId }) {
 }
 
 function Processes({ serverId }) {
-  const { data, error, reload, mutate } = useApi(`/api/servers/${serverId}/processes`);
+  const { data, error, staleError, reload, mutate } = useApi(`/api/servers/${serverId}/processes`);
 
   useLive((event) => {
     if (event.type === "reconnected") reload();
@@ -159,6 +162,7 @@ function Processes({ serverId }) {
       <SectionHead>
         <h2 id="processes-heading">전력 상위 프로세스</h2>
       </SectionHead>
+      <Stale error={staleError} retry={reload} />
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
       {data?.length === 0 && <p className="muted">아직 수집된 프로세스가 없습니다.</p>}
@@ -187,7 +191,7 @@ const RECOMMENDATION_STATUS = {
 };
 
 function Recommendations({ serverId }) {
-  const { data, error, reload, mutate } = useApi(`/api/servers/${serverId}/recommendations`);
+  const { data, error, staleError, reload, mutate } = useApi(`/api/servers/${serverId}/recommendations`);
 
   useLive((event) => {
     // A finished consultation is what creates or applies recommendations.
@@ -200,6 +204,7 @@ function Recommendations({ serverId }) {
   );
   const open = data?.filter((item) => item.status === "open") ?? [];
   const saving = open.reduce((sum, item) => sum + item.estSavingKrw, 0);
+  const aiSaving = open.some((item) => item.source === "ai" && item.estSavingKrw > 0);
 
   return (
     <section aria-labelledby="recommendations-heading" className="section">
@@ -207,10 +212,11 @@ function Recommendations({ serverId }) {
         <h2 id="recommendations-heading">추천</h2>
         {open.length > 0 && (
           <span className="muted">
-            대기 {open.length}건{saving > 0 && ` · 예상 ${formatKrw(saving)}`}
+            대기 {open.length}건{saving > 0 && ` · 예상 ${formatKrw(saving)}${aiSaving ? " (AI 추정 포함)" : ""}`}
           </span>
         )}
       </SectionHead>
+      <Stale error={staleError} retry={reload} />
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
       {data?.length === 0 && <p className="muted">지금은 추천할 조치가 없습니다.</p>}
@@ -250,7 +256,7 @@ function RecommendationEntry({
               {item.status !== "open" && ` · ${RECOMMENDATION_STATUS[item.status]}`}
             </span>
           </EntryTitle>
-          {item.estSavingKrw > 0 && <EntrySaving>{formatKrw(item.estSavingKrw)}</EntrySaving>}
+          {item.estSavingKrw > 0 && <EntrySaving>{formatSaving(item)}</EntrySaving>}
         </summary>
         <EntryDetail>{item.detail}</EntryDetail>
         {error && (
@@ -285,7 +291,7 @@ function RecommendationEntry({
 
 function Consultations({ serverId }) {
   const navigate = useNavigate();
-  const { data, error, reload, mutate } = useApi(`/api/servers/${serverId}/consultations`);
+  const { data, error, staleError, reload, mutate } = useApi(`/api/servers/${serverId}/consultations`);
   const { busy, error: startError, run } = useSubmit();
   // Unset until the owner picks: the last run's settings are the ones known to work on this server.
   const [picked, setPicked] = useState({});
@@ -367,6 +373,7 @@ function Consultations({ serverId }) {
       <SectionHead>
         <h2 id="history-heading">컨설팅 기록</h2>
       </SectionHead>
+      <Stale error={staleError} retry={reload} />
       {error && <Failure error={error} retry={reload} />}
       {!error && !data && <Loading />}
       {data?.length === 0 && <p className="muted">아직 진행한 컨설팅이 없습니다.</p>}
@@ -426,9 +433,10 @@ const Figures = styled.dl`
 
 const SectionHead = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 2ch;
+  gap: 0 2ch;
 `;
 
 const ChartSlot = styled.div`
@@ -460,7 +468,11 @@ const Segmented = styled.div`
   .panel & button:hover,
   .panel & button:focus-visible {
     color: var(--ink);
-    outline: 0;
+  }
+  /* The pressed one too: its fill is not a focus mark. */
+  .panel & button:focus-visible {
+    outline: 1px solid var(--go);
+    outline-offset: 2px;
   }
   .panel & button[aria-pressed="true"] {
     background: var(--go);
@@ -471,14 +483,17 @@ const Segmented = styled.div`
 
 /* Recommendations and history */
 const EntryTitle = styled.span`
+  position: relative;
   display: grid;
   padding-left: 2ch;
   font-weight: 700;
 
+  /* Pinned to the first line, in the padding. */
   &::before {
     content: "▸";
     position: absolute;
-    margin-left: -2ch;
+    top: 0;
+    left: 0;
     color: var(--ink-2);
   }
   details[open] &::before {

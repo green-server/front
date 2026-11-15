@@ -1,27 +1,20 @@
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useServers } from "@/AppLayout";
 import { Panel } from "@/components/Panel";
-import { Krw } from "@/components/Power";
 import { Session, useConsultation } from "@/components/Session";
-import { Failure, Loading } from "@/components/Status";
+import { Failure, Loading, Stale } from "@/components/Status";
 import { api, useApi, useSubmit } from "@/lib/api";
-import { MODELS, recommendationPlan, recommendationTypeLabel, SOURCE_LABEL } from "@/lib/format";
+import { formatSaving, MODELS, recommendationPlan, recommendationTypeLabel, SOURCE_LABEL, TIER_LABEL, TIER_RULE } from "@/lib/format";
 import styled from "styled-components";
 import { AskActions, ConsultList, ConsultSummary } from "@/styles";
-
-const PERMISSIONS = [
-  { label: "읽기 명령", rule: "상태 확인은 묻지 않고 실행합니다." },
-  { label: "일반 조치", rule: "묻지 않고 실행하며, 되돌리는 명령을 함께 기록합니다." },
-  { label: "관리자 권한", rule: "실행 전에 화면에서 허용을 눌러야 합니다." },
-  { label: "금지 명령", rule: "삭제나 방화벽 변경 같은 위험한 명령은 차단합니다." },
-];
 
 export default function RecommendationPage() {
   const { id, recommendationId } = useParams();
   const navigate = useNavigate();
-  const { data, error, reload } = useApi(`/api/servers/${id}/recommendations`);
+  const { data, error, staleError, reload } = useApi(`/api/servers/${id}/recommendations`);
   const history = useApi(`/api/servers/${id}/consultations`);
-  const servers = useApi("/api/servers");
-  const back = { to: `/servers/${id}`, label: servers.data?.find((s) => s.id === Number(id))?.name ?? "서버" };
+  const { servers } = useServers();
+  const back = { to: `/servers/${id}`, label: servers?.find((s) => s.id === Number(id))?.name ?? "서버" };
   const { busy, error: startError, run } = useSubmit();
   // In the URL, so a reload or a way back still shows the plan the owner was reading.
   const planId = Number(useSearchParams()[0].get("plan")) || null;
@@ -53,10 +46,11 @@ export default function RecommendationPage() {
   return (
     <Panel title={title} back={back}>
       <title>{`${title} · Green Server`}</title>
+      <Stale error={staleError} retry={reload} />
       {item.estSavingKrw > 0 && (
         <Saving>
           <span className="muted">예상 절약</span>
-          <Krw value={item.estSavingKrw} />
+          <span className="figure">{formatSaving(item)}</span>
         </Saving>
       )}
 
@@ -90,10 +84,10 @@ export default function RecommendationPage() {
       <section aria-labelledby="rules-heading" className="section">
         <h2 id="rules-heading">실행 권한</h2>
         <Rules className="rows">
-          {PERMISSIONS.map((row) => (
-            <div key={row.label}>
-              <dt>{row.label}</dt>
-              <dd>{row.rule}</dd>
+          {Object.entries(TIER_LABEL).map(([tier, label]) => (
+            <div key={tier}>
+              <dt>{label}</dt>
+              <dd>{TIER_RULE[tier]}</dd>
             </div>
           ))}
         </Rules>

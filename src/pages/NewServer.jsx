@@ -1,7 +1,8 @@
 import { Panel } from "@/components/Panel";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { API_URL, api, useSubmit } from "@/lib/api";
+import { Link, useBlocker } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Failure, Loading } from "@/components/Status";
+import { API_URL, api, useApi, useSubmit } from "@/lib/api";
 import { KIND_LABEL, RATE_PLAN_LABEL } from "@/lib/format";
 import styled from "styled-components";
 import { Form } from "@/styles";
@@ -88,15 +89,36 @@ export default function NewServerPage() {
   );
 }
 
+const LEAVE_WARNING = "에이전트 토큰은 다시 볼 수 없습니다. 복사하지 않았다면 서버를 다시 등록해야 합니다. 이 화면을 떠날까요?";
+
 function AgentToken({ server, agentToken }) {
   const agentUrl = `${API_URL.replace(/^http/, "ws")}/ws/agent`;
+  const grantKey = useApi("/api/grant-public-key");
   // No token in the command: sudo would write it to the system log. The installer asks for it.
-  const installCommand = `curl -fsSL https://raw.githubusercontent.com/green-server/server_app/main/install.sh | sudo bash -s -- --server ${agentUrl}`;
+  // --grant-key and --server-id install the root helper; without them no approval can ever run.
+  const installCommand =
+    grantKey.data &&
+    `curl -fsSL https://raw.githubusercontent.com/green-server/server_app/main/install.sh | sudo bash -s -- --server ${agentUrl} --grant-key ${grantKey.data.publicKey} --server-id ${server.id}`;
+
+  // The token cannot be shown again, so leaving asks first; the button to the server page is the way out.
+  const serverPath = `/servers/${server.id}`;
+  const blocker = useBlocker(({ nextLocation }) => nextLocation.pathname !== serverPath);
+  useEffect(() => {
+    if (blocker.state !== "blocked") return;
+    if (window.confirm(LEAVE_WARNING)) blocker.proceed();
+    else blocker.reset();
+  }, [blocker]);
+  useEffect(() => {
+    const onUnload = (event) => event.preventDefault();
+    window.addEventListener("beforeunload", onUnload);
+    return () => window.removeEventListener("beforeunload", onUnload);
+  }, []);
 
   return (
     <Panel title={`${server.name} 에이전트 설치`} escape={false}>
       <title>에이전트 설치 · Green Server</title>
-      <Token>
+      {/* data-keep: AppLayout's menu shortcuts stay off while this is on screen. */}
+      <Token data-keep="">
         <TokenNotice>
           <strong>다시 볼 수 없음.</strong> 이 토큰은 지금 한 번만 표시됩니다. 이 화면을 떠나기 전에 복사해 두세요.
         </TokenNotice>
@@ -104,8 +126,10 @@ function AgentToken({ server, agentToken }) {
         <Copyable text={agentToken} />
         <SectionTitle>설치 명령어</SectionTitle>
         <p>서버 터미널에서 실행하고, 토큰을 물으면 위 토큰을 붙여 넣으세요. 설치가 중간에 실패해도 토큰은 그대로 쓸 수 있습니다.</p>
-        <Copyable text={installCommand} />
-        <Link to={`/servers/${server.id}`} className="btn btn-go">
+        {grantKey.error && <Failure error={grantKey.error} retry={grantKey.reload} />}
+        {!grantKey.error && !installCommand && <Loading />}
+        {installCommand && <Copyable text={installCommand} />}
+        <Link to={serverPath} className="btn btn-go">
           서버 화면으로 이동
         </Link>
       </Token>
@@ -113,13 +137,26 @@ function AgentToken({ server, agentToken }) {
   );
 }
 
-function Copyable({ text }) {
-  const [copied, setCopied] = useState(false);
+const COPY_LABEL = { copied: "복사됨", failed: "복사하지 못했습니다. 직접 선택해 복사하세요" };
 
-  const copy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-  };
+function Copyable({ text }) {
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    // A failure stays up: it tells the owner what to do instead.
+    if (result !== "copied") return;
+    const timer = setTimeout(() => setResult(null), 2000);
+    return () => clearTimeout(timer);
+  }, [result]);
+
+  // The clipboard is missing outside a secure context and may refuse: then the text is selected by hand.
+  const copy = () =>
+    Promise.resolve()
+      .then(() => navigator.clipboard.writeText(text))
+      .then(
+        () => setResult("copied"),
+        () => setResult("failed"),
+      );
 
   return (
     <CopyBox>
@@ -127,7 +164,7 @@ function Copyable({ text }) {
         <code>{text}</code>
       </pre>
       <button type="button" className="btn" onClick={copy}>
-        {copied ? "복사됨" : "복사"}
+        {COPY_LABEL[result] ?? "복사"}
       </button>
     </CopyBox>
   );

@@ -4,7 +4,7 @@ import { ChartHead } from "@/styles";
 import { axisTicks, formatDateTime, formatNumber } from "@/lib/format";
 
 const ROWS = 16;
-const LABEL = 6; // tick labels, right-aligned, then the axis character
+const LABEL = 7; // tick labels with their unit ("10,000W"), right-aligned, then the axis character
 const BLOCKS = "▁▂▃▄▅▆▇█";
 
 const time = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
@@ -52,7 +52,7 @@ export function PowerChart({ metrics, showDays, windowMs }) {
   const peakCol = colOf(Date.parse(peak.ts));
   const activeCol = picked === null ? -1 : colOf(times[index]);
 
-  const tickAt = new Map(ticks.map((t) => [ROWS - Math.round((t / top) * ROWS), formatNumber(t)]));
+  const tickAt = new Map(ticks.map((t) => [ROWS - Math.round((t / top) * ROWS), `${formatNumber(t)}W`]));
   const lines = [];
   for (let row = 0; row < ROWS; row++) {
     const level = ROWS - 1 - row; // rows of value below this one
@@ -73,7 +73,7 @@ export function PowerChart({ metrics, showDays, windowMs }) {
   const axis = [...Array(cols)].map((_, c) => (c === peakCol ? "▲" : "─")).join("");
   lines.push(
     <Axis as="div" key="axis">
-      {`${"0".padStart(LABEL)}└${axis}`}
+      {`${"0W".padStart(LABEL)}└${axis}`}
     </Axis>,
   );
   const labels = Array(cols).fill(" ");
@@ -138,7 +138,9 @@ export function PowerChart({ metrics, showDays, windowMs }) {
           {formatNumber(active.watts)}W {tag}
         </span>
         {` · ${formatDateTime(active.ts)} · CPU ${formatNumber(active.cpuPct)}% · 메모리 ${formatNumber(active.memPct)}%`}
-        <Peak>▲ 최고 {formatNumber(peak.watts)}W</Peak>
+        <Peak>
+          ▲ 최고 {formatNumber(peak.watts)}W {peak.isEstimated ? "추정" : "실측"}
+        </Peak>
       </Status>
     </Figure>
   );

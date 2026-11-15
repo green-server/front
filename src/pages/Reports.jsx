@@ -3,12 +3,14 @@ import { useState } from "react";
 import styled from "styled-components";
 import { Panel } from "@/components/Panel";
 import { Power } from "@/components/Power";
-import { Failure, Loading } from "@/components/Status";
+import { useServers } from "@/AppLayout";
+import { Failure, Loading, Stale } from "@/components/Status";
 import { useApi } from "@/lib/api";
 import {
   callHasProblem,
   formatDateTime,
   formatKrw,
+  formatNumber,
   groupCalls,
   outcome,
   recommendationTypeLabel,
@@ -19,18 +21,19 @@ import { useLive } from "@/lib/live";
 
 export default function ReportsPage() {
   const report = useApi("/api/reports/savings");
-  const servers = useApi("/api/servers");
+  // AppLayout keeps the fleet list live and refreshes it on reconnect.
+  const servers = useServers();
   const activity = useApi("/api/reports/activity");
 
   useLive((event) => {
     if (event.type === "reconnected") {
       report.reload();
-      servers.reload();
       activity.reload();
     }
   });
 
   const error = report.error ?? servers.error ?? activity.error;
+  const staleError = report.staleError ?? servers.staleError ?? activity.staleError;
   const retry = () => {
     report.reload();
     servers.reload();
@@ -40,13 +43,14 @@ export default function ReportsPage() {
   return (
     <Panel title="절약 리포트">
       <title>절약 리포트 · Green Server</title>
+      <Stale error={staleError} retry={retry} />
       {error && <Failure error={error} retry={retry} />}
-      {!error && (!report.data || !servers.data || !activity.data) && (
+      {!error && (!report.data || !servers.servers || !activity.data) && (
         <Loading />
       )}
-      {report.data && servers.data && activity.data && (
+      {report.data && servers.servers && activity.data && (
         <>
-          <Report report={report.data} servers={servers.data} />
+          <Report report={report.data} servers={servers.servers} />
           <ServerActivity activity={activity.data} />
           <RecentCalls activity={activity.data} />
         </>
@@ -75,7 +79,7 @@ function Report({
         <span className="figure-lg">
           이번 달 절약 {formatKrw(total.savedKrwMonth)}
         </span>
-        <Co2>{total.savedCo2KgMonth} kg CO₂</Co2>
+        <Co2>{formatNumber(total.savedCo2KgMonth)}kg CO₂</Co2>
       </Total>
       <section className="section" aria-labelledby="actions-heading">
         <h2 id="actions-heading">조치별 절약</h2>
@@ -83,7 +87,8 @@ function Report({
           {report.items
             .toSorted((a, b) => b.savedKrwMonth - a.savedKrwMonth)
             .map((item) => {
-              const estimated = reportItemEstimated(item, servers);
+              // Older backends send no isEstimated: fall back to matching the server by name.
+              const estimated = item.isEstimated ?? reportItemEstimated(item, servers);
               return (
                 <ReportRow key={item.recommendationId}>
                   <span>
@@ -128,8 +133,9 @@ function ServerActivity({ activity }) {
                 적용 {row.applied}건 · 대기 {row.open}건 · 무시{" "}
                 {row.total - row.open - row.applied}건
               </span>
+              {/* Not saved yet: what the open recommendations estimate. */}
               <Money>
-                {formatKrw(row.openSavingKrw)}/월
+                <span className="muted">대기 추천</span> {formatKrw(row.openSavingKrw)}/월
               </Money>
             </ReportRow>
           ))}
@@ -250,6 +256,10 @@ const Money = styled.span`
   min-width: 12ch;
   font-weight: 700;
   text-align: right;
+
+  & .muted {
+    font-weight: 400;
+  }
 
   @media (max-width: 759.98px) {
     grid-column: -2;

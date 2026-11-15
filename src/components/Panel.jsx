@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { setOrbit } from "@/lib/orbit";
@@ -12,6 +12,13 @@ export function Panel({
   children,
 }) {
   const navigate = useNavigate();
+  const section = useRef(null);
+  const heading = useRef(null);
+
+  // Move focus to the new panel's title, unless something in the panel (an autofocus field) has it.
+  useEffect(() => {
+    if (!section.current.contains(document.activeElement)) heading.current.focus();
+  }, [title]);
 
   useEffect(() => {
     setOrbit({ panel: true });
@@ -33,7 +40,7 @@ export function Panel({
   // The frame stays put; only the body scrolls, so the box lines never scroll away.
   return (
     // `panel` is read by OrbitScene (it measures the panel and ignores drags that start on it).
-    <Section className="panel frame" aria-label={title}>
+    <Section ref={section} className="panel frame" aria-label={title}>
       <Head>
         <Title>
           {back && (
@@ -42,7 +49,9 @@ export function Panel({
               {" › "}
             </>
           )}
-          <h1>{title}</h1>
+          <h1 ref={heading} tabIndex={-1}>
+            {title}
+          </h1>
         </Title>
         <Close to="/" aria-label="닫기">
           [x]
@@ -118,6 +127,10 @@ const Title = styled.span`
   & h1 {
     display: inline;
     color: var(--ink);
+  }
+  /* Focused only so a screen reader starts here; it is not a control. */
+  & h1:focus {
+    outline: 0;
   }
 `;
 

@@ -23,6 +23,8 @@ export const RATE_PLAN_LABEL = {
   cloud_hourly: "클라우드 시간당 요금",
 };
 export const SOURCE_LABEL = { rule: "규칙", ai: "AI" };
+/** An AI recommendation's saving is the model's own guess, so it says so. */
+export const formatSaving = (item) => `${formatKrw(item.estSavingKrw)}${item.source === "ai" ? " (AI 추정)" : ""}`;
 
 export const SERVER_LEVELS = [
   { value: "good", label: "양호" },
@@ -53,6 +55,15 @@ export const TIER_LABEL = {
   approve: "조치",
   deny: "항상 금지",
 };
+/** What each tier does, as the agent runs it (server_app internal/agent preCheck). */
+export const TIER_RULE = {
+  auto: "읽기와 상태 확인은 묻지 않고 실행합니다.",
+  approve:
+    "상태를 바꾸는 명령은 되돌리는 명령을 기록한 뒤 실행합니다. root 권한이 필요한 명령은 이 화면에서 허용을 눌러야 root 도우미가 실행합니다.",
+  deny: "삭제나 방화벽 변경 같은 위험한 명령은 차단합니다.",
+};
+/** A pending call is one that waits for the owner: only root commands do. */
+export const PENDING_LABEL = "허용 필요";
 
 const RECOMMENDATION_TYPE_LABEL = {
   idle: "유휴 상태",
@@ -109,12 +120,13 @@ export function appendStream(entries, entry) {
   return entries.some((existing) => existing.seq === entry.seq) ? entries : [...entries, entry];
 }
 
-export function outcome(call) {
+/** `finished`: the consultation is over, so a call with no exit code will never report one. */
+export function outcome(call, finished = false) {
   if (call.decision === "denied") return "거절됨";
   if (call.decision === "blocked") return "차단됨";
   if (call.decision === "pending") return "허용 대기";
   const decided = call.decision === "approved" ? "허용됨" : "자동 실행";
-  if (call.exitCode === null) return `${decided}, 실행 중`;
+  if (call.exitCode === null) return finished ? `${decided}, 결과 없음` : `${decided}, 실행 중`;
   return `${decided}, 종료 코드 ${call.exitCode}`;
 }
 

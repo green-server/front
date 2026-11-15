@@ -8,7 +8,7 @@ import { planetBlight, planetHealth, setOrbit } from "@/lib/orbit";
 
 /**
  * The fleet list AppLayout keeps live; pages read it instead of fetching their own copy.
- * `{ servers, error, reload }`: `servers` is undefined until the first answer arrives.
+ * `{ servers, error, staleError, reload }`: `servers` is undefined until the first answer arrives.
  */
 export const useServers = () => useOutletContext();
 
@@ -22,7 +22,7 @@ export function AppLayout() {
 
 function Shell() {
   const navigate = useNavigate();
-  const { data, error, reload, mutate } = useApi("/api/servers");
+  const { data, error, staleError, reload, mutate } = useApi("/api/servers");
   // Open recommendations ravage the planet; applying or dismissing one heals it.
   const activity = useApi("/api/reports/activity");
   const reloadActivity = activity.reload;
@@ -63,11 +63,15 @@ function Shell() {
       });
 
   useEffect(() => {
+    // Alt/Option + 1..4. `code`, not `key`: on a Mac, Option+digit types a symbol.
     const onKey = (event) => {
-      if (event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
+      const digit = /^Digit([1-4])$/.exec(event.code);
+      if (!digit || !event.altKey || event.metaKey || event.ctrlKey || event.shiftKey || event.isComposing) return;
       if (event.target.closest("input, select, textarea")) return;
-      const item = NAV[Number(event.key) - 1];
-      if (item) navigate(item.href);
+      // `data-keep` marks a screen that cannot be shown again, such as the one-time agent token.
+      if (document.querySelector("[data-keep]")) return;
+      event.preventDefault();
+      navigate(NAV[digit[1] - 1].href);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -79,7 +83,7 @@ function Shell() {
       <TopBar online={data?.filter((s) => s.online).length ?? 0} total={data?.length ?? 0} onLogout={logout} />
       <LiveNotice />
       <Main id="main" tabIndex={-1}>
-        <Outlet context={{ servers: data, error, reload }} />
+        <Outlet context={{ servers: data, error, staleError, reload }} />
       </Main>
     </>
   );

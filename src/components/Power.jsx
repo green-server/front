@@ -1,4 +1,4 @@
-import { formatKrw, formatNumber } from "@/lib/format";
+import { formatNumber, isServerEstimated } from "@/lib/format";
 
 /**
  * The only way a power number reaches the screen. The tag is the product rule; the solid or
@@ -23,7 +23,8 @@ export function Power({ value, estimated, unit = "W", size = "sm" }) {
   );
 }
 
-/** A won amount at display size. */
-export function Krw({ value }) {
-  return <span className="figure">{formatKrw(value)}</span>;
+/** A server's draw now; a disconnected agent has no current reading, so none is shown. */
+export function ServerPower({ server, size = "sm" }) {
+  if (!server.online) return <span className={size === "xl" ? "figure-lg muted" : "muted"}>연결 끊김</span>;
+  return <Power value={server.latestWatts} estimated={isServerEstimated(server)} size={size} />;
 }

@@ -29,3 +29,16 @@ export function OnlineState({ online, dot = false }) {
     </span>
   );
 }
+
+/** A refresh failed while older data stays on screen: say so, and offer the retry. */
+export function Stale({ error, retry }) {
+  if (!error) return null;
+  return (
+    <p className="muted" role="status">
+      갱신 실패 ·{" "}
+      <button type="button" className="btn btn-quiet" onClick={retry}>
+        다시 시도
+      </button>
+    </p>
+  );
+}

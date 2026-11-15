@@ -1,22 +1,24 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Power } from "@/components/Power";
+import { useServers } from "@/AppLayout";
+import { ServerPower } from "@/components/Power";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { Panel } from "@/components/Panel";
-import { Failure, Loading, OnlineState } from "@/components/Status";
+import { Failure, Loading, OnlineState, Stale } from "@/components/Status";
 import styled from "styled-components";
 import { Form } from "@/styles";
 import { api, useApi, useSubmit, clearApiCache } from "@/lib/api";
-import { formatDate, isServerEstimated } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 
 export default function AccountPage() {
-  const { data: user, error, reload, mutate } = useApi("/api/me");
-  const servers = useApi("/api/servers");
+  const { data: user, error, staleError, reload, mutate } = useApi("/api/me");
+  const { servers } = useServers();
 
   return (
     <Panel title="계정">
       <title>계정 · Green Server</title>
+      <Stale error={staleError} retry={reload} />
       {error && <Failure error={error} retry={reload} />}
       {!error && !user && <Loading />}
       {user && (
@@ -35,9 +37,7 @@ export default function AccountPage() {
             <h2 id="password-heading">비밀번호</h2>
             <PasswordForm />
           </section>
-          {servers.data && servers.data.length > 0 && (
-            <MyServers servers={servers.data} />
-          )}
+          {servers?.length > 0 && <MyServers servers={servers} />}
           <DeleteAccount />
         </>
       )}
@@ -55,10 +55,7 @@ function MyServers({ servers }) {
             <Link to={`/servers/${server.id}`}>
               <strong>{server.name}</strong>
               <OnlineState online={server.online} dot />
-              <Power
-                value={server.latestWatts}
-                estimated={isServerEstimated(server)}
-              />
+              <ServerPower server={server} />
             </Link>
           </li>
         ))}

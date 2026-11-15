@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useServers } from "@/AppLayout";
 import { Panel } from "@/components/Panel";
-import { Power } from "@/components/Power";
-import { Failure, Loading, OnlineState } from "@/components/Status";
-import { formatKrw, isServerEstimated, KIND_LABEL } from "@/lib/format";
+import { ServerPower } from "@/components/Power";
+import { Failure, Loading, OnlineState, Stale } from "@/components/Status";
+import { formatKrw, KIND_LABEL } from "@/lib/format";
 import { RowKrw, RowMain, ServerRow } from "@/styles";
 
 export default function Servers() {
-  const { servers, error, reload } = useServers();
+  const { servers, error, staleError, reload } = useServers();
 
   return (
     <Panel title="서버">
@@ -18,6 +18,7 @@ export default function Servers() {
           서버 추가
         </Link>
       </ListActions>
+      <Stale error={staleError} retry={reload} />
       {error && <Failure error={error} retry={reload} />}
       {!error && !servers && <Loading />}
       {servers?.length === 0 && <p className="muted">등록한 서버가 없습니다.</p>}
@@ -32,7 +33,7 @@ export default function Servers() {
                     {KIND_LABEL[server.kind]} · <OnlineState online={server.online} />
                   </span>
                 </RowMain>
-                {server.online ? <Power value={server.latestWatts} estimated={isServerEstimated(server)} /> : <span className="muted">꺼짐</span>}
+                <ServerPower server={server} />
                 <RowKrw>{formatKrw(server.monthlyKrw)}/월</RowKrw>
               </ServerRow>
             </li>

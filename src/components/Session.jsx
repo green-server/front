@@ -6,7 +6,7 @@ import { useLive } from "@/lib/live";
 
 /** One consultation, kept current by the live socket. */
 export function useConsultation(id) {
-  const { data, error, reload, mutate } = useApi(`/api/consultations/${id}`);
+  const { data, error, staleError, reload, mutate } = useApi(`/api/consultations/${id}`);
 
   const putCall = (call) => mutate((c) => ({ ...c, toolCalls: upsertById(c.toolCalls, call) }));
 
@@ -21,7 +21,7 @@ export function useConsultation(id) {
     }
   });
 
-  return { data, error, reload, putCall };
+  return { data, error, staleError, reload, putCall };
 }
 
 /** A mono log that stays on the newest line unless scrolled up. */

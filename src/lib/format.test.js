@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { appendStream, callHasProblem, groupCalls, powerChange, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, undoState } from "./format.js";
+import { appendStream, callHasProblem, formatSaving, groupCalls, outcome, powerChange, recommendationPlan, appendMetric, axisTicks, formatKrw, isServerEstimated, reportItemEstimated, undoState } from "./format.js";
 
 const metric = (seconds, isEstimated = false) => ({
   ts: new Date(seconds * 1000).toISOString(),
@@ -105,4 +105,15 @@ test("callHasProblem flags refused and failed commands, not ones still running",
 test("powerChange reports the drop and survives a zero baseline", () => {
   assert.equal(powerChange(160, 142), -11);
   assert.equal(powerChange(0, 5), null);
+});
+
+test("a call with no exit code is running only while its consultation is", () => {
+  assert.equal(outcome(call({ exitCode: null })), "허용됨, 실행 중");
+  assert.equal(outcome(call({ exitCode: null }), true), "허용됨, 결과 없음");
+  assert.equal(outcome(call({ exitCode: 0 }), true), "허용됨, 종료 코드 0");
+});
+
+test("an AI saving is marked as the AI's estimate", () => {
+  assert.equal(formatSaving({ estSavingKrw: 3600, source: "ai" }), "₩3,600 (AI 추정)");
+  assert.equal(formatSaving({ estSavingKrw: 3600, source: "rule" }), "₩3,600");
 });
